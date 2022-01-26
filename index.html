@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <!-- Bootstrap CSS -->
+        <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/litera/bootstrap.min.css" rel="stylesheet" integrity="sha384-D/7uAka7uwterkSxa2LwZR7RJqH2X6jfmhkJ0vFPGUtPyBMF2WMq9S+f9Ik5jJu1" crossorigin="anonymous">
+        <!-- YASGUI stuff -->
+        <link href="https://unpkg.com/@triply/yasgui/build/yasgui.min.css" rel="stylesheet" type="text/css" />
+
+        <title>Webpack App</title>
+    </head>
+    <body>
+        <h1>Hello world!</h1>
+        <h2>Tip: Check your console</h2>
+        <p>Write a query selecting "?x" and "?x_label"</p>
+        <span style="font-size:90%;"> 
+         Queries sent to <a id="endpoint" href="http://fr.dbpedia.org/sparql">http://fr.dbpedia.org/sparql</a>
+         </span>
+         <div id="yasqe"></div>
+         <div id="yasr"></div>
+    </body>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+
+    <!-- YASGUI stuff -->
+    <script src="https://unpkg.com/@triply/yasgui/build/yasgui.min.js"></script>
+
+    <script>
+        $( document ).ready(function($) {  
+            const yasqe = new Yasqe(document.getElementById("yasqe"), {
+                requestConfig: { endpoint: $('#endpoint').text() },
+                copyEndpointOnNewTab: false  
+              });
+
+              Yasr.registerPlugin("LabelledUriTable",SparnaturalYasguiPlugins.TableX);
+              delete Yasr.plugins['table'];
+              delete Yasr.plugins['response'];
+              const yasr = new Yasr(document.getElementById("yasr"), {
+                pluginOrder: ["TableX"],
+                //this way, the URLs in the results are prettified using the defined prefixes in the query
+                getUsedPrefixes : yasqe.getPrefixesFromQuery,
+                "drawOutputSelector": false,
+                "drawDownloadIcon": false,
+                // avoid persistency side-effects
+                "persistency": { "prefix": false, "results": { "key": false }}
+              });
+
+
+              // link yasqe and yasr
+              yasqe.on("queryResponse", function(_yasqe, response, duration) {
+                yasr.setResponse(response, duration);
+              });
+        });
+    </script>
+</html>
