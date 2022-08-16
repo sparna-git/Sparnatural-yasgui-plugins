@@ -18,6 +18,8 @@ const DEFAULT_PAGE_SIZE = 50;
 export interface PluginConfig {
   openIriInNewWindow: boolean;
   tableConfig: DataTables.Settings;
+  uriHrefAdapter?: ((uri:string) => string);
+  bindingSetAdapter?: ((binding:Parser.Binding) => Parser.Binding);
 }
 
 export interface PersistentConfig {
@@ -38,15 +40,20 @@ export class TableXResults implements Parser {
   private bindings: Parser.Binding[];
   private variables: string[];
 
-  constructor(parser: Parser) {
-  	var enhancedColumns = this.findColumnsToBeEnhanced(parser.getVariables());
-  	// this.bindings = parser.getBindings();
-  	this.bindings = parser.getBindings().map((binding) => this.enhanceBinding(binding, enhancedColumns));
-  	this.variables = parser.getVariables().filter((variable) =>
+  constructor(parser: Parser, bindingSetAdapter?:((bindingSet:Parser.Binding) => Parser.Binding)) {
+    this.bindings = parser.getBindings();
+    // process complete binding sets
+    if(bindingSetAdapter) {
+      this.bindings = this.bindings.map((bindingSet) => bindingSetAdapter(bindingSet));
+    }
+    // add new bindings with labels + uris
+  	this.bindings = this.bindings.map((bindingSet) => this.enhanceBinding(bindingSet));
+  	// remove _label from list of variables
+    this.variables = parser.getVariables().filter((variable) =>
   		!(
   			variable.endsWith("_label")
   			&&
-  			enhancedColumns.includes(variable.substring(0, variable.length-("_label".length)))
+  			parser.getVariables().includes(variable.substring(0, variable.length-("_label".length)))
   		)
   	);
   }
@@ -63,20 +70,12 @@ export class TableXResults implements Parser {
   	return null;
   }
 
-  private findColumnsToBeEnhanced(variables: string[]) : string[] {
-  	var result : string[] = [];
-  	for (const key in variables) {
-        if(variables.includes(variables[key]+"_label")) {
-        	result.push(variables[key]);
-        }
-    }
-    return result;
-  }
-
-  private enhanceBinding(bindingSet: Parser.Binding, columnsToBeEnhanced: string[]) : Parser.Binding {
+  private enhanceBinding(bindingSet: Parser.Binding) : Parser.Binding {
   	var newBinding = {};
   	for (var key in bindingSet) {
-  		if(columnsToBeEnhanced.includes(key)) {
+  		// if we find the same key woth _label in the binding set
+      if(key+"_label" in bindingSet) {
+        // then recreate a special binding in the binding set with the URI and the label
   			var label = bindingSet[key+"_label"].value;
   			newBinding[key] = {
   				value: bindingSet[key].value,
@@ -86,12 +85,14 @@ export class TableXResults implements Parser {
   				label: label
   			}
   		} else if(
+        // if the key ends with xxx_label and the key xxx exists in the binding set, then ignore it
   			key.endsWith("_label")
   			&&
-  			columnsToBeEnhanced.includes(key.substring(0, key.length-("_label".length)))
+  			key.substring(0, key.length-("_label".length)) in bindingSet
   		) {
   			// don't include it in bindings
   		} else {
+        // otherwise just include as normal
   			newBinding[key] = bindingSet[key];
   		}
   	}
@@ -142,8 +143,8 @@ export class TableX implements Plugin<PluginConfig> {
 
   // ***** TableX MODIFICATION
   private postProcessRawResults(results: Parser | undefined) : Parser | undefined {
-  	if(results) {
-  		return new TableXResults(results);
+    if(results) {
+  		return new TableXResults(results, this.config.bindingSetAdapter);
   	}
   }
   // ***** end TableX MODIFICATION
@@ -168,6 +169,7 @@ export class TableX implements Plugin<PluginConfig> {
         },
       },
     },
+    uriHrefAdapter:undefined,
   };
   private getRows(): DataRow[] {
     if (!this.results) return [];
@@ -180,8 +182,10 @@ export class TableX implements Plugin<PluginConfig> {
   }
 
   private getUriLinkFromBinding(binding: Parser.BindingValue, prefixes?: { [key: string]: string }) {
-    const href = binding.value;
-    let visibleString = href;
+    // ***** TableX MODIFICATION
+    const href = (this.config.uriHrefAdapter)?this.config.uriHrefAdapter(binding.value):binding.value;
+    let visibleString = binding.value;
+    // ***** TableX MODIFICATION    
     let prefixed = false;
     if (prefixes) {
       for (const prefixLabel in prefixes) {
@@ -203,7 +207,7 @@ export class TableX implements Plugin<PluginConfig> {
 
   // ***** TableX MODIFICATION
   private getLabelledUriLinkFromBinding(binding: any) {
-    const href = binding.value;
+    const href = (this.config.uriHrefAdapter)?this.config.uriHrefAdapter(binding.value):binding.value;
     let visibleString = binding.label;
 
     // Hide brackets when prefixed or compact

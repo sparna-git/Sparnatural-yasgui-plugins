@@ -12,10 +12,22 @@
     <body>
         <h1>Hello world!</h1>
         <h2>Tip: Check your console</h2>
-        <p>Write a query selecting "?x" and "?x_label"</p>
+        <p>Write a query selecting "?x" and "?x_label", and "?y"</p>
+        <p>
+         <pre>
+SELECT ?country ?country_label ?code
+WHERE {
+    ?country a &lt;http://dbpedia.org/ontology/Country> .
+    ?country &lt;http://www.w3.org/2000/01/rdf-schema#label> ?country_label.
+    ?country &lt;http://dbpedia.org/ontology/iso31661Code> ?code.
+}
+         </pre>            
+        
+        </p>
         <span style="font-size:90%;"> 
          Queries sent to <a id="endpoint" href="http://fr.dbpedia.org/sparql">http://fr.dbpedia.org/sparql</a>
          </span>
+
          <div id="yasqe"></div>
          <div id="yasr"></div>
     </body>
@@ -35,8 +47,29 @@
               Yasr.registerPlugin("LabelledUriTable",SparnaturalYasguiPlugins.TableX);
               delete Yasr.plugins['table'];
               delete Yasr.plugins['response'];
+              Yasr.plugins.LabelledUriTable.defaults.uriHrefAdapter = function(uri) {
+                console.log("adapter called on uri "+uri);
+                return uri;
+              };
+              Yasr.plugins.LabelledUriTable.defaults.bindingSetAdapter = function(bindingSet) {
+                var newBindingSet = {};
+                // console.log(bindingSet);
+                for (var key in bindingSet) {
+                    if(key.startsWith("code")) {                        
+                        newBindingSet[key] = {
+                            type: "uri",
+                            value: "http://fake.uri/"+bindingSet[key].value
+                        };
+                        newBindingSet[key+"_label"] = bindingSet[key];
+                    } else {
+                        // default, don't change anything
+                        newBindingSet[key] = bindingSet[key];
+                    }
+                }
+                return newBindingSet;
+              };
               const yasr = new Yasr(document.getElementById("yasr"), {
-                pluginOrder: ["TableX"],
+                pluginOrder: ["LabelledUriTable"],
                 //this way, the URLs in the results are prettified using the defined prefixes in the query
                 getUsedPrefixes : yasqe.getPrefixesFromQuery,
                 "drawOutputSelector": false,

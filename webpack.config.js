@@ -10,7 +10,7 @@ const stylesHandler = "style-loader";
 const config = {
   entry: "./src/index.ts",
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "dist")
   },
   devServer: {
     open: true,
@@ -74,7 +74,8 @@ module.exports = () => {
     library: {
       name: 'SparnaturalYasguiPlugins',
       type: 'umd'
-    }
+    },
+    filename: "sparnatural-yasgui-plugins.js"
   }
 
   return config;
