@@ -8,12 +8,12 @@
         <!-- YASGUI stuff -->
         <link href="https://unpkg.com/@triply/yasgui/build/yasgui.min.css" rel="stylesheet" type="text/css" />
 
-        <title>Webpack App</title>
+        <title>Sparnatural YasGui plugins test page</title>
     </head>
-    <body>
-        <h1>Hello world!</h1>
+    <body style="padding: 20px;">
+        <h1>Sparnatural YasGui plugins test page</h1>
         <h2>Tip: Check your console</h2>
-        <p>Write a query selecting "?x" and "?x_label", and "?y"</p>
+        <p>To test HTMLTemplate plugin Write a query selecting "?x" and "?x_label", and "?y"</p>
         <p>
          <pre>
 SELECT ?country ?country_label ?code
@@ -22,11 +22,27 @@ WHERE {
     ?country &lt;http://www.w3.org/2000/01/rdf-schema#label> ?country_label.
     ?country &lt;http://dbpedia.org/ontology/iso31661Code> ?code.
 }
-         </pre>            
-        
+         </pre>        
         </p>
+
+        <p>To test MapPlugin Write a query some wktLiteral</p>
+        <p>
+         <pre>
+PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wdt: &lt;http://www.wikidata.org/prop/direct/>
+PREFIX wd: &lt;http://www.wikidata.org/entity/>
+SELECT ?commune ?nom ?coord
+WHERE {
+  ?commune wdt:P31 wd:Q484170 .
+  ?commune wdt:P131 wd:Q12556 .
+  ?commune wdt:P625 ?coord .
+  ?commune rdfs:label ?nom . FILTER(lang(?nom) = "fr")
+} LIMIT 50
+         </pre>        
+        </p>
+
         <span style="font-size:90%;"> 
-         Queries sent to <a id="endpoint" href="http://fr.dbpedia.org/sparql">http://fr.dbpedia.org/sparql</a>
+         Queries sent to <a id="endpoint" href="https://query.wikidata.org/sparql">https://query.wikidata.org/sparql</a>
          </span>
 
          <div id="yasqe"></div>
@@ -45,7 +61,7 @@ WHERE {
                 copyEndpointOnNewTab: false  
               });
 
-            
+                /*            
               Yasr.registerPlugin("HTMLTemplatePlugin",SparnaturalYasguiPlugins.HTMLTemplatePlugin);
               Yasr.plugins.HTMLTemplatePlugin.defaults.resultTransformer = (new SparnaturalYasguiPlugins.RowResultTransformerFactory(4)).build();
               Yasr.plugins.HTMLTemplatePlugin.defaults.htmlTemplate = `
@@ -79,7 +95,10 @@ WHERE {
 {{/rows}}
 </div>
 `;
- 
+ */
+
+              Yasr.registerPlugin("Map",SparnaturalYasguiPlugins.MapPlugin);
+
               Yasr.registerPlugin("LabelledUriTable",SparnaturalYasguiPlugins.TableX);
               delete Yasr.plugins['table'];
               Yasr.plugins.LabelledUriTable.defaults.uriHrefAdapter = function(uri) {
