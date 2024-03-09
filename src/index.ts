@@ -1,6 +1,7 @@
 import Parser from "./parsers";
 export * from './sparnatural-yasr-plugin-template';
 export * from './sparnatural-yasr-tablex-plugin';
+export * from './sparnatural-yasr-htmltemplate-plugin';
 
 
 export interface Yasr {

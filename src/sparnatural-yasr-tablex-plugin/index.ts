@@ -75,7 +75,8 @@ export class TableXResults implements Parser {
   	var newBinding = {};
   	for (var key in bindingSet) {
   		// if we find the same key woth _label in the binding set
-      if(key+"_label" in bindingSet) {
+      // if(key+"_label" in bindingSet) {
+      if(bindingSet[key+"_label"] != undefined) {
         // then recreate a special binding in the binding set with the URI and the label
   			var label = bindingSet[key+"_label"].value;
   			newBinding[key] = {
