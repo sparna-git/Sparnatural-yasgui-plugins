@@ -66,6 +66,7 @@ export class MapPlugin implements Plugin<PluginConfig>{
     priority: number = 5; // priority for sorting the plugins in yasr
     private yasr:Yasr
     private mapEL:HTMLElement | null = null; //HTMLElement of the map
+    private warnEL:HTMLElement | null = null; //HTMLElement of Warning message if results with no geo coordinates.
     private map:L.Map | null = null
     private config: PluginConfig;
     private markerCluster:L.MarkerClusterGroup;
@@ -76,6 +77,8 @@ export class MapPlugin implements Plugin<PluginConfig>{
     hideFromSelection?: boolean = false;
     label?: string = 'Map';
     options?: PluginConfig;
+    haveResultWithoutGeo: number = 0 ;
+    bounds: any; // Instantiate LatLngBounds object
 
     // define the default config for leaflet
     public static defaults: PluginConfig = {
@@ -85,7 +88,7 @@ export class MapPlugin implements Plugin<PluginConfig>{
                 maxZoom: 19,
                 attribution: "© OpenStreetMap"
             }}],
-        geoDataType: ['http://www.opengis.net/ont/geosparql#wktLiteral'], // add here further type such as 'http://www.opengis.net/ont/gml'
+        geoDataType: ['http://www.opengis.net/ont/geosparql#wktLiteral', 'http://www.openlinksw.com/schemas/virtrdf#Geometry'], // add here further type such as 'http://www.opengis.net/ont/gml'
         polylineOptions: null,
         markerOptions: null,
         polygonDefaultColor: 'blue',
@@ -125,14 +128,18 @@ export class MapPlugin implements Plugin<PluginConfig>{
     // http://schemas.opengis.net/geosparql/1.0/geosparql_vocab_all.rdf#wktLiteral
     canHandleResults(): boolean {
         let rows = this.getRows()
+        let have_geo = false ;
+        this.haveResultWithoutGeo = 1;
         if(rows && rows.length > 0){
-            return rows.some((row: DataRow)=>{ // if a cell contains a geosparql value
+            rows.some((row: DataRow)=>{ // if a cell contains a geosparql value
                 if(this.getGeosparqlValue(row)){
-                    return true
-                } 
+                    have_geo =  true
+                } else {
+                    this.haveResultWithoutGeo++ ;
+                }
             })
         }
-        return false
+        return have_geo ;
     }
 
     // this method checks if there is a geosparql value in a cell for a given row
@@ -184,6 +191,15 @@ export class MapPlugin implements Plugin<PluginConfig>{
             if(!el) return
             this.addIriClickListener(el)
           });
+
+          this.map.fitBounds(this.bounds) ;
+    }
+    private calcBounds(coordinates) {
+        if (this.bounds) {
+            this.bounds.extend(coordinates) ;
+        } else {
+            this.bounds = L.latLngBounds(coordinates) // Instantiate LatLngBounds object
+        }
     }
 
     private drawMarker(feature: Point,colIndex:number, popUpString:string) {
@@ -198,11 +214,12 @@ export class MapPlugin implements Plugin<PluginConfig>{
         this.addToLayerList(marker)
         //if clustering is activated, then don't draw the marker but gather it in the cluster
         this.markerCluster.addLayer(marker)
+
+        this.calcBounds(latLng) ;
     }
 
     private drawPoly(feature: Polygon,colIndex:number, popUpString:string) {
         console.log('el')
-        console.dir(popUpString)
         if(!this.map) throw Error(`Wanted to draw Polygon but no map found`)
         // configuration of Polygon see: https://leafletjs.com/reference.html#polygon
         let polyOptions:any = {}
@@ -213,12 +230,20 @@ export class MapPlugin implements Plugin<PluginConfig>{
             this.colorsUsed.push(colIndex)
             polyOptions['color'] = this.config.polygonColors[this.colorsUsed.indexOf(colIndex)]
         }
-        polyOptions['fill'] = false // no color filled in polygon
+        //polyOptions['color'] = 'red';
+        polyOptions['fill'] = true // no color filled in polygon
         polyOptions['opacity'] = 0.4 // stroke opacity
         // add controll layers for columns
+        feature.coordinates[0].map((item)=>{
+            item.reverse()
+         })
+
         const poly = new L.Polygon(feature.coordinates as L.LatLngExpression[][], polyOptions).bindPopup(popUpString) 
         this.addToLayerList(poly)
         this.addToLayerGroup(colIndex,poly)
+        poly.addTo(this.map);
+
+        this.calcBounds(feature.coordinates[0]) ;
     }
 
     private addIriClickListener(el: HTMLElement){
@@ -260,13 +285,30 @@ export class MapPlugin implements Plugin<PluginConfig>{
 
     private createMap(){
         // Create the map HTMLElement
+
+        // Append map to YASR result HTMLElement and init
+        const parentEl = document.getElementById('resultsId1')
+        if(!parentEl) throw Error(`Couldn't find parent element of Yasr. No element found with Id: resultsId1`)
+        
+
+        if(this.haveResultWithoutGeo > 0) {
+
+            this.warnEL = document.createElement('div')
+            this.warnEL.setAttribute('id','yasrmap-warnEL')
+            this.warnEL.setAttribute('class','alert alert-warning')
+            this.warnEL.innerText ='Attention, des résultats ('+this.haveResultWithoutGeo+') n\'ont pas de coordonnées pour être représentés sur la carte' ;
+
+            parentEl.appendChild(this.warnEL) ;
+        }
+        
+        
+        // Create the map HTMLElement
         this.mapEL = document.createElement('div')
         this.mapEL.setAttribute('id','yasrmap')
         this.mapEL.style.height = this.config.mapSize.height
         this.mapEL.style.width = this.config.mapSize.width
 
-        // Append map to YASR result HTMLElement and init
-        const parentEl = document.getElementById('resultsId1')
+        
         if(!parentEl) throw Error(`Couldn't find parent element of Yasr. No element found with Id: resultsId1`)
         parentEl.appendChild(this.mapEL)
         this.map = L.map('yasrmap').setView(this.config.setView.center,this.config.setView.zoom,this.config.setView.options)
@@ -279,6 +321,7 @@ export class MapPlugin implements Plugin<PluginConfig>{
             if(index === 0 && this.map) layer.addTo(this.map) // set first base layer as active
             this.controlLayers?.addBaseLayer(layer,name) 
         })
+
     }
     
     getIcon(): Element {
@@ -313,10 +356,12 @@ export class MapPlugin implements Plugin<PluginConfig>{
     // remove the already rendered map so we can rerender it
     private cleanUp() {
         this.mapEL?.remove()
+        this.warnEL?.remove()
         this.layerGroups = {}
         this.markerCluster = L.markerClusterGroup()
         this.controlLayers = L.control.layers()
         this.colorsUsed = []
+        this.bounds = false ;
     }
 
     private addToLayerList(g: L.Layer){

@@ -42,10 +42,19 @@ WHERE {
         </p>
 
         <span style="font-size:90%;"> 
-         Queries sent to <a id="endpoint" href="https://query.wikidata.org/sparql">https://query.wikidata.org/sparql</a>
+         Queries sent to <a id="endpoint" href="https://nakala.fr/sparql">https://nakala.fr/sparql</a>
          </span>
 
-         <div id="yasqe"></div>
+         <div id="yasqe">PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#>
+          PREFIX wdt: &lt;http://www.wikidata.org/prop/direct/>
+          PREFIX wd: &lt;http://www.wikidata.org/entity/>
+          SELECT ?commune ?nom ?coord
+          WHERE {
+            ?commune wdt:P31 wd:Q484170 .
+            ?commune wdt:P131 wd:Q12556 .
+            ?commune wdt:P625 ?coord .
+            ?commune rdfs:label ?nom . FILTER(lang(?nom) = "fr")
+          } LIMIT 50</div>
          <div id="yasr"></div>
     </body>
 
