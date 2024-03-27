@@ -1,6 +1,7 @@
-import { Plugin, DownloadInfo } from "../";
+import { Plugin, DownloadInfo, SparnaturalPlugin } from "../";
 import { drawSvgStringAsElement, drawFontAwesomeIconAsSvg, addClass, removeClass } from "../";
 import { Yasr } from "../";
+import { ISparJson } from "../ISparJson";
 
 interface PersistentConfig {
 
@@ -10,7 +11,7 @@ interface PluginConfig {
 
 }
 
-export class MyTable implements Plugin<PluginConfig> {
+export class MyTestPlugin implements SparnaturalPlugin<PluginConfig> {
 
 	private yasr: Yasr;
 
@@ -35,4 +36,9 @@ export class MyTable implements Plugin<PluginConfig> {
 	public canHandleResults() {
     	return !!this.yasr.results && this.yasr.results.getVariables() && this.yasr.results.getVariables().length > 0;
   	}
+
+	public notifyQuery(sparnaturalQuery:ISparJson) {
+		console.log("received query");
+		console.log(sparnaturalQuery);
+	}
 }

@@ -1,3 +1,4 @@
+import { ISparJson } from "./ISparJson";
 import Parser from "./parsers";
 export * from './sparnatural-yasr-plugin-template';
 export * from './sparnatural-yasr-tablex-plugin';
@@ -34,6 +35,11 @@ export interface Plugin<Opts extends any> {
   download?(filename?: string): DownloadInfo | undefined;
   helpReference?: string;
 }
+
+export interface SparnaturalPlugin<Opts extends any> extends Plugin<Opts> {
+  notifyQuery(sparnaturalQuery: ISparJson): void
+}
+
 
 
 export interface DownloadInfo {

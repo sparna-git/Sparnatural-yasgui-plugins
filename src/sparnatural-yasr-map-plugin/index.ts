@@ -1,4 +1,4 @@
-import { drawSvgStringAsElement, Yasr } from "../";
+import { drawSvgStringAsElement, SparnaturalPlugin, Yasr } from "../";
 import { Plugin, DownloadInfo } from "../";
 import L, { Marker } from "leaflet";
 //import * as L from "leaflet";
@@ -20,6 +20,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 // import customIcon from 'leaflet/dist/images/marker-icon.png';
 // import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import Parser from "../parsers";
+import { ISparJson } from "../ISparJson";
 const markerIcon = L.icon( {
     iconUrl:require("leaflet/dist/images/marker-icon.png"),
     shadowUrl: require("leaflet/dist/images/marker-shadow.png")
@@ -62,7 +63,7 @@ interface GeoCell {
 type DataRow = [number, ...(Parser.BindingValue | "")[]];
 
 
-export class MapPlugin implements Plugin<PluginConfig>{
+export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     priority: number = 5; // priority for sorting the plugins in yasr
     private yasr:Yasr
     private mapEL:HTMLElement | null = null; //HTMLElement of the map
@@ -185,6 +186,11 @@ export class MapPlugin implements Plugin<PluginConfig>{
             this.addIriClickListener(el)
           });
     }
+
+    public notifyQuery(sparnaturalQuery:ISparJson) {
+		console.log("received query");
+		console.log(sparnaturalQuery);
+	}
 
     private drawMarker(feature: Point,colIndex:number, popUpString:string) {
         const latLng = new L.LatLng(feature.coordinates[1],feature.coordinates[0])
@@ -328,6 +334,6 @@ export class MapPlugin implements Plugin<PluginConfig>{
         if(cell === '') return false
         if(typeof cell === 'number') return false
         return ('value' in cell && (('type' in cell) || ('datatype' in cell)))
-      }
+    }
 
 }
