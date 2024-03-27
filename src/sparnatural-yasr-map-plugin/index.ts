@@ -192,6 +192,11 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
 		console.log(sparnaturalQuery);
 	}
 
+    public notifyConfiguration(specProvider:any) {
+		console.log("received specification provider from Sparnatural");
+		console.log(specProvider);
+	}
+
     private drawMarker(feature: Point,colIndex:number, popUpString:string) {
         const latLng = new L.LatLng(feature.coordinates[1],feature.coordinates[0])
         if(!this.map) throw Error(`Wanted to draw Marker but no map found`)

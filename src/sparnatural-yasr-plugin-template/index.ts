@@ -41,4 +41,9 @@ export class MyTestPlugin implements SparnaturalPlugin<PluginConfig> {
 		console.log("received query");
 		console.log(sparnaturalQuery);
 	}
+
+	public notifyConfiguration(specProvider:any) {
+		console.log("received specification provider from Sparnatural");
+		console.log(specProvider);
+	}
 }

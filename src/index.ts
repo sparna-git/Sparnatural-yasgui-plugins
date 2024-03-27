@@ -38,6 +38,7 @@ export interface Plugin<Opts extends any> {
 
 export interface SparnaturalPlugin<Opts extends any> extends Plugin<Opts> {
   notifyQuery(sparnaturalQuery: ISparJson): void
+  notifyConfiguration(specProvider: any): void
 }
 
 
