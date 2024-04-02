@@ -129,7 +129,7 @@ export class MapPlugin implements Plugin<PluginConfig>{
     canHandleResults(): boolean {
         let rows = this.getRows()
         let have_geo = false ;
-        this.haveResultWithoutGeo = 1;
+        this.haveResultWithoutGeo = 0;
         if(rows && rows.length > 0){
             rows.some((row: DataRow)=>{ // if a cell contains a geosparql value
                 if(this.getGeosparqlValue(row)){
