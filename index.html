@@ -108,6 +108,8 @@ WHERE {
 
               Yasr.registerPlugin("Map",SparnaturalYasguiPlugins.MapPlugin);
 
+              Yasr.registerPlugin("MyTestPlugin",SparnaturalYasguiPlugins.MyTestPlugin);
+
               Yasr.registerPlugin("LabelledUriTable",SparnaturalYasguiPlugins.TableX);
               delete Yasr.plugins['table'];
               Yasr.plugins.LabelledUriTable.defaults.uriHrefAdapter = function(uri) {
@@ -145,6 +147,11 @@ WHERE {
               // link yasqe and yasr
               yasqe.on("queryResponse", function(_yasqe, response, duration) {
                 yasr.setResponse(response, duration);
+                for (const plugin in yasr.plugins) {
+                    if(yasr.plugins[plugin].notifyQuery) {
+                        yasr.plugins[plugin].notifyQuery({distinct:true});
+                    }
+                }
               });
         });
     </script>
