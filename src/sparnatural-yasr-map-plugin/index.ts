@@ -25,7 +25,6 @@ const markerIcon = L.icon( {
     iconUrl:require("leaflet/dist/images/marker-icon.png"),
     shadowUrl: require("leaflet/dist/images/marker-shadow.png")
 } );
-
 /*
     Currently this plugin supports only the wktLiteral parsing.
     If you would like to add further parsing like GML or KML, just implement a serializer callback for parseGeoLiteral()
@@ -41,6 +40,14 @@ interface PluginConfig {
     geoDataType: Array<string>,
     polygonDefaultColor: string,
     polygonColors: Array<string>,
+    searchedPolygon: {
+        fillColor: string,
+        weight: number,
+        opacity: number,
+        color: string,
+        dashArray: string,
+        fillOpacity: number
+    },
     mapSize: {
         width:string,
         height:string
@@ -80,6 +87,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     options?: PluginConfig;
     haveResultWithoutGeo: number = 0 ;
     bounds: any; // Instantiate LatLngBounds object
+    sparnaturalQuery: ISparJson | null = null ;
 
     // define the default config for leaflet
     public static defaults: PluginConfig = {
@@ -101,6 +109,14 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             'purple',
             'red',
         ],
+        searchedPolygon: {
+            fillColor: 'transparent',
+            weight: 2,
+            opacity: 1,
+            color: 'gray',
+            dashArray: '10',
+            fillOpacity: 0
+        },
         mapSize: {
             width:'auto',
             height:'550px',
@@ -123,6 +139,9 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         this.config = MapPlugin.defaults
         this.markerCluster = L.markerClusterGroup()
         this.controlLayers = L.control.layers()
+        /*this.yasr?.rootEl.addEventListener("sparnaturalQueryChange", (e) => {
+            this.initDrawSearchAreas() ;
+        });*/
     }
 
     // Map plugin can handle results in the form of geosparql wktLiterals
@@ -192,6 +211,8 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             if(!el) return
             this.addIriClickListener(el)
           });
+          
+          this.initDrawSearchAreas();
 
           this.map.fitBounds(this.bounds) ;
     }
@@ -204,14 +225,80 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     }
 
     public notifyQuery(sparnaturalQuery:ISparJson) {
-		console.log("received query");
+		console.log("received query on map");
 		console.log(sparnaturalQuery);
+        this.sparnaturalQuery = sparnaturalQuery ;
+        /*const eventChange = new Event("sparnaturalQueryChange");
+        this.yasr?.rootEl.dispatchEvent(eventChange);*/
 	}
 
     public notifyConfiguration(specProvider:any) {
 		console.log("received specification provider from Sparnatural");
 		console.log(specProvider);
 	}
+
+    private searchCoordinatesOnQuery(data) {
+        var result: any = []
+        const iterate = (obj) => {
+            if (!obj) {
+                console.log(obj) ;
+            return;
+            }
+            Object.keys(obj).forEach(key => {
+                var value = obj[key]
+                if (typeof value === "object" && value !== null) {
+                    iterate(value)
+                    if (value.coordinates) {
+                        result.push(value);
+                    } 
+                }
+            })
+        }
+        iterate(data)
+        return result;
+    }
+
+    private initDrawSearchAreas() {
+        if ((this.map == null) || (this.sparnaturalQuery == null)) {
+            return false ;
+        } else {
+            let searchareas: any = this.searchCoordinatesOnQuery(this.sparnaturalQuery) ;
+            let arrayPolygones: any = [] ;
+            for(let i = 0; i < searchareas.length; i++){
+                let coordonnees = searchareas[i].coordinates[0] ;
+                let latlongs: Array<string> = [] ;
+                
+                for(let ic = 0; ic < coordonnees.length; ic++){
+                    let latLon: any = [coordonnees[ic].lat, coordonnees[ic].lng]
+                    latlongs.push(latLon) ;
+                }
+                arrayPolygones.push(latlongs) ;
+            }
+            this.drawSearchAreas(arrayPolygones) ;
+        }
+        
+    }
+
+    private drawSearchAreas(searchareas) {
+        if ((this.map == null) || (this.sparnaturalQuery == null)) {
+            return false ;
+        }
+        for(let i = 0; i < searchareas.length; i++){
+            this.drawSearchPoly(searchareas[i]) ;
+        }
+    }
+
+    private drawSearchPoly(feature: any) {
+        if(!this.map) throw Error(`Wanted to draw Polygon but no map found`)
+        // configuration of Polygon see: https://leafletjs.com/reference.html#polygon
+        let searchedPolygon:any = {}
+        let polyOptions: any = [] ;
+        polyOptions = this.config.searchedPolygon ;
+        const poly = new L.Polygon(feature as L.LatLngExpression[][], polyOptions)
+        this.layerGroups['searchPoly'] ? this.layerGroups['searchPoly'].addLayer(poly) : this.layerGroups['searchPoly'] = L.layerGroup([poly])
+        poly.addTo(this.map);
+        this.calcBounds(feature) ;
+    }
 
     private drawMarker(feature: Point,colIndex:number, popUpString:string) {
         const latLng = new L.LatLng(feature.coordinates[1],feature.coordinates[0])
