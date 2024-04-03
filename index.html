@@ -42,10 +42,19 @@ WHERE {
         </p>
 
         <span style="font-size:90%;"> 
-         Queries sent to <a id="endpoint" href="https://query.wikidata.org/sparql">https://query.wikidata.org/sparql</a>
+          Queries sent to <a id="endpoint" href="https://query.wikidata.org/sparql">https://query.wikidata.org/sparql</a>
          </span>
 
-         <div id="yasqe"></div>
+         <div id="yasqe">PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#>
+          PREFIX wdt: &lt;http://www.wikidata.org/prop/direct/>
+          PREFIX wd: &lt;http://www.wikidata.org/entity/>
+          SELECT ?commune ?nom ?coord
+          WHERE {
+            ?commune wdt:P31 wd:Q484170 .
+            ?commune wdt:P131 wd:Q12556 .
+            ?commune wdt:P625 ?coord .
+            ?commune rdfs:label ?nom . FILTER(lang(?nom) = "fr")
+          } LIMIT 50</div>
          <div id="yasr"></div>
     </body>
 
@@ -134,13 +143,94 @@ WHERE {
                 "persistency": { "prefix": false, "results": { "key": false }}
               });
 
+              var json_query = {
+  "distinct": true,
+  "variables": [
+    "Place_1"
+  ],
+  "order": null,
+  "branches": [
+    {
+      "line": {
+        "s": "?Place_1",
+        "p": "https://shacl-play.sparna.fr/shapes/Place_asWKT",
+        "o": "?Z_Location_2",
+        "sType": "https://shacl-play.sparna.fr/shapes/Place",
+        "oType": "http://special/Z_Location",
+        "values": [
+          {
+            "label": "<svg id=\"svgelem\" width=\"30\" height=\"30\" viewBox=\"0 0 6.064453125000001 2.3891525172613797\" xmlns=\"http://www.w3.org/2000/svg\" style=\" transform: rotateX(180deg);\" preserveAspectRatio=\"xMidYMid meet\">   <g><polygon points=\"0,0 0,2.3891525172613797 6.064453125000001,2.3891525172613797 6.064453125000001,0\" style=\"fill:#ffffff;\" /></g></svg><span>179038 km²</span>",
+            "type": "Rectangle",
+            "coordinates": [
+              [
+                {
+                  "lat": 45.98169518512228,
+                  "lng": -2.0993046462535863
+                },
+                {
+                  "lat": 48.37084770238366,
+                  "lng": -2.0993046462535863
+                },
+                {
+                  "lat": 48.37084770238366,
+                  "lng": 3.9651484787464146
+                },
+                {
+                  "lat": 45.98169518512228,
+                  "lng": 3.9651484787464146
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    {
+      "line": {
+        "s": "?Place_1",
+        "p": "https://shacl-play.sparna.fr/shapes/Place_asWKT",
+        "o": "?Z_Location_4",
+        "sType": "https://shacl-play.sparna.fr/shapes/Place",
+        "oType": "http://special/Z_Location",
+        "values": [
+          {
+            "label": "<svg id=\"svgelem\" width=\"30\" height=\"30\" viewBox=\"0 0 5.625000000000001 5.903020997018473\" xmlns=\"http://www.w3.org/2000/svg\" style=\" transform: rotateX(180deg);\" preserveAspectRatio=\"xMidYMid meet\">   <g><polygon points=\"0,0 0,5.903020997018473 5.625000000000001,5.903020997018473 5.625000000000001,0\" style=\"fill:#ffffff;\" /></g></svg><span>410364 km²</span>",
+            "type": "Rectangle",
+            "coordinates": [
+              [
+                {
+                  "lat": 43.43164771219323,
+                  "lng": -3.4176640212535863
+                },
+                {
+                  "lat": 49.334668709211705,
+                  "lng": -3.4176640212535863
+                },
+                {
+                  "lat": 49.334668709211705,
+                  "lng": 2.2073359787464146
+                },
+                {
+                  "lat": 43.43164771219323,
+                  "lng": 2.2073359787464146
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "children": []
+    }
+  ]
+} ;
 
               // link yasqe and yasr
               yasqe.on("queryResponse", function(_yasqe, response, duration) {
                 yasr.setResponse(response, duration);
                 for (const plugin in yasr.plugins) {
                     if(yasr.plugins[plugin].notifyQuery) {
-                        yasr.plugins[plugin].notifyQuery({distinct:true});
+                        yasr.plugins[plugin].notifyQuery(json_query);
                     }
                 }
               });

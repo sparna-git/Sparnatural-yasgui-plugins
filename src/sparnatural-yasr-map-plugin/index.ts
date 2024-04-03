@@ -25,7 +25,6 @@ const markerIcon = L.icon( {
     iconUrl:require("leaflet/dist/images/marker-icon.png"),
     shadowUrl: require("leaflet/dist/images/marker-shadow.png")
 } );
-
 /*
     Currently this plugin supports only the wktLiteral parsing.
     If you would like to add further parsing like GML or KML, just implement a serializer callback for parseGeoLiteral()
@@ -41,6 +40,14 @@ interface PluginConfig {
     geoDataType: Array<string>,
     polygonDefaultColor: string,
     polygonColors: Array<string>,
+    searchedPolygon: {
+        fillColor: string,
+        weight: number,
+        opacity: number,
+        color: string,
+        dashArray: string,
+        fillOpacity: number
+    },
     mapSize: {
         width:string,
         height:string
@@ -67,6 +74,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     priority: number = 5; // priority for sorting the plugins in yasr
     private yasr:Yasr
     private mapEL:HTMLElement | null = null; //HTMLElement of the map
+    private warnEL:HTMLElement | null = null; //HTMLElement of Warning message if results with no geo coordinates.
     private map:L.Map | null = null
     private config: PluginConfig;
     private markerCluster:L.MarkerClusterGroup;
@@ -77,6 +85,9 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     hideFromSelection?: boolean = false;
     label?: string = 'Map';
     options?: PluginConfig;
+    haveResultWithoutGeo: number = 0 ;
+    bounds: any; // Instantiate LatLngBounds object
+    sparnaturalQuery: ISparJson | null = null ;
 
     // define the default config for leaflet
     public static defaults: PluginConfig = {
@@ -86,7 +97,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
                 maxZoom: 19,
                 attribution: "© OpenStreetMap"
             }}],
-        geoDataType: ['http://www.opengis.net/ont/geosparql#wktLiteral'], // add here further type such as 'http://www.opengis.net/ont/gml'
+        geoDataType: ['http://www.opengis.net/ont/geosparql#wktLiteral', 'http://www.openlinksw.com/schemas/virtrdf#Geometry'], // add here further type such as 'http://www.opengis.net/ont/gml'
         polylineOptions: null,
         markerOptions: null,
         polygonDefaultColor: 'blue',
@@ -98,6 +109,14 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             'purple',
             'red',
         ],
+        searchedPolygon: {
+            fillColor: 'transparent',
+            weight: 2,
+            opacity: 1,
+            color: 'gray',
+            dashArray: '10',
+            fillOpacity: 0
+        },
         mapSize: {
             width:'auto',
             height:'550px',
@@ -120,20 +139,27 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         this.config = MapPlugin.defaults
         this.markerCluster = L.markerClusterGroup()
         this.controlLayers = L.control.layers()
+        /*this.yasr?.rootEl.addEventListener("sparnaturalQueryChange", (e) => {
+            this.initDrawSearchAreas() ;
+        });*/
     }
 
     // Map plugin can handle results in the form of geosparql wktLiterals
     // http://schemas.opengis.net/geosparql/1.0/geosparql_vocab_all.rdf#wktLiteral
     canHandleResults(): boolean {
         let rows = this.getRows()
+        let have_geo = false ;
+        this.haveResultWithoutGeo = 0;
         if(rows && rows.length > 0){
-            return rows.some((row: DataRow)=>{ // if a cell contains a geosparql value
+            rows.some((row: DataRow)=>{ // if a cell contains a geosparql value
                 if(this.getGeosparqlValue(row)){
-                    return true
-                } 
+                    have_geo =  true
+                } else {
+                    this.haveResultWithoutGeo++ ;
+                }
             })
         }
-        return false
+        return have_geo ;
     }
 
     // this method checks if there is a geosparql value in a cell for a given row
@@ -185,17 +211,94 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             if(!el) return
             this.addIriClickListener(el)
           });
+          
+          this.initDrawSearchAreas();
+
+          this.map.fitBounds(this.bounds) ;
+    }
+    private calcBounds(coordinates) {
+        if (this.bounds) {
+            this.bounds.extend(coordinates) ;
+        } else {
+            this.bounds = L.latLngBounds(coordinates) // Instantiate LatLngBounds object
+        }
     }
 
     public notifyQuery(sparnaturalQuery:ISparJson) {
-		console.log("received query");
+		console.log("received query on map");
 		console.log(sparnaturalQuery);
+        this.sparnaturalQuery = sparnaturalQuery ;
+        /*const eventChange = new Event("sparnaturalQueryChange");
+        this.yasr?.rootEl.dispatchEvent(eventChange);*/
 	}
 
     public notifyConfiguration(specProvider:any) {
 		console.log("received specification provider from Sparnatural");
 		console.log(specProvider);
 	}
+
+    private searchCoordinatesOnQuery(data) {
+        var result: any = []
+        const iterate = (obj) => {
+            if (!obj) {
+                console.log(obj) ;
+            return;
+            }
+            Object.keys(obj).forEach(key => {
+                var value = obj[key]
+                if (typeof value === "object" && value !== null) {
+                    iterate(value)
+                    if (value.coordinates) {
+                        result.push(value);
+                    } 
+                }
+            })
+        }
+        iterate(data)
+        return result;
+    }
+
+    private initDrawSearchAreas() {
+        if ((this.map == null) || (this.sparnaturalQuery == null)) {
+            return false ;
+        } else {
+            let searchareas: any = this.searchCoordinatesOnQuery(this.sparnaturalQuery) ;
+            let arrayPolygones: any = [] ;
+            for(let i = 0; i < searchareas.length; i++){
+                let coordonnees = searchareas[i].coordinates[0] ;
+                let latlongs: Array<string> = [] ;
+                
+                for(let ic = 0; ic < coordonnees.length; ic++){
+                    let latLon: any = [coordonnees[ic].lat, coordonnees[ic].lng]
+                    latlongs.push(latLon) ;
+                }
+                arrayPolygones.push(latlongs) ;
+            }
+            this.drawSearchAreas(arrayPolygones) ;
+        }
+        
+    }
+
+    private drawSearchAreas(searchareas) {
+        if ((this.map == null) || (this.sparnaturalQuery == null)) {
+            return false ;
+        }
+        for(let i = 0; i < searchareas.length; i++){
+            this.drawSearchPoly(searchareas[i]) ;
+        }
+    }
+
+    private drawSearchPoly(feature: any) {
+        if(!this.map) throw Error(`Wanted to draw Polygon but no map found`)
+        // configuration of Polygon see: https://leafletjs.com/reference.html#polygon
+        let searchedPolygon:any = {}
+        let polyOptions: any = [] ;
+        polyOptions = this.config.searchedPolygon ;
+        const poly = new L.Polygon(feature as L.LatLngExpression[][], polyOptions)
+        this.layerGroups['searchPoly'] ? this.layerGroups['searchPoly'].addLayer(poly) : this.layerGroups['searchPoly'] = L.layerGroup([poly])
+        poly.addTo(this.map);
+        this.calcBounds(feature) ;
+    }
 
     private drawMarker(feature: Point,colIndex:number, popUpString:string) {
         const latLng = new L.LatLng(feature.coordinates[1],feature.coordinates[0])
@@ -209,11 +312,12 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         this.addToLayerList(marker)
         //if clustering is activated, then don't draw the marker but gather it in the cluster
         this.markerCluster.addLayer(marker)
+
+        this.calcBounds(latLng) ;
     }
 
     private drawPoly(feature: Polygon,colIndex:number, popUpString:string) {
         console.log('el')
-        console.dir(popUpString)
         if(!this.map) throw Error(`Wanted to draw Polygon but no map found`)
         // configuration of Polygon see: https://leafletjs.com/reference.html#polygon
         let polyOptions:any = {}
@@ -224,12 +328,20 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             this.colorsUsed.push(colIndex)
             polyOptions['color'] = this.config.polygonColors[this.colorsUsed.indexOf(colIndex)]
         }
-        polyOptions['fill'] = false // no color filled in polygon
+        //polyOptions['color'] = 'red';
+        polyOptions['fill'] = true // no color filled in polygon
         polyOptions['opacity'] = 0.4 // stroke opacity
         // add controll layers for columns
+        feature.coordinates[0].map((item)=>{
+            item.reverse()
+         })
+
         const poly = new L.Polygon(feature.coordinates as L.LatLngExpression[][], polyOptions).bindPopup(popUpString) 
         this.addToLayerList(poly)
         this.addToLayerGroup(colIndex,poly)
+        poly.addTo(this.map);
+
+        this.calcBounds(feature.coordinates[0]) ;
     }
 
     private addIriClickListener(el: HTMLElement){
@@ -271,13 +383,30 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
 
     private createMap(){
         // Create the map HTMLElement
+
+        // Append map to YASR result HTMLElement and init
+        const parentEl = document.getElementById('resultsId1')
+        if(!parentEl) throw Error(`Couldn't find parent element of Yasr. No element found with Id: resultsId1`)
+        
+
+        if(this.haveResultWithoutGeo > 0) {
+
+            this.warnEL = document.createElement('div')
+            this.warnEL.setAttribute('id','yasrmap-warnEL')
+            this.warnEL.setAttribute('class','alert alert-warning')
+            this.warnEL.innerText ='Attention, des résultats ('+this.haveResultWithoutGeo+') n\'ont pas de coordonnées pour être représentés sur la carte' ;
+
+            parentEl.appendChild(this.warnEL) ;
+        }
+        
+        
+        // Create the map HTMLElement
         this.mapEL = document.createElement('div')
         this.mapEL.setAttribute('id','yasrmap')
         this.mapEL.style.height = this.config.mapSize.height
         this.mapEL.style.width = this.config.mapSize.width
 
-        // Append map to YASR result HTMLElement and init
-        const parentEl = document.getElementById('resultsId1')
+        
         if(!parentEl) throw Error(`Couldn't find parent element of Yasr. No element found with Id: resultsId1`)
         parentEl.appendChild(this.mapEL)
         this.map = L.map('yasrmap').setView(this.config.setView.center,this.config.setView.zoom,this.config.setView.options)
@@ -290,6 +419,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             if(index === 0 && this.map) layer.addTo(this.map) // set first base layer as active
             this.controlLayers?.addBaseLayer(layer,name) 
         })
+
     }
     
     getIcon(): Element {
@@ -324,10 +454,12 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     // remove the already rendered map so we can rerender it
     private cleanUp() {
         this.mapEL?.remove()
+        this.warnEL?.remove()
         this.layerGroups = {}
         this.markerCluster = L.markerClusterGroup()
         this.controlLayers = L.control.layers()
         this.colorsUsed = []
+        this.bounds = false ;
     }
 
     private addToLayerList(g: L.Layer){
