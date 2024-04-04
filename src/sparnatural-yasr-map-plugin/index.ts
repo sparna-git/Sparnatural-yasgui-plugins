@@ -13,8 +13,8 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
   Importing Geoman-io here because it is used by Sparnatural. If I don't import it. then opening the map in sparnatural crashes.
   It then doesn't init the map.pm attribute. (stays undefined) and when it tries to call map.pm.optIn it says undefined
 */
-// import "@geoman-io/leaflet-geoman-free";
-// import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+import "@geoman-io/leaflet-geoman-free";
+import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 // Bug in rendering markers.
 // see: https://github.com/PaulLeCam/react-leaflet/issues/453
 // import customIcon from 'leaflet/dist/images/marker-icon.png';
