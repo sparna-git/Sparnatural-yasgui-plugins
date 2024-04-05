@@ -9,12 +9,6 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
-/*
-  Importing Geoman-io here because it is used by Sparnatural. If I don't import it. then opening the map in sparnatural crashes.
-  It then doesn't init the map.pm attribute. (stays undefined) and when it tries to call map.pm.optIn it says undefined
-*/
-import "@geoman-io/leaflet-geoman-free";
-import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 // Bug in rendering markers.
 // see: https://github.com/PaulLeCam/react-leaflet/issues/453
 // import customIcon from 'leaflet/dist/images/marker-icon.png';
@@ -367,16 +361,33 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     private createPopUpString(row:DataRow):string {
         let popUp:{[key: string]: any;} = {}
         let columns = this.getVariables()
+        
         row.forEach((cell,i)=>{
-            if(i === 0) popUp['rowNr'] = cell as number
-            if(this.isBindingValue(cell)){
-                if(!columns) return
-                if(cell.type === 'uri') popUp[columns[i]] = cell.value
+            // uncomment to get the row number in the popup
+            // if(i === 0) popUp['row number'] = cell as number
+
+            if(
+                this.isBindingValue(cell)
+                &&
+                ! this.config.geoDataType.includes(cell.datatype as string)
+                &&
+                columns
+            ){
+                // store the whole cell in the popup
+                popUp[columns[i-1]] = cell
             }
         })
         let contentString = ``
-        for (const [k, v] of Object.entries(popUp)) {
-            contentString = `${contentString} <br> ${k}: <a class='iri' style="cursor: pointer; color:blue;">${v}</a>`
+        for (const [k, cell] of Object.entries(popUp)) {
+            let currentString = `<strong>${k}</strong>:&nbsp;`;
+            
+            if(cell.type === "uri") {
+                currentString += ` <a class='iri' style="cursor: pointer; color:blue;" href="${cell.value}" target="_blank">${cell.value}</a>`
+            } else {
+                currentString += `${cell.value}`
+            }
+            currentString += "<br />";
+            contentString += currentString;
         }
         return contentString
     }
