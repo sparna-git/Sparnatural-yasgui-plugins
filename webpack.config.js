@@ -19,6 +19,7 @@ const config = {
       directory: path.resolve(__dirname, '')
     }
   },
+  devtool: "source-map",
   plugins: [
     new HtmlWebpackPlugin({
       template: "index.html",
