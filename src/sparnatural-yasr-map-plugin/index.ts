@@ -1,7 +1,21 @@
 import { drawSvgStringAsElement, SparnaturalPlugin, Yasr } from "../";
 import { Plugin, DownloadInfo } from "../";
-import L, { Marker } from "leaflet";
-//import * as L from "leaflet";
+
+// /!\ black magic warning : dynamic leaflet import
+// to avoid importing it twice in the page
+var L:typeof import("leaflet/index");
+if(window.L == undefined) {
+    import("leaflet").then((theLeaflet) => {
+        L = theLeaflet;
+        window.L = L;
+    });
+} else {
+    L = window.L;
+}
+
+// Normal leaflet import :
+// import L, { Marker } from "leaflet";
+
 import { Geometry, Point, Polygon } from "geojson";
 import { wktToGeoJson } from "./wktParsing";
 // CSS is required otherwise tiles are messed up
@@ -9,22 +23,22 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+
+// attempt to re-import Geoman, originally from Pascal
 /*
 Importing Geoman-io here because it is used by Sparnatural. If I don't import it. then opening the map in sparnatural crashes.
 It then doesn't init the map.pm attribute. (stays undefined) and when it tries to call map.pm.optIn it says undefined
 */
 // import "@geoman-io/leaflet-geoman-free";
 // import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+
 // Bug in rendering markers.
 // see: https://github.com/PaulLeCam/react-leaflet/issues/453
 // import customIcon from 'leaflet/dist/images/marker-icon.png';
 // import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import Parser from "../parsers";
 import { ISparJson } from "../ISparJson";
-const markerIcon = L.icon( {
-    iconUrl:require("leaflet/dist/images/marker-icon.png"),
-    shadowUrl: require("leaflet/dist/images/marker-shadow.png")
-} );
+
 /*
     Currently this plugin supports only the wktLiteral parsing.
     If you would like to add further parsing like GML or KML, just implement a serializer callback for parseGeoLiteral()
@@ -71,13 +85,19 @@ type DataRow = [number, ...(Parser.BindingValue | "")[]];
 
 
 export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
+    static markerIcon = L.icon( {
+        iconUrl:require("leaflet/dist/images/marker-icon.png"),
+        shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+    } );
+
     priority: number = 5; // priority for sorting the plugins in yasr
     private yasr:Yasr
     private mapEL:HTMLElement | null = null; //HTMLElement of the map
     private warnEL:HTMLElement | null = null; //HTMLElement of Warning message if results with no geo coordinates.
     private map:L.Map | null = null
     private config: PluginConfig;
-    private markerCluster:L.MarkerClusterGroup;
+    // private markerCluster:L.MarkerClusterGroup;
+    private markerCluster:any;
     private layerGroups:{[key:string]:L.LayerGroup} = {} // group all polygons with sparql var name as key
     private controlLayers: L.Control.Layers | null = null // responsible for filterable layers on the map
     private colorsUsed:Array<number> = [] // used to color the polygons
@@ -241,8 +261,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         var result: any = []
         const iterate = (obj) => {
             if (!obj) {
-                console.log(obj) ;
-            return;
+                return;
             }
             Object.keys(obj).forEach(key => {
                 var value = obj[key]
@@ -304,7 +323,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         const latLng = new L.LatLng(feature.coordinates[1],feature.coordinates[0])
         if(!this.map) throw Error(`Wanted to draw Marker but no map found`)
         let markerOptions:any ={
-            icon:markerIcon
+            icon:MapPlugin.markerIcon
         }
         if(this.config.markerOptions) markerOptions = this.config.markerOptions
         const marker = new L.Marker(latLng, markerOptions).bindPopup(popUpString)
@@ -317,7 +336,6 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     }
 
     private drawPoly(feature: Polygon,colIndex:number, popUpString:string) {
-        console.log('el')
         if(!this.map) throw Error(`Wanted to draw Polygon but no map found`)
         // configuration of Polygon see: https://leafletjs.com/reference.html#polygon
         let polyOptions:any = {}
@@ -426,8 +444,10 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         
         if(!parentEl) throw Error(`Couldn't find parent element of Yasr. No element found with Id: resultsId1`)
         parentEl.appendChild(this.mapEL)
-        this.map = L.map('yasrmap').setView(this.config.setView.center,this.config.setView.zoom,this.config.setView.options)
-        this.map.options.maxZoom = 19 // see: https://github.com/Leaflet/Leaflet.markercluster/issues/611
+        this.map = L.map('yasrmap').setView(this.config.setView.center,this.config.setView.zoom,this.config.setView.options);
+        if(this.map != null) {
+            this.map.options.maxZoom = 19 // see: https://github.com/Leaflet/Leaflet.markercluster/issues/611
+        }
         // For each provided baseLayer create a tileLayer and add it to control
         this.config.baseLayers.map((l,index)=>{
             let name = 'No attribution name provided'
