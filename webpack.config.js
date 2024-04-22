@@ -27,9 +27,6 @@ const config = {
 
     // Add your plugins here
     // Learn more about plugins from https://webpack.js.org/configuration/plugins/
-
-
-
   ],
   module: {
     rules: [
@@ -68,7 +65,7 @@ module.exports = () => {
   }
 
   config.optimization = {
-    minimize: false
+    minimize: true
   };
 
   config.output = {
