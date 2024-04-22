@@ -3,6 +3,7 @@ import { Plugin, DownloadInfo } from "../";
 
 // /!\ black magic warning : dynamic leaflet import
 // to avoid importing it twice in the page
+/*
 var L:typeof import("leaflet/index");
 if(window.L == undefined) {
     import("leaflet").then((theLeaflet) => {
@@ -12,9 +13,10 @@ if(window.L == undefined) {
 } else {
     L = window.L;
 }
+*/
 
 // Normal leaflet import :
-// import L, { Marker } from "leaflet";
+import L, { Marker } from "leaflet";
 
 import { Geometry, Point, Polygon } from "geojson";
 import { wktToGeoJson } from "./wktParsing";
