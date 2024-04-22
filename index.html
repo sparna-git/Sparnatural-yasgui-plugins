@@ -55,6 +55,8 @@ WHERE {
             ?commune wdt:P625 ?coord .
             ?commune rdfs:label ?nom . FILTER(lang(?nom) = "fr")
           } LIMIT 50</div>
+
+
          <div id="yasr"></div>
     </body>
 
@@ -110,13 +112,14 @@ WHERE {
 
               Yasr.registerPlugin("MyTestPlugin",SparnaturalYasguiPlugins.MyTestPlugin);
 
-              Yasr.registerPlugin("LabelledUriTable",SparnaturalYasguiPlugins.TableX);
+              Yasr.registerPlugin("TableX",SparnaturalYasguiPlugins.TableX);
               delete Yasr.plugins['table'];
-              Yasr.plugins.LabelledUriTable.defaults.uriHrefAdapter = function(uri) {
+             
+              Yasr.plugins.TableX.defaults.uriHrefAdapter = function(uri) {
                 console.log("adapter called on uri "+uri);
                 return uri;
               };
-              Yasr.plugins.LabelledUriTable.defaults.bindingSetAdapter = function(bindingSet) {
+              Yasr.plugins.TableX.defaults.bindingSetAdapter = function(bindingSet) {
                 var newBindingSet = {};
                 // console.log(bindingSet);
                 for (var key in bindingSet) {
@@ -133,12 +136,15 @@ WHERE {
                 }
                 return newBindingSet;
               };
+
+
+
               const yasr = new Yasr(document.getElementById("yasr"), {
-                pluginOrder: ["LabelledUriTable"],
+                pluginOrder: ["TableX"],
                 //this way, the URLs in the results are prettified using the defined prefixes in the query
                 getUsedPrefixes : yasqe.getPrefixesFromQuery,
-                "drawOutputSelector": false,
-                "drawDownloadIcon": false,
+                drawOutputSelector: false,
+                drawDownloadIcon: false,
                 // avoid persistency side-effects
                 "persistency": { "prefix": false, "results": { "key": false }}
               });
