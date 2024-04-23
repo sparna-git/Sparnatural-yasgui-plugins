@@ -45,19 +45,19 @@ WHERE {
 
           <div id="ui-search" style="width:auto">
             <spar-natural
-              src="configs/sparnatural-config-dbpedia.ttl"
-              lang="en"
+              src="configs/sparnatural-config-rico.ttl"
+              lang="fr"
               defaultLang="fr"
-              endpoint="https://nakala.fr/sparql"
+              endpoint="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2F51.159.140.210%2Fgraphdb%2Frepositories%2Fsparnatural-demo-anf"
               distinct="true"
-              limit="100"
+              limit="1000"
               debug="true"              
             />
           </div>
           <input type="hidden" id="query-json" />
 
         <span style="font-size:90%;"> 
-          Queries sent to <a id="endpoint" href="https://query.wikidata.org/sparql">https://query.wikidata.org/sparql</a>
+          Queries sent to <a id="endpoint" href="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2F51.159.140.210%2Fgraphdb%2Frepositories%2Fsparnatural-demo-anf">https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2F51.159.140.210%2Fgraphdb%2Frepositories%2Fsparnatural-demo-anf</a>
          </span>
 
          <div id="yasqe"></div>
