@@ -51,6 +51,9 @@ $( document ).ready(function($) {
   Yasr.registerPlugin("Map",SparnaturalYasguiPlugins.MapPlugin);
   Yasr.registerPlugin("MyTestPlugin",SparnaturalYasguiPlugins.MyTestPlugin);
 
+  // exemple pour passer un paramètre de config à un plugin
+  Yasr.plugins.TableX.defaults.openIriInNewWindow = false;
+
   delete Yasr.plugins['table'];
   const yasr = new Yasr(document.getElementById("yasr"), {
       pluginOrder: ["TableX", "Response", "Map", "MyTestPlugin"],
