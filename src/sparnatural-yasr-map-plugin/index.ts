@@ -5,24 +5,35 @@ import { Plugin, DownloadInfo } from "../";
 // to avoid importing it twice in the page
 /*
 var L:typeof import("leaflet/index");
+var markerIcon;
 if(window.L == undefined) {
     import("leaflet").then((theLeaflet) => {
         L = theLeaflet;
         window.L = L;
+        import('leaflet.markercluster');
+         markerIcon = L.icon( {
+            iconUrl:require("leaflet/dist/images/marker-icon.png"),
+            shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+        } );
     });
 } else {
     L = window.L;
+    import('leaflet.markercluster');
+    markerIcon = L.icon( {
+        iconUrl:require("leaflet/dist/images/marker-icon.png"),
+        shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+    } );
 }
-*/
+// /!\ end blackmagic
 
 // Normal leaflet import :
-import L, { Marker } from "leaflet";
+// import L, { Marker } from "leaflet";
+// import 'leaflet.markercluster'
 
 import { Geometry, Point, Polygon } from "geojson";
 import { wktToGeoJson } from "./wktParsing";
 // CSS is required otherwise tiles are messed up
 import 'leaflet/dist/leaflet.css';
-import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
@@ -87,10 +98,6 @@ type DataRow = [number, ...(Parser.BindingValue | "")[]];
 
 
 export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
-    static markerIcon = L.icon( {
-        iconUrl:require("leaflet/dist/images/marker-icon.png"),
-        shadowUrl: require("leaflet/dist/images/marker-shadow.png")
-    } );
 
     priority: number = 5; // priority for sorting the plugins in yasr
     private yasr:Yasr
@@ -325,7 +332,8 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         const latLng = new L.LatLng(feature.coordinates[1],feature.coordinates[0])
         if(!this.map) throw Error(`Wanted to draw Marker but no map found`)
         let markerOptions:any ={
-            icon:MapPlugin.markerIcon
+            // markerIcon is the global variable initialized with dynamic import
+            icon:markerIcon
         }
         if(this.config.markerOptions) markerOptions = this.config.markerOptions
         const marker = new L.Marker(latLng, markerOptions).bindPopup(popUpString)
