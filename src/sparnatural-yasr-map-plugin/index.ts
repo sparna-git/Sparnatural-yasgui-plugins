@@ -3,7 +3,6 @@ import { Plugin, DownloadInfo } from "../";
 
 // /!\ black magic warning : dynamic leaflet import
 // to avoid importing it twice in the page
-/*
 var L:typeof import("leaflet/index");
 var markerIcon;
 if(window.L == undefined) {
