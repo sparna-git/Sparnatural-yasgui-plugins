@@ -322,8 +322,9 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         let polyOptions: any = [] ;
         polyOptions = this.config.searchedPolygon ;
         const poly = new L.Polygon(feature as L.LatLngExpression[][], polyOptions)
-        this.layerGroups['searchPoly'] ? this.layerGroups['searchPoly'].addLayer(poly) : this.layerGroups['searchPoly'] = L.layerGroup([poly])
-        poly.addTo(this.map);
+        this.layerGroups['searchPoly'] ? this.layerGroups['searchPoly'].addLayer(poly) : this.layerGroups['searchPoly'] = L.layerGroup([poly]);
+        //let pane = this.map.createPane('searchArea', this.map.getContainer())
+        poly.addTo(this.map).bringToBack();
         this.calcBounds(feature) ;
     }
 
