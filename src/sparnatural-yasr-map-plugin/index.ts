@@ -323,7 +323,6 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         polyOptions = this.config.searchedPolygon ;
         const poly = new L.Polygon(feature as L.LatLngExpression[][], polyOptions)
         this.layerGroups['searchPoly'] ? this.layerGroups['searchPoly'].addLayer(poly) : this.layerGroups['searchPoly'] = L.layerGroup([poly]);
-        //let pane = this.map.createPane('searchArea', this.map.getContainer())
         poly.addTo(this.map).bringToBack();
         this.calcBounds(feature) ;
     }
@@ -439,9 +438,17 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             this.warnEL = document.createElement('div')
             this.warnEL.setAttribute('id','yasrmap-warnEL')
             this.warnEL.setAttribute('class','alert alert-warning')
-            this.warnEL.innerText ='Attention, des résultats ('+this.haveResultWithoutGeo+') n\'ont pas de coordonnées pour être représentés sur la carte' ;
+            this.warnEL.innerText ='Attention, des résultats ('+this.haveResultWithoutGeo+') n\'ont pas de coordonnées pour être représentés sur la carte.' ;
 
             parentEl.appendChild(this.warnEL) ;
+            let linkToTable = document.createElement('a');
+            linkToTable.classList.add('link', 'ms-2');
+            linkToTable.innerText = 'Afficher la table des résultats' ;
+            this.warnEL.appendChild(linkToTable) ;
+            linkToTable.addEventListener("click", ()=>{
+                (this.yasr as any).selectPlugin("table") ;
+                return false;
+            });
         }
         
         
