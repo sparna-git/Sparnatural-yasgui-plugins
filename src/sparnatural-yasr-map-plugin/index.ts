@@ -10,7 +10,7 @@ if(window.L == undefined) {
         L = theLeaflet;
         window.L = L;
         import('leaflet.markercluster');
-         markerIcon = L.icon( {
+        markerIcon = L.icon( {
             iconUrl:require("leaflet/dist/images/marker-icon.png"),
             shadowUrl: require("leaflet/dist/images/marker-shadow.png")
         } );
