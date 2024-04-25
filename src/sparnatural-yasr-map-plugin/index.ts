@@ -85,8 +85,8 @@ interface PluginConfig {
     }
     parsingFunction: (literalValue:string)=> Geometry,
     L18n: {
-        warnfindNoCoordinate: string, // use "<count>" patern to replace with count of results with no geo coordinates
-        warnfindNoCoordinateBtn: string // Link label for plugin table display on warnig message
+        warnFindNoCoordinate: string, // use "<count>" patern to replace with count of results with no geo coordinates
+        warnFindNoCoordinateBtn: string // Link label for plugin table display on warnig message
     }
     
 }
@@ -161,8 +161,8 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         },
         parsingFunction: wktToGeoJson,
         L18n: {
-            warnfindNoCoordinate: 'Attention, des résultats (<count>) n\'ont pas de coordonnées pour être représentés sur la carte.',
-            warnfindNoCoordinateBtn: 'Afficher la table des résultats' 
+            warnFindNoCoordinate: 'Attention, des résultats (<count>) n\'ont pas de coordonnées pour être représentés sur la carte.',
+            warnFindNoCoordinateBtn: 'Afficher la table des résultats' 
         }
         
     }
@@ -447,14 +447,14 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             this.warnEL = document.createElement('div')
             this.warnEL.setAttribute('id','yasrmap-warnEL')
             this.warnEL.setAttribute('class','alert alert-warning')
-            let text = this.config.L18n.warnfindNoCoordinate.replace("<count>", this.haveResultWithoutGeo.toString())
+            let text = this.config.L18n.warnFindNoCoordinate.replace("<count>", this.haveResultWithoutGeo.toString())
             this.warnEL.innerText = text;
 
             parentEl.appendChild(this.warnEL) ;
             let linkToTable = document.createElement('a');
             linkToTable.classList.add('link', 'ms-2');
             linkToTable.setAttribute('style', "cursor: pointer;");
-            linkToTable.innerText = this.config.L18n.warnfindNoCoordinateBtn ;
+            linkToTable.innerText = this.config.L18n.warnFindNoCoordinateBtn ;
             this.warnEL.appendChild(linkToTable) ;
             linkToTable.addEventListener("click", ()=>{
                 (this.yasr as any).selectPlugin("table") ;
