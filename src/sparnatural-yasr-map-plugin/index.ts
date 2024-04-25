@@ -50,6 +50,7 @@ It then doesn't init the map.pm attribute. (stays undefined) and when it tries t
 // import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import Parser from "../parsers";
 import { ISparJson } from "../ISparJson";
+import { TableXResults } from "../TableXResults";
 
 /*
     Currently this plugin supports only the wktLiteral parsing.
@@ -122,6 +123,8 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     bounds: any; // Instantiate LatLngBounds object
     sparnaturalQuery: ISparJson | null = null ;
 
+    private results?: TableXResults;
+
     // define the default config for leaflet
     public static defaults: PluginConfig = {
         baseLayers: [{
@@ -184,7 +187,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     // Map plugin can handle results in the form of geosparql wktLiterals
     // http://schemas.opengis.net/geosparql/1.0/geosparql_vocab_all.rdf#wktLiteral
     canHandleResults(): boolean {
-        let rows = this.getRows()
+        let rows = this.getRows(new TableXResults(this.yasr.results as Parser))
         let have_geo = false ;
         this.haveResultWithoutGeo = 0;
         if(rows && rows.length > 0){
@@ -216,7 +219,9 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     }
 
     draw(persistentConfig: any, runtimeConfig?: any): void | Promise<void> {
-        const rows = this.getRows()
+
+        this.results = new TableXResults(this.yasr.results as Parser);
+        const rows = this.getRows(this.results)
         //if the resultset changed, then cleanup and rerender
         this.cleanUp()
         this.createMap()
@@ -262,16 +267,12 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     }
 
     public notifyQuery(sparnaturalQuery:ISparJson) {
-		console.log("received query on map");
-		console.log(sparnaturalQuery);
+		// nothing
         this.sparnaturalQuery = sparnaturalQuery ;
-        /*const eventChange = new Event("sparnaturalQueryChange");
-        this.yasr?.rootEl.dispatchEvent(eventChange);*/
 	}
 
     public notifyConfiguration(specProvider:any) {
-		console.log("received specification provider from Sparnatural");
-		console.log(specProvider);
+		// nothing
 	}
 
     private searchCoordinatesOnQuery(data) {
@@ -393,7 +394,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
 
     // Add the drawable to a control layer
     private addToLayerGroup(colIndex:number,feature:L.Polygon | L.Marker){
-        const cols = this.getVariables()
+        const cols = this.results?.getVariables()
         if(cols){
             let vName = cols[colIndex]
             this.layerGroups[vName] ? this.layerGroups[vName].addLayer(feature) : this.layerGroups[vName] = L.layerGroup([feature])
@@ -402,7 +403,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
 
     private createPopUpString(row:DataRow):string {
         let popUp:{[key: string]: any;} = {}
-        let columns = this.getVariables()
+        let columns = this.results?.getVariables()
         
         row.forEach((cell,i)=>{
             // uncomment to get the row number in the popup
@@ -423,8 +424,13 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         for (const [k, cell] of Object.entries(popUp)) {
             let currentString = `<strong>${k}</strong>:&nbsp;`;
             
+            // normal URI : a clickable URI
             if(cell.type === "uri") {
                 currentString += ` <a class='iri' style="cursor: pointer; color:blue;" href="${cell.value}" target="_blank">${cell.value}</a>`
+            // TableXResult special case containing URI + label : clickable URI with label displayed
+            } else if(cell.type === "x-labelled-uri") {
+                currentString += ` <a class='iri' style="cursor: pointer; color:blue;" href="${cell.value}" target="_blank">${cell.label}</a>`
+            // other case : just print the value (the literal)
             } else {
                 currentString += `${cell.value}`
             }
@@ -503,18 +509,14 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         })
     }
 
-    private getRows(): DataRow[] {
-        if (!this.yasr.results) return [];
-        const bindings = this.yasr.results.getBindings();
+    private getRows(results:Parser|undefined): DataRow[] {
+        if (!results) return [];
+        const bindings = results.getBindings();
         if (!bindings) return [];
         // Vars decide the columns
-        const vars = this.yasr.results.getVariables();
+        const vars = results.getVariables();
         // Use "" as the empty value, undefined will throw runtime errors
         return bindings.map((binding, rowId) => [rowId + 1, ...vars.map((variable) => binding[variable] ?? "")]);
-    }
-
-    private getVariables(){
-        return this.yasr.results?.getVariables()
     }
     
     // remove the already rendered map so we can rerender it
