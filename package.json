@@ -29,7 +29,7 @@
     "webpack-dev-server": "^4.7.3"
   },
   "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^5.14.0",
+    "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@geoman-io/leaflet-geoman-free": "2.16.0",
     "@types/lodash-es": "^4.17.3",
     "column-resizer": "^1.3.4",

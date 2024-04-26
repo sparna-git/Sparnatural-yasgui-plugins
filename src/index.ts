@@ -1,11 +1,12 @@
 import { ISparJson } from "./ISparJson";
 import Parser from "./parsers";
-export * from './sparnatural-yasr-plugin-template';
-export * from './sparnatural-yasr-tablex-plugin';
-export * from './sparnatural-yasr-htmltemplate-plugin';
-export * from './sparnatural-yasr-map-plugin';
+export * from "./sparnatural-yasr-plugin-grid";
+export * from "./sparnatural-yasr-tablex-plugin";
+export * from "./sparnatural-yasr-htmltemplate-plugin";
+export * from "./sparnatural-yasr-map-plugin";
 
 export interface Yasr {
+  setTabTitle(arg0: string): unknown;
   // public results?: Parser;
   results?: Parser;
   rootEl: HTMLDivElement;
@@ -18,7 +19,6 @@ export interface Yasr {
 }
 
 export type Prefixes = { [prefixLabel: string]: string };
-
 
 export interface Plugin<Opts extends any> {
   priority: number;
@@ -37,11 +37,9 @@ export interface Plugin<Opts extends any> {
 }
 
 export interface SparnaturalPlugin<Opts extends any> extends Plugin<Opts> {
-  notifyQuery(sparnaturalQuery: ISparJson): void
-  notifyConfiguration(specProvider: any): void
+  notifyQuery(sparnaturalQuery: ISparJson): void;
+  notifyConfiguration(specProvider: any): void;
 }
-
-
 
 export interface DownloadInfo {
   contentType: string;
@@ -52,7 +50,6 @@ export interface DownloadInfo {
   filename: string;
   title: string;
 }
-
 
 export function drawSvgStringAsElement(svgString: string) {
   if (svgString && svgString.trim().indexOf("<svg") == 0) {
@@ -87,10 +84,14 @@ export function drawFontAwesomeIconAsSvg(faIcon: FaIcon) {
 export function hasClass(el: Element | undefined, className: string) {
   if (!el) return;
   if (el.classList) return el.classList.contains(className);
-  else return !!el.className.match(new RegExp("(\\s|^)" + className + "(\\s|$)"));
+  else
+    return !!el.className.match(new RegExp("(\\s|^)" + className + "(\\s|$)"));
 }
 
-export function addClass(el: Element | undefined | null, ...classNames: string[]) {
+export function addClass(
+  el: Element | undefined | null,
+  ...classNames: string[]
+) {
   if (!el) return;
   for (const className of classNames) {
     if (el.classList) el.classList.add(className);

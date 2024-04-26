@@ -1,0 +1,81 @@
+/* Style pour le conteneur principal du plugin */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+/* Style pour chaque boîte de résultat */
+.result-box {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ajout de l'ombre */
+}
+
+/* Style pour les éléments clés-valeurs */
+.result-box div {
+  margin-bottom: 5px;
+}
+
+/* Style pour les éléments clés */
+.result-box strong {
+  color: #333;
+}
+
+/* Style pour les valeurs */
+.result-box span {
+  color: #666;
+}
+
+/* Style pour le bouton "Consulter" */
+.result-box button {
+  background-color: #007bff; /* Couleur de fond bleue */
+  color: white; /* Couleur du texte blanche */
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Style pour le hover du bouton */
+.result-box button:hover {
+  background-color: #0056b3; /* Couleur de fond bleue foncée */
+}
+.load-more-button {
+  background-color: #007bff; /* Couleur de fond */
+  color: #ffffff; /* Couleur du texte */
+  border: none; /* Supprime les bordures */
+  padding: 10px 20px; /* Ajoute un peu de marge intérieure */
+  border-radius: 5px; /* Ajoute un peu de bord arrondi */
+  cursor: pointer; /* Transforme le curseur en main au survol */
+  position: relative;
+  margin-top: 20px;
+}
+
+.load-more-button:hover {
+  background-color: #0056b3; /* Change la couleur de fond au survol */
+}
+
+/* Style pour le bouton de retour au début */
+.return-to-top-button {
+  background-color: #007bff; /* Couleur de fond */
+  color: #ffffff; /* Couleur du texte */
+  border: none; /* Supprime les bordures */
+  padding: 10px 20px; /* Ajoute un peu de marge intérieure */
+  border-radius: 5px; /* Ajoute un peu de bord arrondi */
+  cursor: pointer; /* Transforme le curseur en main au survol */
+  position: relative;
+  margin-top: 20px;
+}
+
+.return-to-top-button:hover {
+  background-color: #0056b3; /* Change la couleur de fond au survol */
+}
+
+/* Style pour le texte de fin */
+.end-message {
+  margin-top: 20px; /* Ajoute un peu d'espace en haut */
+  font-style: italic; /* Met en italique */
+  color: #666; /* Couleur du texte gris */
+}
