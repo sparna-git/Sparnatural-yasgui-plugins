@@ -12,8 +12,10 @@ $( document ).ready(function($) {
 
   sparnatural.addEventListener("init", (event) => {  
     // notify the specification to yasr plugins
+    console.log("notifying configuration...")
     for (const plugin in yasr.plugins) {
         if(yasr.plugins[plugin].notifyConfiguration) {
+            console.log("notifying configuration for plugin "+plugin)
             yasr.plugins[plugin].notifyConfiguration(sparnatural.sparnatural.specProvider);
         }
     }
