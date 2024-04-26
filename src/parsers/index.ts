@@ -12,6 +12,9 @@ namespace Parser {
     // ***** end TableX MODIFICATION
     datatype?: string;
     "xml:lang"?: string;
+    // ***** TableX MODIFICATION
+    label?:string
+    // ***** end TableX MODIFICATION
   }
   export interface Binding {
     [varname: string]: BindingValue;

@@ -27,11 +27,11 @@ export class TableXResults implements Parser {
         );
     }
   
-    public getBindings() {
+    public getBindings():Parser.Binding[] {
       return this.bindings;
     }
   
-    public getVariables() {
+    public getVariables():string[] {
         return this.variables;
     }
   
