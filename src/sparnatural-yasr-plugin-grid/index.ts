@@ -9,6 +9,8 @@ import {
 import { Yasr } from "..";
 import { ISparJson, Branch } from "../ISparJson";
 import * as faTh from "@fortawesome/free-solid-svg-icons/faTh";
+import { TableXResults } from "../TableXResults";
+import Parser from "../parsers";
 //config persistante a faire !!!!!!!!
 interface PersistentConfig {
   pageSize?: number;
@@ -53,8 +55,12 @@ export class MyTestPluginGrid implements SparnaturalPlugin<PluginConfig> {
     this.displayResultBoxes();
   }
   private displayResultBoxes() {
+
+    // pre-process the result bindings to merge the label columns with the URI columns
+    var results = new TableXResults(this.yasr.results as Parser);
+
     // Assume results are available in this.yasr.results.getBindings()
-    const bindings = this.yasr.results?.getBindings();
+    const bindings:Parser.Binding[] = results.getBindings();
     if (!bindings) return;
     // Calculate the start index based on the current page size
     const startIndex = 0;
@@ -91,9 +97,15 @@ export class MyTestPluginGrid implements SparnaturalPlugin<PluginConfig> {
     }
   }
   //fonction pour créer les boites de résultats
-  private createResultBox(bindingSet: any): HTMLDivElement {
+  private createResultBox(bindingSet: Parser.Binding): HTMLDivElement {
     const resultBox = document.createElement("div");
     resultBox.className = "result-box";
+
+    // insérer le titre de la box en allant le récupérer
+    const keyValueElement = document.createElement("div");
+    keyValueElement.innerHTML = `<strong>${this.getResultBoxTitle(bindingSet)}</strong>`;
+    resultBox.appendChild(keyValueElement);
+
     // Parcourir chaque clé dans le binding set
     for (const key in bindingSet) {
       if (Object.prototype.hasOwnProperty.call(bindingSet, key)) {
@@ -103,6 +115,10 @@ export class MyTestPluginGrid implements SparnaturalPlugin<PluginConfig> {
           // Créer un élément pour afficher la clé et la valeur
           const keyValueElement = document.createElement("div");
           keyValueElement.innerHTML = `<strong>${value.value}</strong>`;
+          resultBox.appendChild(keyValueElement);
+        } else if(value.type === "x-labelled-uri") {
+          const keyValueElement = document.createElement("div");
+          keyValueElement.innerHTML = `<a href="${value.value}">${value.label}</a>`;
           resultBox.appendChild(keyValueElement);
         }
       }
@@ -118,20 +134,20 @@ export class MyTestPluginGrid implements SparnaturalPlugin<PluginConfig> {
     return resultBox;
   }
 
-  private getResourceLink(bindingSet: any): string {
+  getResultBoxTitle(bindingSet: Parser.Binding): string {
+    return "toto";
+  }
+
+
+  private getResourceLink(bindingSet: Parser.Binding): string {
     // Find the first column in the result table containing URIs
     for (const value of Object.values(bindingSet)) {
       if (
         typeof value === "object" &&
         value !== null &&
-        (value as { type: string }).type === "uri"
+        ( value.type === "uri" || value.type === "x-labelled-uri")
       ) {
-        return (
-          value as {
-            value: string;
-            type: string;
-          }
-        ).value;
+        return value.value;
       }
     }
     return "";
