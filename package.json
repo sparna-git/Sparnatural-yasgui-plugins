@@ -1,7 +1,7 @@
 {
   "name": "sparnatural-yasgui-plugins",
-  "version": "2.0.1",
-  "description": "",
+  "version": "2.0.0",
+  "description": "A set of YasGUI plugins to work in combination with Sparnatural SPARQL query builder",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
