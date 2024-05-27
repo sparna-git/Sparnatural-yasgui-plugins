@@ -48,19 +48,19 @@ WHERE {
 
           <div id="ui-search" style="width:auto">
             <spar-natural
-              src="configs/sparnatural-config-A.ttl"
+              src="configs/sparnatural-config-dbpedia.ttl"
               lang="fr"
               defaultLang="fr"
-              endpoint="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2F51.159.140.210%2Fgraphdb%2Frepositories%2Fsparnatural-demo-anf"
+              endpoint="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql"
               distinct="true"
-              limit="1000"
+              limit="300"
               debug="true"              
             />
           </div>
           <input type="hidden" id="query-json" />
 
         <span style="font-size:90%;"> 
-          Queries sent to <a id="endpoint" href="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2F51.159.140.210%2Fgraphdb%2Frepositories%2Fsparnatural-demo-anf">https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2F51.159.140.210%2Fgraphdb%2Frepositories%2Fsparnatural-demo-anf</a>
+          Queries sent to <a id="endpoint" href="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql">https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql</a>
          </span>
 
          <div id="yasqe"></div>

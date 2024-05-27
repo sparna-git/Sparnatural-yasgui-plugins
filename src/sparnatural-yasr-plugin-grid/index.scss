@@ -1,81 +1,240 @@
-/* Style pour le conteneur principal du plugin */
+/* Style for the main plugin container */
 .result-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
+  margin-top: 10px;
 }
-/* Style pour chaque boîte de résultat */
+
+/* Style for each result box */
 .result-box {
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+/* Style for the document type container */
+.document-type-container {
+  border-radius: 10px;
   padding: 10px;
+  margin-top: 10px;
+  margin-left: 10px;
   background-color: #f9f9f9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ajout de l'ombre */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+  margin-bottom: 20px;
+  width: max-content;
+  border: 2px solid #5b5b5b;
+  //background-color: transparent;
+  position: absolute;
+  top: 10px;
+  left: 10px;
 }
 
-/* Style pour les éléments clés-valeurs */
-.result-box div {
-  margin-bottom: 5px;
+.document-type-container-wo-image {
+  display: flex;
+  align-items: center;
+  //border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+  margin-left: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+  margin-bottom: 20px;
+  width: 350px;
+  background-color: transparent;
+  position: absolute;
+  top: 10px;
+  left: 10px;
 }
 
-/* Style pour les éléments clés */
-.result-box strong {
-  color: #333;
+/* Style for the main title with image */
+.result-box .main-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 15px;
+  color: rgb(30, 29, 29);
+  text-align: left;
 }
 
-/* Style pour les valeurs */
-.result-box span {
+//style for the main title without image
+.result-box .main-title-wo-image {
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  //margin-top: 80px;
+  color: rgb(30, 29, 29);
+  text-align: left;
+}
+
+.result-box .key {
+  margin-top: 100px;
+}
+.result-box .key-wo-image {
+  margin-top: 80px;
+}
+
+/* Style for the key-value elements */
+.result-box .key-value-element {
+  margin-top: 8px;
+  margin-left: 20px;
+}
+
+.result-box-child {
+  margin-left: 23px;
+}
+
+/* Style for the consult button container */
+.result-box .consult-button-container {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.result-box .consult-button-container button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Hover style for the button */
+.result-box .consult-button-container button:hover {
+  background-color: #0056b3;
+}
+
+/* Style for the "Load More" button */
+.load-more-button,
+.return-to-top-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  width: 200px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+/* Hover style for the "Load More" button */
+.load-more-button:hover,
+.return-to-top-button:hover {
+  background-color: #0056b3;
+}
+
+/* Style for the end message */
+.end-message {
+  margin-top: 20px;
+  font-style: italic;
   color: #666;
 }
 
-/* Style pour le bouton "Consulter" */
-.result-box button {
-  background-color: #007bff; /* Couleur de fond bleue */
-  color: white; /* Couleur du texte blanche */
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
+/* Style for the document type text */
+.document-type-label {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  font-weight: bold;
+  color: #333;
+  border-radius: 10px;
+}
+
+/* Style for the document type text */
+.document-type-label-wo-image {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  font-weight: bold;
+  color: #333;
+  background: #ffffff;
+  border: 2px solid #5b5b5b;
+  border-radius: 10px;
+}
+
+/* Style for the document type text */
+.document-type-label-wo-image {
+  margin-right: 10px;
+  padding: 5px 10px 5px;
+  font-weight: bold;
+  color: #333;
+  border: 2px solid #333;
+  border-radius: 10px;
+}
+
+.truncated-title {
+  color: black;
   cursor: pointer;
+  filter: brightness(50%);
 }
 
-/* Style pour le hover du bouton */
-.result-box button:hover {
-  background-color: #0056b3; /* Couleur de fond bleue foncée */
-}
-.load-more-button {
-  background-color: #007bff; /* Couleur de fond */
-  color: #ffffff; /* Couleur du texte */
-  border: none; /* Supprime les bordures */
-  padding: 10px 20px; /* Ajoute un peu de marge intérieure */
-  border-radius: 5px; /* Ajoute un peu de bord arrondi */
-  cursor: pointer; /* Transforme le curseur en main au survol */
-  position: relative;
+/* Style for the separator */
+.result-separator {
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  border: none;
+  border: 5px solid #ff0000;
+  border-radius: 50px;
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 
-.load-more-button:hover {
-  background-color: #0056b3; /* Change la couleur de fond au survol */
+/* Style for the image container */
+.result-box .image-container {
+  overflow: hidden;
+  max-height: 300px;
+  border-radius: 10px;
 }
 
-/* Style pour le bouton de retour au début */
-.return-to-top-button {
-  background-color: #007bff; /* Couleur de fond */
-  color: #ffffff; /* Couleur du texte */
-  border: none; /* Supprime les bordures */
-  padding: 10px 20px; /* Ajoute un peu de marge intérieure */
-  border-radius: 5px; /* Ajoute un peu de bord arrondi */
-  cursor: pointer; /* Transforme le curseur en main au survol */
-  position: relative;
-  margin-top: 20px;
+.result-box .image-container img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
 }
 
-.return-to-top-button:hover {
-  background-color: #0056b3; /* Change la couleur de fond au survol */
+/* Style for the image placeholder */
+.result-box .image-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 300px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  color: #999;
+  border: 1px solid #ccc;
 }
 
-/* Style pour le texte de fin */
-.end-message {
-  margin-top: 20px; /* Ajoute un peu d'espace en haut */
-  font-style: italic; /* Met en italique */
-  color: #666; /* Couleur du texte gris */
+/*
+.popup {
+  position: absolute;
+  z-index: 9999; //Assurez-vous que le popup est au-dessus de tous les autres éléments 
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.popup-content {
+  display: flex;
+}
+
+.popup-image {
+  width: 100px; //Ajustez la taille de l'image selon vos besoins 
+  height: auto;
+  margin-right: 10px; // Espacement entre l'image et le texte 
+}
+
+.popup-text {
+  flex: 1; // Permet au texte de s'étendre pour remplir l'espace restant 
+}
+*/

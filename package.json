@@ -14,6 +14,7 @@
   "devDependencies": {
     "@types/datatables.net": "^1.10.18",
     "@types/geojson": "^7946.0.10",
+    "@types/jsdom": "^21.1.6",
     "@types/leaflet": "^1.7.11",
     "@types/leaflet.markercluster": "^1.5.1",
     "css-loader": "^6.5.1",
@@ -36,6 +37,7 @@
     "datatables.net": "^1.10.24",
     "datatables.net-dt": "^1.10.24",
     "jquery": "^3.5.0",
+    "jsdom": "^24.0.0",
     "leaflet": "1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "lodash-es": "^4.17.15",
