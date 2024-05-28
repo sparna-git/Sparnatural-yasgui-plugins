@@ -9,6 +9,7 @@ export class BindingParser {
   //OK : changer plus tard comment on recupere les titres dans les branches
   //condition entre les branches et les variables si variable existe voir
   //si la branches elle est principale sinon voir dans les enfrants suite recursive
+  /*
   public identifyPrincipalTitleColumn(
     query: any,
     bindings: Parser.Binding[]
@@ -35,6 +36,57 @@ export class BindingParser {
         }
       }
     }
+    console.error(
+      "Impossible de trouver une colonne de titre avec des informations de type x-labelled-uri."
+    );
+    return undefined;
+  }
+*/
+  public identifyPrincipalTitleColumn(
+    query: any,
+    bindings: Parser.Binding[]
+  ): string | undefined {
+    if (!query || !query.variables || query.variables.length === 0) {
+      console.error("Aucune variable trouvée dans la requête.");
+      return undefined;
+    }
+
+    // Parcourir toutes les variables de la requête
+    for (const variable of query.variables) {
+      const variableName = variable.value;
+
+      // Initialiser un compteur pour les résultats valides
+      let validCount = 0;
+
+      // Vérifier 2 résultats tous les 10 dans les 100 premiers bindings
+      for (let i = 0; i < 100; i += 10) {
+        const indicesToCheck = [i, i + 1];
+
+        for (const index of indicesToCheck) {
+          if (index < bindings.length && bindings[index][variableName]) {
+            const value = bindings[index][variableName];
+            if (value.type === "x-labelled-uri") {
+              validCount++;
+            } else {
+              validCount = 0; // Reset the counter if any value is not "x-labelled-uri"
+              break;
+            }
+          }
+        }
+
+        // If any of the 10 result pairs are invalid, continue to the next variable
+        if (validCount < 2) {
+          validCount = 0; // Reset the counter and break the inner loop
+          break;
+        }
+      }
+
+      // If we have found 20 valid results, return the variable name
+      if (validCount >= 20) {
+        return variableName;
+      }
+    }
+
     console.error(
       "Impossible de trouver une colonne de titre avec des informations de type x-labelled-uri."
     );

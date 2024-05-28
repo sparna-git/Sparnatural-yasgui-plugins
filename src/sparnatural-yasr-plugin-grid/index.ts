@@ -20,7 +20,7 @@ interface PluginConfig {
   //displayBoxHtml: DisplayBoxHtml;
   //pageSize?: number;
 }
-export class MyPluginGrid implements SparnaturalPlugin<PluginConfig> {
+export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private yasr: Yasr;
   private query: any;
   private queryConfiguration: any;
@@ -65,7 +65,14 @@ export class MyPluginGrid implements SparnaturalPlugin<PluginConfig> {
   }
 
   //verifier si le plugin peut afficher les resultats
+  //sur cela je veux ajouter une condition qui verifier si la query ou la query config existe sinon false
+  //code here ...
+
   public canHandleResults(): boolean {
+    // Vérifier si la query ou la query config existe sinon false
+    if (!this.query || !this.queryConfiguration) {
+      return false;
+    }
     const bindings = this.yasr.results?.getBindings();
     if (!bindings) return false;
     for (const bindingSet of bindings) {

@@ -191,9 +191,12 @@ export class DisplayBoxHtml {
     titleElement.className = "main-title";
     titleElement.innerHTML = `<strong>${this.limitTitleLength(
       resultBox.docTitle,
-      100
+      50
     )}</strong>`;
-    resultBoxElement.appendChild(titleElement);
+    const key = document.createElement("div");
+    key.className = "key";
+    key.appendChild(titleElement);
+    resultBoxElement.appendChild(key);
 
     resultBox.predicates.forEach((property) => {
       const keyValueElement = document.createElement("div");
@@ -202,21 +205,30 @@ export class DisplayBoxHtml {
       if (property.value !== "" || property.children.length > 0) {
         if (property.value !== resultBox.docTitle) {
           if (property.uriValue !== "") {
-            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <a href="${property.uriValue}" target="_blank" class="popup-link" data-uri="${property.uriValue}"><strong>${property.value}</strong></a> (${property.typeObject})`;
-            resultBoxElement.appendChild(keyValueElement);
+            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <a href="${property.uriValue}" target="_blank" class="popup-link" data-uri="${property.uriValue}"><strong>${property.value}</strong></a> <span class="objet">(${property.typeObject})</span>`;
+            key.appendChild(keyValueElement);
+            resultBoxElement.appendChild(key);
           } else {
-            const value = property.value || "";
-            keyValueElement.innerHTML = `<li/>${
-              property.predicateAttribute
-            } <strong>${this.limitTitleLength(value, 150)}</strong> (${
-              property.typeObject
-            })`;
-            resultBoxElement.appendChild(keyValueElement);
+            if (property.value !== "") {
+              const value = property.value || "";
+              keyValueElement.innerHTML = `<li/>${
+                property.predicateAttribute
+              } : ${this.limitTitleLength(value, 150)}`;
+              key.appendChild(keyValueElement);
+              resultBoxElement.appendChild(key);
+            } else {
+              if (property.children.length > 0) {
+                keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <span class="objet">(${property.typeObject})</span>`;
+                key.appendChild(keyValueElement);
+                resultBoxElement.appendChild(key);
+              }
+            }
           }
         } else {
           if (property.children.length > 0) {
-            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} (${property.typeObject})`;
-            resultBoxElement.appendChild(keyValueElement);
+            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <span class="objet">(${property.typeObject})</span>`;
+            key.appendChild(keyValueElement);
+            resultBoxElement.appendChild(key);
           }
         }
       } /* else {
@@ -224,17 +236,15 @@ export class DisplayBoxHtml {
           keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <strong>${property.uriValue}</strong> (${property.typeObject})`;
       }*/
       if (property.children && property.children.length > 0) {
-        const childrenContainer = document.createElement("div");
-        childrenContainer.className = "children-cont";
         property.children.forEach((child) => {
-          //afficher les proprietes des enfants
           const childElement = this.createResultBoxFromProperty(
             child,
             resultBox
           );
-          childrenContainer.appendChild(childElement);
+          keyValueElement.appendChild(childElement);
+          key.appendChild(keyValueElement);
+          resultBoxElement.appendChild(key);
         });
-        resultBoxElement.appendChild(childrenContainer);
       }
     });
 
@@ -247,31 +257,31 @@ export class DisplayBoxHtml {
     });
     consultButtonContainer.appendChild(consultButton);
     resultBoxElement.appendChild(consultButtonContainer);
-
+    /* 
     // Vérifier si tous les prédicats et leurs enfants ont une valeur ou une uriValue
     //let allPredicatesHaveValue = resultBox.predicates.every((property) => {
-    //if (
-    //property.value === "" &&
-    //property.uriValue === "" &&
-    //property.children.length === 0
-    //) {
-    // return false;
-    // }
-    //if (property.children.length > 0) {
-    // return property.children.every(
-    //  (child) => child.value !== "" || child.uriValue !== ""
-    //);
-    // }
-    // return true;
-    //});
+      //if (
+        property.value === "" &&
+        property.uriValue === "" &&
+        property.children.length === 0
+      ) {
+        return false;
+      }
+      if (property.children.length > 0) {
+        return property.children.every(
+          (child) => child.value !== "" || child.uriValue !== ""
+        );
+      }
+      return true;
+    });
 
     // Appliquer la couleur de fond en fonction de la condition
-    //if (allPredicatesHaveValue) {
-    //resultBoxElement.style.backgroundColor = "#ffffcc"; //
-    //} else {
-    // resultBoxElement.style.backgroundColor = "#ffffff"; // blanc
-    //}
-
+    if (allPredicatesHaveValue) {
+      resultBoxElement.style.backgroundColor = "#ffffcc"; //
+    } else {
+      resultBoxElement.style.backgroundColor = "#ffffff"; // blanc
+    }
+*/
     return resultBoxElement;
   }
 
@@ -287,26 +297,11 @@ export class DisplayBoxHtml {
     resultBoxElement.className = "result-box-child";
 
     const keyValueElement = document.createElement("div");
-    keyValueElement.className = "key-value-element";
-    /*
-    if (property.value !== "" || property.children.length > 0) {
-      if (property.uriValue !== "") {
-        keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <a href="${property.uriValue}" target="_blank" class="popup-link" data-uri="${property.uriValue}"><strong>${property.value}</strong></a> (${property.typeObject})`;
-        resultBoxElement.appendChild(keyValueElement);
-      } else {
-        const value = property.value || ""; // Handle undefined value
-        keyValueElement.innerHTML = `<li/>${
-          property.predicateAttribute
-        } <strong>${this.limitTitleLength(value, 150)}</strong> (${
-          property.typeObject
-        })ccc`;
-        resultBoxElement.appendChild(keyValueElement);
-      }
-    }*/
+    keyValueElement.className = "key-value-element-child";
     if (property.value !== "") {
       if (property.value !== resultBox.docTitle) {
         if (property.uriValue !== "") {
-          keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <a href="${property.uriValue}" target="_blank" class="popup-link" data-uri="${property.uriValue}"><strong>${property.value}</strong></a> (${property.typeObject})`;
+          keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <a href="${property.uriValue}" target="_blank" class="popup-link" data-uri="${property.uriValue}"><strong>${property.value}</strong></a> <span class="objet">(${property.typeObject})</span>`;
           resultBoxElement.appendChild(keyValueElement);
         } else {
           if (property.value !== "" && property.children.length > 0) {
@@ -317,29 +312,28 @@ export class DisplayBoxHtml {
               const value = property.value || ""; // Handle undefined value
               keyValueElement.innerHTML = `<li/>${
                 property.predicateAttribute
-              } <strong>${this.limitTitleLength(value, 150)}</strong> (${
-                property.typeObject
-              })ccc`;
+              } : <strong>${this.limitTitleLength(
+                value,
+                150
+              )} <span class="objet">(${property.typeObject})</span>`;
             } else {
               const value = property.value || ""; // Handle undefined value
-              keyValueElement.innerHTML = "cckk";
+              keyValueElement.innerHTML = "";
             }
           } else {
             if (property.children.find((child) => child.value !== "")) {
               const value = property.value || ""; // Handle undefined value
               keyValueElement.innerHTML = `<li/>${
                 property.predicateAttribute
-              } <strong>${this.limitTitleLength(value, 150)}</strong> (${
-                property.typeObject
-              })cccm`;
+              } : <strong>${this.limitTitleLength(
+                value,
+                150
+              )} <span class="objet">(${property.typeObject})</span>`;
             }
             if (property.uriValue === "") {
               keyValueElement.innerHTML = `<li/>${
                 property.predicateAttribute
-              } <strong>${this.limitTitleLength(
-                property.value,
-                150
-              )}</strong> (${property.typeObject})ccc`;
+              } : ${this.limitTitleLength(property.value, 150)}`;
             }
           }
           resultBoxElement.appendChild(keyValueElement);
@@ -349,7 +343,7 @@ export class DisplayBoxHtml {
           property.children.length > 0 &&
           property.children.find((child) => child.value !== "")
         ) {
-          keyValueElement.innerHTML = `<li/>${property.predicateAttribute} (${property.typeObject})c`;
+          keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <span class="objet">(${property.typeObject})</span>`;
           resultBoxElement.appendChild(keyValueElement);
         }
       }
@@ -358,7 +352,7 @@ export class DisplayBoxHtml {
         property.children.length > 0 &&
         property.children.find((child) => child.value !== "")
       ) {
-        keyValueElement.innerHTML = `<li/>${property.predicateAttribute} (${property.typeObject})c`;
+        keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <span class="objet">(${property.typeObject})</span>`;
         resultBoxElement.appendChild(keyValueElement);
       } else {
         keyValueElement.innerHTML = ``;
@@ -371,9 +365,9 @@ export class DisplayBoxHtml {
       childrenContainer.className = "children-container";
       property.children.forEach((child) => {
         const childElement = this.createResultBoxFromProperty(child, resultBox);
-        childrenContainer.appendChild(childElement);
+        keyValueElement.appendChild(childElement);
+        resultBoxElement.appendChild(keyValueElement);
       });
-      resultBoxElement.appendChild(childrenContainer);
     }
 
     return resultBoxElement;
@@ -392,13 +386,16 @@ export class DisplayBoxHtml {
 
     const documentTypeLabel = document.createElement("div");
     documentTypeLabel.className = "document-type-label-wo-image";
-    documentTypeLabel.innerHTML = `${resultBox.docIcon}<strong>${resultBox.docType}</strong>`;
-
+    if (resultBox.docIcon) {
+      documentTypeLabel.innerHTML = `${resultBox.docIcon}`;
+    } else {
+      documentTypeLabel.innerHTML = `${resultBox.docIcon}<strong>${resultBox.docType}</strong>`;
+    }
     const titleElement = document.createElement("div");
     titleElement.className = "main-title-wo-image";
     titleElement.innerHTML = `<strong>${this.limitTitleLength(
       resultBox.docTitle,
-      100
+      50
     )}</strong>`;
 
     documentTypeContainer.appendChild(documentTypeLabel);
@@ -410,64 +407,46 @@ export class DisplayBoxHtml {
     resultBox.predicates.forEach((property) => {
       const keyValueElement = document.createElement("div");
       keyValueElement.className = "key-value-element";
-      if (property.value !== "" || property.children.length != 0) {
+      if (property.value !== "" || property.children.length > 0) {
         if (property.value !== resultBox.docTitle) {
           if (property.uriValue !== "") {
-            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <a href="${property.uriValue}" target="_blank" class="popup-link" data-uri="${property.uriValue}"><strong>${property.value}</strong></a> (${property.typeObject})`;
+            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <a href="${property.uriValue}" target="_blank" class="popup-link" data-uri="${property.uriValue}"><strong>${property.value}</strong></a> <span class="objet">(${property.typeObject})</span>`;
             key.appendChild(keyValueElement);
             resultBoxElement.appendChild(key);
           } else {
-            if (
-              property.children.length > 0 &&
-              property.children.every((child) => child.value !== "")
-            ) {
-              const value = property.value || ""; // Handle undefined value
+            if (property.value !== "") {
+              const value = property.value || "";
               keyValueElement.innerHTML = `<li/>${
                 property.predicateAttribute
-              } <strong>${this.limitTitleLength(value, 150)}</strong> (${
-                property.typeObject
-              })`;
+              } : ${this.limitTitleLength(value, 150)}`;
               key.appendChild(keyValueElement);
               resultBoxElement.appendChild(key);
             } else {
-              const value = property.value || ""; // Handle undefined value
-              keyValueElement.innerHTML = `<li/>${
-                property.predicateAttribute
-              } <strong>${this.limitTitleLength(value, 150)}</strong> (${
-                property.typeObject
-              })`;
-              key.appendChild(keyValueElement);
-              resultBoxElement.appendChild(key);
+              if (property.children.length > 0) {
+                keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <span class="objet">(${property.typeObject})</span>`;
+                key.appendChild(keyValueElement);
+                resultBoxElement.appendChild(key);
+              }
             }
           }
         } else {
-          if (
-            property.children.length > 0 &&
-            property.children.every((child) => child.value !== "")
-          ) {
-            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} (${property.typeObject})c`;
+          if (property.children.length > 0) {
+            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <span class="objet">(${property.typeObject})</span>`;
             key.appendChild(keyValueElement);
             resultBoxElement.appendChild(key);
           }
         }
-      } else {
-        if (property.value === "" && property.uriValue !== "") {
-          keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <a href="${property.uriValue}" target="_blank"><strong>${property.uriValue}</strong></a> (${property.typeObject})`;
-          key.appendChild(keyValueElement);
-          resultBoxElement.appendChild(key);
-        }
       }
       if (property.children && property.children.length > 0) {
-        const childrenContainer = document.createElement("div");
-        childrenContainer.className = "children-cont";
         property.children.forEach((child) => {
           const childElement = this.createResultBoxFromProperty(
             child,
             resultBox
           );
-          childrenContainer.appendChild(childElement);
+          keyValueElement.appendChild(childElement);
+          key.appendChild(keyValueElement);
+          resultBoxElement.appendChild(key);
         });
-        resultBoxElement.appendChild(childrenContainer);
       }
     });
 
@@ -480,21 +459,19 @@ export class DisplayBoxHtml {
     });
     consultButtonContainer.appendChild(consultButton);
     resultBoxElement.appendChild(consultButtonContainer);
-    //--------------------------------------------
-    //Partie highlight
-    //--------------------------------------------
     // Vérifier si tous les prédicats et leurs enfants ont une valeur
     //voir le cas aussi si le children n'est
     //faire sortir ca en methode parce que ca marche pas bien
-    //let allPredicatesHaveValue = this.allPredicatesHaveValue(resultBox);
+    /*let allPredicatesHaveValue = this.allPredicatesHaveValue(resultBox);
     // Appliquer la couleur de fond en fonction de la condition
-    //if (allPredicatesHaveValue) {
-    //  resultBoxElement.style.backgroundColor = "#ffffcc";
-    //} else {
-    // resultBoxElement.style.backgroundColor = "#ffffff"; // blanc
-    //}
+    if (allPredicatesHaveValue) {
+      resultBoxElement.style.backgroundColor = "#ffffcc";
+    } else {
+      resultBoxElement.style.backgroundColor = "#ffffff"; // blanc
+    }*/
     return resultBoxElement;
   }
+
   /* 
   private allPredicatesHaveValue(resultBox: ResultBox): boolean {
     let allPredicatesHaveValue = resultBox.predicates.every((property) => {
@@ -552,12 +529,15 @@ export class DisplayBoxHtml {
     maxLength: number
   ): string {
     if ((title ?? "").length > maxLength) {
-      const truncatedTitle = (title ?? "").slice(0, maxLength) + "(...)";
+      const truncatedTitle =
+        (title ?? "").slice(0, maxLength) + "<strong>(...)</strong>";
       const truncatedElement = `<span class="truncated-title" title="${title}">${truncatedTitle}</span>`;
       return truncatedElement;
     }
     return title ?? "";
   }
+
+  //merger les resultats du meme objet principal
   private mergeResultBoxes(resultBoxes: ResultBox[]): ResultBox[] {
     const mergedResultBoxes: ResultBox[] = [];
     const titleToResultBox = new Map<string, ResultBox>();
