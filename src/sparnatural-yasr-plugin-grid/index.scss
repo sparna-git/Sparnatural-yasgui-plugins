@@ -27,9 +27,8 @@
   border-radius: 10px 0 10px 0;
   margin-top: 5px;
   margin-left: 5px;
-  background-color: rgb(220, 220, 220);
+  background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
-  margin-bottom: 20px;
   width: max-content;
   border: 3px solid #29282861;
   position: absolute;
@@ -42,13 +41,11 @@
   align-items: center;
   border-radius: 10px;
   margin-top: 1px;
-  margin-left: 1px;
+  //margin-left: 1px;
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
-  margin-bottom: 20px;
-  max-width: 355px;
-  background-color: transparent;
-  position: absolute;
+  width: max-content;
+  //max-width: 355px;
   top: 10px;
   left: 10px;
 }
@@ -61,7 +58,6 @@
 .result-box .main-title {
   font-size: 22px;
   font-weight: bold;
-  margin-top: 15px;
   color: rgb(30, 29, 29);
   max-width: 360px;
   text-align: left;
@@ -75,8 +71,6 @@
 .result-box .main-title-wo-image {
   font-size: 18px;
   font-weight: bold;
-  display: flex;
-  align-items: center;
   margin-left: 10px;
   max-width: 340px;
   color: rgb(30, 29, 29);
@@ -84,18 +78,21 @@
 }
 
 .result-box .key {
-  margin-top: 10px;
-  margin-bottom: 50px;
+  padding: 10px 35px 60px 15px;
 }
 .result-box .key-wo-image {
-  margin-top: 50px;
-  margin-bottom: 50px;
+  padding: 0 10px 40px 0;
 }
 
 /* Style for the key-value elements */
 .result-box .key-value-element {
   margin-top: 8px;
   margin-left: 20px;
+}
+/* Style for the key-value elements */
+.result-box .key-value-element-wo-image {
+  margin-top: 8px;
+  margin-left: 30px;
 }
 
 .result-box-child {
@@ -124,10 +121,10 @@
   padding: 6px 19px;
   text-align: center;
   text-decoration: none;
-  transition: all 250ms;
+  transition: all 200ms;
   border: 0;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 14px;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -188,15 +185,13 @@
   font-weight: bold;
   color: #333;
   background: #ffffff;
-  border: 2px solid #5b5b5b;
-  border-radius: 10px;
   padding: 2px;
 }
 
 .truncated-title {
   color: black;
   cursor: pointer;
-  filter: brightness(50%);
+  //filter: brightness(50%);
 }
 
 /* Style for the separator */

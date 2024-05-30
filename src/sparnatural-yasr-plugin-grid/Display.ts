@@ -18,6 +18,7 @@ export class DisplayBoxHtml {
     const endIndex = Math.min(startIndex + pageSize, resultBoxes.length);
     const gridContainer = document.createElement("div");
     gridContainer.className = "result-grid";
+    //this.displayResultBoxesMerged(startIndex, resultBoxes, resultsEl);
 
     //parcourir le resultBoxes et creer un encadré pour chaque resultat
     //si le resultat contient une image, on affiche l'image
@@ -343,7 +344,7 @@ export class DisplayBoxHtml {
           property.children.length > 0 &&
           property.children.find((child) => child.value !== "")
         ) {
-          keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <span class="objet">(${property.typeObject})</span>`;
+          keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <span class="objet">(${property.typeObject})</span>`;
           resultBoxElement.appendChild(keyValueElement);
         }
       }
@@ -352,7 +353,7 @@ export class DisplayBoxHtml {
         property.children.length > 0 &&
         property.children.find((child) => child.value !== "")
       ) {
-        keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <span class="objet">(${property.typeObject})</span>`;
+        keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <span class="objet">(${property.typeObject})</span>`;
         resultBoxElement.appendChild(keyValueElement);
       } else {
         keyValueElement.innerHTML = ``;
@@ -381,6 +382,9 @@ export class DisplayBoxHtml {
     const resultBoxElement = document.createElement("div");
     resultBoxElement.className = "result-box";
 
+    const key = document.createElement("div");
+    key.className = "key-wo-image";
+
     const documentTypeContainer = document.createElement("div");
     documentTypeContainer.className = "document-type-container-wo-image";
 
@@ -400,13 +404,12 @@ export class DisplayBoxHtml {
 
     documentTypeContainer.appendChild(documentTypeLabel);
     documentTypeContainer.appendChild(titleElement);
-    resultBoxElement.appendChild(documentTypeContainer);
+    key.appendChild(documentTypeContainer);
+    resultBoxElement.appendChild(key);
 
-    const key = document.createElement("div");
-    key.className = "key-wo-image";
     resultBox.predicates.forEach((property) => {
       const keyValueElement = document.createElement("div");
-      keyValueElement.className = "key-value-element";
+      keyValueElement.className = "key-value-element-wo-image";
       if (property.value !== "" || property.children.length > 0) {
         if (property.value !== resultBox.docTitle) {
           if (property.uriValue !== "") {
@@ -422,16 +425,22 @@ export class DisplayBoxHtml {
               key.appendChild(keyValueElement);
               resultBoxElement.appendChild(key);
             } else {
-              if (property.children.length > 0) {
-                keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <span class="objet">(${property.typeObject})</span>`;
+              if (
+                property.children.length > 0 &&
+                property.children.find((child) => child.value !== "")
+              ) {
+                keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <span class="objet">(${property.typeObject})</span>ccc`;
                 key.appendChild(keyValueElement);
                 resultBoxElement.appendChild(key);
               }
             }
           }
         } else {
-          if (property.children.length > 0) {
-            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} <span class="objet">(${property.typeObject})</span>`;
+          if (
+            property.children.length > 0 &&
+            property.children.find((child) => child.value !== "")
+          ) {
+            keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <span class="objet">(${property.typeObject})</span>cc`;
             key.appendChild(keyValueElement);
             resultBoxElement.appendChild(key);
           }
@@ -529,8 +538,7 @@ export class DisplayBoxHtml {
     maxLength: number
   ): string {
     if ((title ?? "").length > maxLength) {
-      const truncatedTitle =
-        (title ?? "").slice(0, maxLength) + "<strong>(...)</strong>";
+      const truncatedTitle = (title ?? "").slice(0, maxLength) + "(...)";
       const truncatedElement = `<span class="truncated-title" title="${title}">${truncatedTitle}</span>`;
       return truncatedElement;
     }

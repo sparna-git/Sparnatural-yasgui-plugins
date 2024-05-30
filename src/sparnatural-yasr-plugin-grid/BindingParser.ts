@@ -2,7 +2,8 @@ import Parser from "../parsers";
 import { ResultBox } from "./Models/ResultBox";
 import { Propertie } from "./Models/Propertie";
 import { Branch, ISparJson } from "../ISparJson";
-
+import { bind } from "lodash-es";
+const im = require("../sparnatural-yasr-plugin-grid/image-defaults/imageNone.jpg");
 export class BindingParser {
   constructor() {}
 
@@ -119,7 +120,6 @@ export class BindingParser {
   ): string | undefined {
     if (query && query.variables && query.variables.length > 0) {
       for (const variable of query.variables) {
-        console.log("TestColumnImage");
         //parcourir les 10 premier bindings pour identifier la colonne de l'image principale
         //en cherchant une uri d'image dans les bindings de chaque variable
         //limiter la recherche à 10 bindings pour éviter de parcourir tous les bindings
@@ -146,13 +146,20 @@ export class BindingParser {
   }
 
   //OK
+  //il manque le test si la colonne de l'image est optionnelle
+
   public extractMainImageURI(
     bindingSet: Parser.Binding,
     principalColumnImage: any
   ): string | undefined {
+    let value = { value: "" };
     if (principalColumnImage && bindingSet) {
-      const value = bindingSet[principalColumnImage];
-      return value.value;
+      if (bindingSet[principalColumnImage]) {
+        value = bindingSet[principalColumnImage];
+        return value.value;
+      } else {
+        return im;
+      }
     }
     return undefined;
   }
@@ -291,6 +298,13 @@ export class BindingParser {
       return objectURI;
     }
   }
+
+  //methode qui vas permettre de faire un traitement sur les bindings
+  //pour extraire pour le titre principal tout les predicat qui y'appaartient
+  public traitementBindingForTitle(
+    query: ISparJson,
+    bindings: Parser.Binding[]
+  ) {}
 
   public readProperties(
     query: ISparJson,
