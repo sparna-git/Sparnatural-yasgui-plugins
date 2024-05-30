@@ -47,7 +47,9 @@ const config = {
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
-        type: "asset",
+        // /!\ this tells Webpack 5 to inline the image as base64 inside the javascript
+        // see https://webpack.js.org/guides/asset-modules/#inlining-assets
+        type: 'asset/inline'
       },
 
       // Add your rules for custom modules here
