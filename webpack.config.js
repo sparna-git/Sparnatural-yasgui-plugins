@@ -13,22 +13,22 @@ const config = {
     path: path.resolve(__dirname, "dist")
   },
   devServer: {
-    open: true,
-    host: "localhost",
-    static: {
-      directory: path.resolve(__dirname, '')
-    }
+    static:{
+      directory: path.resolve(__dirname, "./dev-page"),
+    },
+    hot: true,
+    open: ['/dev-page']
   },
+  devtool: "source-map",
   plugins: [
     new HtmlWebpackPlugin({
-      template: "index.html",
+      filename: 'dev-page/index.html',
+      template: __dirname + "/dev-page/index.html",
+      inject: 'body'
     }),
 
     // Add your plugins here
     // Learn more about plugins from https://webpack.js.org/configuration/plugins/
-
-
-
   ],
   module: {
     rules: [
@@ -67,7 +67,7 @@ module.exports = () => {
   }
 
   config.optimization = {
-    minimize: false
+    minimize: true
   };
 
   config.output = {

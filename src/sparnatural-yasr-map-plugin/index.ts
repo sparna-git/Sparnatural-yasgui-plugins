@@ -1,30 +1,57 @@
 import { drawSvgStringAsElement, SparnaturalPlugin, Yasr } from "../";
 import { Plugin, DownloadInfo } from "../";
-import L, { Marker } from "leaflet";
-//import * as L from "leaflet";
+
+// /!\ black magic warning : dynamic leaflet import
+// to avoid importing it twice in the page
+var L:typeof import("leaflet/index");
+var markerIcon;
+if(window.L == undefined) {
+    import("leaflet").then((theLeaflet) => {
+        L = theLeaflet;
+        window.L = L;
+        import('leaflet.markercluster');
+        markerIcon = L.icon( {
+            iconUrl:require("leaflet/dist/images/marker-icon.png"),
+            shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+        } );
+    });
+} else {
+    L = window.L;
+    import('leaflet.markercluster');
+    markerIcon = L.icon( {
+        iconUrl:require("leaflet/dist/images/marker-icon.png"),
+        shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+    } );
+}
+// /!\ end blackmagic
+
+// Normal leaflet import :
+// import L, { Marker } from "leaflet";
+// import 'leaflet.markercluster'
+
 import { Geometry, Point, Polygon } from "geojson";
 import { wktToGeoJson } from "./wktParsing";
 // CSS is required otherwise tiles are messed up
 import 'leaflet/dist/leaflet.css';
-import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+
+// attempt to re-import Geoman, originally from Pascal
 /*
-  Importing Geoman-io here because it is used by Sparnatural. If I don't import it. then opening the map in sparnatural crashes.
-  It then doesn't init the map.pm attribute. (stays undefined) and when it tries to call map.pm.optIn it says undefined
+Importing Geoman-io here because it is used by Sparnatural. If I don't import it. then opening the map in sparnatural crashes.
+It then doesn't init the map.pm attribute. (stays undefined) and when it tries to call map.pm.optIn it says undefined
 */
 // import "@geoman-io/leaflet-geoman-free";
 // import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+
 // Bug in rendering markers.
 // see: https://github.com/PaulLeCam/react-leaflet/issues/453
 // import customIcon from 'leaflet/dist/images/marker-icon.png';
 // import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import Parser from "../parsers";
 import { ISparJson } from "../ISparJson";
-const markerIcon = L.icon( {
-    iconUrl:require("leaflet/dist/images/marker-icon.png"),
-    shadowUrl: require("leaflet/dist/images/marker-shadow.png")
-} );
+import { TableXResults } from "../TableXResults";
+
 /*
     Currently this plugin supports only the wktLiteral parsing.
     If you would like to add further parsing like GML or KML, just implement a serializer callback for parseGeoLiteral()
@@ -57,7 +84,12 @@ interface PluginConfig {
         zoom?: number,
         options?: L.ZoomPanOptions
     }
-    parsingFunction: (literalValue:string)=> Geometry
+    parsingFunction: (literalValue:string)=> Geometry,
+    L18n: {
+        warnFindNoCoordinate: string, // use "<count>" patern to replace with count of results with no geo coordinates
+        warnFindNoCoordinateBtn: string // Link label for plugin table display on warnig message
+    }
+    
 }
 
 // represents a yasr result cell with a geo literal
@@ -71,13 +103,15 @@ type DataRow = [number, ...(Parser.BindingValue | "")[]];
 
 
 export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
+
     priority: number = 5; // priority for sorting the plugins in yasr
     private yasr:Yasr
     private mapEL:HTMLElement | null = null; //HTMLElement of the map
     private warnEL:HTMLElement | null = null; //HTMLElement of Warning message if results with no geo coordinates.
     private map:L.Map | null = null
     private config: PluginConfig;
-    private markerCluster:L.MarkerClusterGroup;
+    // private markerCluster:L.MarkerClusterGroup;
+    private markerCluster:any;
     private layerGroups:{[key:string]:L.LayerGroup} = {} // group all polygons with sparql var name as key
     private controlLayers: L.Control.Layers | null = null // responsible for filterable layers on the map
     private colorsUsed:Array<number> = [] // used to color the polygons
@@ -88,6 +122,8 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     haveResultWithoutGeo: number = 0 ;
     bounds: any; // Instantiate LatLngBounds object
     sparnaturalQuery: ISparJson | null = null ;
+
+    private results?: TableXResults;
 
     // define the default config for leaflet
     public static defaults: PluginConfig = {
@@ -126,7 +162,11 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             zoom: 11,
             options: undefined
         },
-        parsingFunction: wktToGeoJson
+        parsingFunction: wktToGeoJson,
+        L18n: {
+            warnFindNoCoordinate: 'Attention, des résultats (<count>) n\'ont pas de coordonnées pour être représentés sur la carte.',
+            warnFindNoCoordinateBtn: 'Afficher la table des résultats' 
+        }
         
     }
 
@@ -147,7 +187,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     // Map plugin can handle results in the form of geosparql wktLiterals
     // http://schemas.opengis.net/geosparql/1.0/geosparql_vocab_all.rdf#wktLiteral
     canHandleResults(): boolean {
-        let rows = this.getRows()
+        let rows = this.getRows(new TableXResults(this.yasr.results as Parser))
         let have_geo = false ;
         this.haveResultWithoutGeo = 0;
         if(rows && rows.length > 0){
@@ -179,7 +219,9 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     }
 
     draw(persistentConfig: any, runtimeConfig?: any): void | Promise<void> {
-        const rows = this.getRows()
+
+        this.results = new TableXResults(this.yasr.results as Parser);
+        const rows = this.getRows(this.results)
         //if the resultset changed, then cleanup and rerender
         this.cleanUp()
         this.createMap()
@@ -225,24 +267,19 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     }
 
     public notifyQuery(sparnaturalQuery:ISparJson) {
-		console.log("received query on map");
-		console.log(sparnaturalQuery);
+		// nothing
         this.sparnaturalQuery = sparnaturalQuery ;
-        /*const eventChange = new Event("sparnaturalQueryChange");
-        this.yasr?.rootEl.dispatchEvent(eventChange);*/
 	}
 
     public notifyConfiguration(specProvider:any) {
-		console.log("received specification provider from Sparnatural");
-		console.log(specProvider);
+		// nothing
 	}
 
     private searchCoordinatesOnQuery(data) {
         var result: any = []
         const iterate = (obj) => {
             if (!obj) {
-                console.log(obj) ;
-            return;
+                return;
             }
             Object.keys(obj).forEach(key => {
                 var value = obj[key]
@@ -295,8 +332,8 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         let polyOptions: any = [] ;
         polyOptions = this.config.searchedPolygon ;
         const poly = new L.Polygon(feature as L.LatLngExpression[][], polyOptions)
-        this.layerGroups['searchPoly'] ? this.layerGroups['searchPoly'].addLayer(poly) : this.layerGroups['searchPoly'] = L.layerGroup([poly])
-        poly.addTo(this.map);
+        this.layerGroups['searchPoly'] ? this.layerGroups['searchPoly'].addLayer(poly) : this.layerGroups['searchPoly'] = L.layerGroup([poly]);
+        poly.addTo(this.map).bringToBack();
         this.calcBounds(feature) ;
     }
 
@@ -304,6 +341,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         const latLng = new L.LatLng(feature.coordinates[1],feature.coordinates[0])
         if(!this.map) throw Error(`Wanted to draw Marker but no map found`)
         let markerOptions:any ={
+            // markerIcon is the global variable initialized with dynamic import
             icon:markerIcon
         }
         if(this.config.markerOptions) markerOptions = this.config.markerOptions
@@ -317,7 +355,6 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     }
 
     private drawPoly(feature: Polygon,colIndex:number, popUpString:string) {
-        console.log('el')
         if(!this.map) throw Error(`Wanted to draw Polygon but no map found`)
         // configuration of Polygon see: https://leafletjs.com/reference.html#polygon
         let polyOptions:any = {}
@@ -357,7 +394,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
 
     // Add the drawable to a control layer
     private addToLayerGroup(colIndex:number,feature:L.Polygon | L.Marker){
-        const cols = this.getVariables()
+        const cols = this.results?.getVariables()
         if(cols){
             let vName = cols[colIndex]
             this.layerGroups[vName] ? this.layerGroups[vName].addLayer(feature) : this.layerGroups[vName] = L.layerGroup([feature])
@@ -366,17 +403,39 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
 
     private createPopUpString(row:DataRow):string {
         let popUp:{[key: string]: any;} = {}
-        let columns = this.getVariables()
+        let columns = this.results?.getVariables()
+        
         row.forEach((cell,i)=>{
-            if(i === 0) popUp['rowNr'] = cell as number
-            if(this.isBindingValue(cell)){
-                if(!columns) return
-                if(cell.type === 'uri') popUp[columns[i]] = cell.value
+            // uncomment to get the row number in the popup
+            // if(i === 0) popUp['row number'] = cell as number
+
+            if(
+                this.isBindingValue(cell)
+                &&
+                ! this.config.geoDataType.includes(cell.datatype as string)
+                &&
+                columns
+            ){
+                // store the whole cell in the popup
+                popUp[columns[i-1]] = cell
             }
         })
         let contentString = ``
-        for (const [k, v] of Object.entries(popUp)) {
-            contentString = `${contentString} <br> ${k}: <a class='iri' style="cursor: pointer; color:blue;">${v}</a>`
+        for (const [k, cell] of Object.entries(popUp)) {
+            let currentString = `<strong>${k}</strong>:&nbsp;`;
+            
+            // normal URI : a clickable URI
+            if(cell.type === "uri") {
+                currentString += ` <a class='iri' style="cursor: pointer; color:blue;" href="${cell.value}" target="_blank">${cell.value}</a>`
+            // TableXResult special case containing URI + label : clickable URI with label displayed
+            } else if(cell.type === "x-labelled-uri") {
+                currentString += ` <a class='iri' style="cursor: pointer; color:blue;" href="${cell.value}" target="_blank">${cell.label}</a>`
+            // other case : just print the value (the literal)
+            } else {
+                currentString += `${cell.value}`
+            }
+            currentString += "<br />";
+            contentString += currentString;
         }
         return contentString
     }
@@ -394,10 +453,21 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             this.warnEL = document.createElement('div')
             this.warnEL.setAttribute('id','yasrmap-warnEL')
             this.warnEL.setAttribute('class','alert alert-warning')
-            this.warnEL.innerText ='Attention, des résultats ('+this.haveResultWithoutGeo+') n\'ont pas de coordonnées pour être représentés sur la carte' ;
+            let text = this.config.L18n.warnFindNoCoordinate.replace("<count>", this.haveResultWithoutGeo.toString())
+            this.warnEL.innerText = text;
 
             parentEl.appendChild(this.warnEL) ;
+            let linkToTable = document.createElement('a');
+            linkToTable.classList.add('link', 'ms-2');
+            linkToTable.setAttribute('style', "cursor: pointer;");
+            linkToTable.innerText = this.config.L18n.warnFindNoCoordinateBtn ;
+            this.warnEL.appendChild(linkToTable) ;
+            linkToTable.addEventListener("click", ()=>{
+                (this.yasr as any).selectPlugin("table") ;
+                return false;
+            });
         }
+
         
         
         // Create the map HTMLElement
@@ -409,8 +479,10 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         
         if(!parentEl) throw Error(`Couldn't find parent element of Yasr. No element found with Id: resultsId1`)
         parentEl.appendChild(this.mapEL)
-        this.map = L.map('yasrmap').setView(this.config.setView.center,this.config.setView.zoom,this.config.setView.options)
-        this.map.options.maxZoom = 19 // see: https://github.com/Leaflet/Leaflet.markercluster/issues/611
+        this.map = L.map('yasrmap').setView(this.config.setView.center,this.config.setView.zoom,this.config.setView.options);
+        if(this.map != null) {
+            this.map.options.maxZoom = 19 // see: https://github.com/Leaflet/Leaflet.markercluster/issues/611
+        }
         // For each provided baseLayer create a tileLayer and add it to control
         this.config.baseLayers.map((l,index)=>{
             let name = 'No attribution name provided'
@@ -437,18 +509,14 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         })
     }
 
-    private getRows(): DataRow[] {
-        if (!this.yasr.results) return [];
-        const bindings = this.yasr.results.getBindings();
+    private getRows(results:Parser|undefined): DataRow[] {
+        if (!results) return [];
+        const bindings = results.getBindings();
         if (!bindings) return [];
         // Vars decide the columns
-        const vars = this.yasr.results.getVariables();
+        const vars = results.getVariables();
         // Use "" as the empty value, undefined will throw runtime errors
         return bindings.map((binding, rowId) => [rowId + 1, ...vars.map((variable) => binding[variable] ?? "")]);
-    }
-
-    private getVariables(){
-        return this.yasr.results?.getVariables()
     }
     
     // remove the already rendered map so we can rerender it
