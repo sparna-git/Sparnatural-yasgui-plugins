@@ -368,6 +368,11 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         //polyOptions['color'] = 'red';
         polyOptions['fill'] = true // no color filled in polygon
         polyOptions['opacity'] = 0.4 // stroke opacity
+        polyOptions['fillOpacity'] = 0.1 // background opacity
+        polyOptions['fillOpacity'] = 0.05 // background opacity
+        polyOptions['weight'] = 1 // stroke width
+        
+        
         // add controll layers for columns
         feature.coordinates[0].map((item)=>{
             item.reverse()
