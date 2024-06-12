@@ -187,7 +187,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         if(MapPlugin.defaults.polylineOptions) L.Marker.mergeOptions(MapPlugin.defaults.polylineOptions)
         this.config = MapPlugin.defaults
         this.markerCluster = L.markerClusterGroup()
-        this.controlLayers = L.control.layers()
+        //this.controlLayers = L.control.layers()
         /*this.yasr?.rootEl.addEventListener("sparnaturalQueryChange", (e) => {
             this.initDrawSearchAreas() ;
         });*/
@@ -302,15 +302,13 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
                             layersRows[itLayer] = Array()  ;
                         }
                         layersRows[itLayer].push(geo_rows[i][ir]) ;
-
                         it++;
                     }
                     const cols = this.results?.getVariables();
                     for(let ir = 0; ir < layersRows.length; ir++){
-                        
                         let colIndex = layersRows[ir][0].colIndex
                         let vName = cols[colIndex]+'_'+ir ;
-                        let last_item_key = layersRows.length - 1;
+                        let last_item_key = layersRows[ir].length - 1;
                         let max_area = layersRows[ir][0].area+' km²' ;
                         let min_area = layersRows[ir][last_item_key].area+' km²' ;
                         this.layerGroupsLabels[vName] = min_area+' - ' +max_area ;
@@ -329,11 +327,16 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         // If the markers are clustered then draw the cluster now
         if(!this.map) throw Error(`Couldn't find map element`)
         // add all the layers created in addControlLayer
+        let controlsLayersObjs = {} ;
         for (const [k,v] of Object.entries(this.layerGroups)) {
             let label = this.layerGroupsLabels[k] ;
-            this.controlLayers?.addOverlay(v,label)
+            //this.controlLayers?.addOverlay(v,label)
+            controlsLayersObjs[label] = v ;
+            v.addTo(this.map) ;
         }
         
+        this.controlLayers = L.control.layers({}, controlsLayersObjs, {collapsed: false}) ;
+
         this.controlLayers?.addTo(this.map)
         // add cluster of markers
         this.markerCluster.addTo(this.map)
@@ -589,7 +592,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             if(l.options?.attribution) name = l.options.attribution 
             const layer = L.tileLayer(l.urlTemplate,l.options)
             if(index === 0 && this.map) layer.addTo(this.map) // set first base layer as active
-            this.controlLayers?.addBaseLayer(layer,name) 
+            //this.controlLayers?.addBaseLayer(layer,name) 
         })
 
     }
