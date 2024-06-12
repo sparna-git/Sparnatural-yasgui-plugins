@@ -96,7 +96,15 @@ interface PluginConfig {
 interface GeoCell {
     cellValue: Parser.BindingValue, // literal value of the cell
     colIndex:number, // column index of the cell
-    parsedLit?: Geometry
+    parsedLit?: Geometry,
+    area?: number,
+}
+
+interface rowObject {
+    parsedLit: Geometry,
+    colIndex: number,
+    popUpString: string, 
+    area: number,
 }
 
 type DataRow = [number, ...(Parser.BindingValue | "")[]];
@@ -122,6 +130,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     haveResultWithoutGeo: number = 0 ;
     bounds: any; // Instantiate LatLngBounds object
     sparnaturalQuery: ISparJson | null = null ;
+    layerGroupsLabels: Array<any> = [];
 
     private results?: TableXResults;
 
@@ -178,7 +187,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         if(MapPlugin.defaults.polylineOptions) L.Marker.mergeOptions(MapPlugin.defaults.polylineOptions)
         this.config = MapPlugin.defaults
         this.markerCluster = L.markerClusterGroup()
-        this.controlLayers = L.control.layers()
+        //this.controlLayers = L.control.layers()
         /*this.yasr?.rootEl.addEventListener("sparnaturalQueryChange", (e) => {
             this.initDrawSearchAreas() ;
         });*/
@@ -224,26 +233,110 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         const rows = this.getRows(this.results)
         //if the resultset changed, then cleanup and rerender
         this.cleanUp()
-        this.createMap()
+        this.createMap();
 
-        
+        let geo_rows: Array<any>[] ;
+        geo_rows = Array() ;
+        this.layerGroupsLabels = Array() ;
+
         const drawables = rows.flatMap((row:DataRow)=>{ 
             const geoCells =  this.parseGeoLiteral(row,this.config.parsingFunction)
             // features are in this case either GeoJson Point or Polygons
-            if(geoCells.length === 0) return
+            if(geoCells.length === 0) { 
+
+                return
+            }
+
+
             return geoCells.map(c=>{
                 let popUpString = this.createPopUpString(row)
                 if(c.parsedLit?.type === "Point") this.drawMarker(c.parsedLit,c.colIndex,popUpString)
-                if(c.parsedLit?.type === "Polygon") this.drawPoly(c.parsedLit,c.colIndex,popUpString)
+                if(c.parsedLit?.type === "Polygon")  {
+                    let rowObject = {
+                        parsedLit: c.parsedLit,
+                        colIndex: c.colIndex,
+                        popUpString: popUpString, 
+                        area: c.area
+                    }
+                    if (geo_rows[c.colIndex] == undefined) {
+                        geo_rows[c.colIndex] = Array()  ;
+                    }
+                    //console.log(c.colIndex) ;
+                    geo_rows[c.colIndex].push(rowObject) ;
+                    //this.drawPoly(c.parsedLit,c.colIndex,popUpString)
+                }
+                    
+                    
             })
-        })
+        });
+
+        
+        if (geo_rows.length > 0) {
+            let layersRows: Array<any>[] ;
+            layersRows = [];
+            for(let i = 0; i < geo_rows.length; i++){
+                if (geo_rows[i] ) {
+                    let colIndexArray = geo_rows[i] ;
+                    let sortedArray: {
+                        cellValue: Parser.BindingValue; // literal value of the cell
+                        colIndex:number; // column index of the cell
+                        parsedLit: Geometry;
+                        area: number;
+                    }[] = colIndexArray.sort((n1, n2) => {
+                        return n2.area - n1.area ;
+                    });
+                    geo_rows[i] = sortedArray ;
+
+                    let it = 0;
+                    let max = 50;
+                    let itLayer = 0;
+                    layersRows = [];
+
+                    for(let ir = 0; ir < geo_rows[i].length; ir++){
+                        if(it > max-1) {
+                            it = 0 ;
+                            itLayer++;
+                        }
+                        
+                        if (layersRows[itLayer] == undefined) {
+                            layersRows[itLayer] = Array()  ;
+                        }
+                        layersRows[itLayer].push(geo_rows[i][ir]) ;
+                        it++;
+                    }
+                    const cols = this.results?.getVariables();
+                    for(let ir = 0; ir < layersRows.length; ir++){
+                        let colIndex = layersRows[ir][0].colIndex
+                        let vName = cols[colIndex]+'_'+ir ;
+                        let last_item_key = layersRows[ir].length - 1;
+                        let max_area = layersRows[ir][0].area+' km²' ;
+                        let min_area = layersRows[ir][last_item_key].area+' km²' ;
+                        this.layerGroupsLabels[vName] = min_area+' - ' +max_area ;
+                    } 
+                }
+            }
+            for(let i = 0; i < layersRows.length; i++){
+                for(let ir = 0; ir < layersRows[i].length; ir++){
+                    if(layersRows[i]) {
+                        let data = layersRows[i][ir] ;
+                        this.drawPoly(data.parsedLit,data.colIndex,data.popUpString, i)
+                    }
+                }
+            }
+        }
         // If the markers are clustered then draw the cluster now
         if(!this.map) throw Error(`Couldn't find map element`)
         // add all the layers created in addControlLayer
+        let controlsLayersObjs = {} ;
         for (const [k,v] of Object.entries(this.layerGroups)) {
-            this.controlLayers?.addOverlay(v,k)
+            let label = this.layerGroupsLabels[k] ;
+            //this.controlLayers?.addOverlay(v,label)
+            controlsLayersObjs[label] = v ;
+            v.addTo(this.map) ;
         }
         
+        this.controlLayers = L.control.layers({}, controlsLayersObjs, {collapsed: false}) ;
+
         this.controlLayers?.addTo(this.map)
         // add cluster of markers
         this.markerCluster.addTo(this.map)
@@ -354,7 +447,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         this.calcBounds(latLng) ;
     }
 
-    private drawPoly(feature: Polygon,colIndex:number, popUpString:string) {
+    private drawPoly(feature: Polygon,colIndex:number, popUpString:string, layerIndex:number) {
         if(!this.map) throw Error(`Wanted to draw Polygon but no map found`)
         // configuration of Polygon see: https://leafletjs.com/reference.html#polygon
         let polyOptions:any = {}
@@ -368,6 +461,11 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         //polyOptions['color'] = 'red';
         polyOptions['fill'] = true // no color filled in polygon
         polyOptions['opacity'] = 0.4 // stroke opacity
+        polyOptions['fillOpacity'] = 0.1 // background opacity
+        polyOptions['fillOpacity'] = 0.05 // background opacity
+        polyOptions['weight'] = 1 // stroke width
+        
+        
         // add controll layers for columns
         feature.coordinates[0].map((item)=>{
             item.reverse()
@@ -375,7 +473,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
 
         const poly = new L.Polygon(feature.coordinates as L.LatLngExpression[][], polyOptions).bindPopup(popUpString) 
         this.addToLayerList(poly)
-        this.addToLayerGroup(colIndex,poly)
+        this.addToLayerGroup(colIndex,poly, layerIndex)
         poly.addTo(this.map);
 
         this.calcBounds(feature.coordinates[0]) ;
@@ -393,10 +491,15 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     }
 
     // Add the drawable to a control layer
-    private addToLayerGroup(colIndex:number,feature:L.Polygon | L.Marker){
+    private addToLayerGroup(colIndex:number,feature:L.Polygon | L.Marker, layerIndex:any = null){
         const cols = this.results?.getVariables()
         if(cols){
-            let vName = cols[colIndex]
+            let vName = cols[colIndex] ;
+
+            if(layerIndex != null) {
+                vName = cols[colIndex]+'_'+layerIndex ;
+            } 
+           
             this.layerGroups[vName] ? this.layerGroups[vName].addLayer(feature) : this.layerGroups[vName] = L.layerGroup([feature])
         }
     }
@@ -489,7 +592,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             if(l.options?.attribution) name = l.options.attribution 
             const layer = L.tileLayer(l.urlTemplate,l.options)
             if(index === 0 && this.map) layer.addTo(this.map) // set first base layer as active
-            this.controlLayers?.addBaseLayer(layer,name) 
+            //this.controlLayers?.addBaseLayer(layer,name) 
         })
 
     }
@@ -505,6 +608,9 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         if(!literals) return []
         return literals.map((lit:GeoCell)=>{
             lit.parsedLit = cb(lit.cellValue.value) // let callback do the parsing
+            if (lit.parsedLit?.type === "Polygon") {
+                lit.area = this.polygonArea(lit.parsedLit.coordinates) ;
+            }
             return lit
         })
     }
@@ -540,5 +646,55 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         if(typeof cell === 'number') return false
         return ('value' in cell && (('type' in cell) || ('datatype' in cell)))
     }
+
+    
+  private polygonArea(coords: any) {
+    let total = 0;
+    let arrayCoords = new Array()  ;
+    arrayCoords[0] = new Array()  ;
+    let index = 0 ;
+    coords[0].forEach((point:any) => {
+      let newSet = [point[0], point[1]];
+      arrayCoords[0][index] = newSet ; 
+
+      index++;
+    });
+
+    if (arrayCoords && arrayCoords.length > 0) {
+      total += Math.abs(this.ringArea(arrayCoords[0]));
+      for (let i = 1; i < arrayCoords.length; i++) {
+        total -= Math.abs(this.ringArea(arrayCoords[i]));
+      }
+      
+    }
+    return Math.round(total) ;
+  }
+
+  private ringArea(coords: number[][]): number {
+    const coordsLength = coords.length;
+    const earthRadius = 6371008.8/1000; //km²
+    const FACTOR = (earthRadius * earthRadius) / 2;
+    const PI_OVER_180 = Math.PI / 180;
+  
+    if (coordsLength <= 2) return 0;
+    let total = 0;
+  
+    let i = 0;
+    while (i < coordsLength) {
+      const lower = coords[i];
+      const middle = coords[i + 1 === coordsLength ? 0 : i + 1];
+      const upper =
+        coords[i + 2 >= coordsLength ? (i + 2) % coordsLength : i + 2];
+  
+      const lowerX = lower[0] * PI_OVER_180;
+      const middleY = middle[1] * PI_OVER_180;
+      const upperX = upper[0] * PI_OVER_180;
+  
+      total += (upperX - lowerX) * Math.sin(middleY);
+  
+      i++;
+    }
+    return total * FACTOR;
+  }
 
 }

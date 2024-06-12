@@ -30,22 +30,22 @@ WHERE {
         <p>To test MapPlugin Write a query some wktLiteral</p>
         <p>
          <pre>
-PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#>
-PREFIX wdt: &lt;http://www.wikidata.org/prop/direct/>
-PREFIX wd: &lt;http://www.wikidata.org/entity/>
-SELECT ?commune ?nom ?coord
-WHERE {
-  ?commune wdt:P31 wd:Q484170 .
-  ?commune wdt:P131 wd:Q12556 .
-  ?commune wdt:P625 ?coord .
-  ?commune rdfs:label ?nom . FILTER(lang(?nom) = "fr")
-} LIMIT 50
+PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT DISTINCT ?ProvidedCHO_1 ?ProvidedCHO_1_label ?Z_Location_4 WHERE {
+  ?ProvidedCHO_1 rdf:type &lt;http://www.europeana.eu/schemas/edm/ProvidedCHO>;
+    &lt;http://purl.org/dc/terms/title> ?ProvidedCHO_1_label;
+    &lt;http://purl.org/dc/terms/spatial> ?Place_2.
+  ?Place_2 rdf:type &lt;http://www.europeana.eu/schemas/edm/Place>;
+    &lt;http://www.opengis.net/ont/geosparql#asWKT> ?Z_Location_4.
+  FILTER(&lt;http://www.opengis.net/def/function/geosparql/sfWithin>(?Z_Location_4, "Polygon((52.91015625000001 -20.138470312451155, 40.89697122573853 -20.138470312451155, 40.89697122573853 -10.141931686131018, 52.91015625000001 -10.141931686131018, 52.91015625000001 -20.138470312451155))"^^&lt;http://www.opengis.net/ont/geosparql#wktLiteral>))
+}
+LIMIT 1000
          </pre>        
         </p>
 
           <div id="ui-search" style="width:auto">
             <spar-natural
-              src="configs/sparnatural-config-dbpedia.ttl"
+              src="configs/nakala-shapes.ttl"
               lang="en"
               defaultLang="fr"
               endpoint="https://nakala.fr/sparql"
@@ -57,7 +57,7 @@ WHERE {
           <input type="hidden" id="query-json" />
 
         <span style="font-size:90%;"> 
-          Queries sent to <a id="endpoint" href="https://query.wikidata.org/sparql">https://query.wikidata.org/sparql</a>
+          Queries sent to <a id="endpoint" href="https://nakala.fr/sparql">https://nakala.fr/sparql</a>
          </span>
 
          <div id="yasqe"></div>
