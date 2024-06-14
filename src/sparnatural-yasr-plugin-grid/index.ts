@@ -1,5 +1,7 @@
-import { DisplayBoxHtml } from "./Display";
-import { BindingParser } from "./BindingParser";
+//import { DisplayBoxHtml } from "./Display";
+//import { BindingParser } from "./BindingParser";
+import { BindingParserM } from "./BindingParserM";
+import { DisplayBoxHtmlM } from "./DisplayM";
 import {
   SparnaturalPlugin,
   Yasr,
@@ -19,13 +21,16 @@ interface PluginConfig {
   //parserPindings: BindingParser;
   //displayBoxHtml: DisplayBoxHtml;
   //pageSize?: number;
+  L18n: {};
 }
 export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private yasr: Yasr;
   private query: any;
   private queryConfiguration: any;
-  private displayBoxHtml = new DisplayBoxHtml();
-  private parserBinding = new BindingParser();
+  //private displayBoxHtml = new DisplayBoxHtml();
+  //private parserBinding = new BindingParser();
+  private parserBindingM = new BindingParserM();
+  private displayBoxHtmlM = new DisplayBoxHtmlM();
 
   constructor(yasr: Yasr) {
     this.yasr = yasr;
@@ -55,18 +60,21 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     //passer les bindings à la methode extractResultData de la classe BindingParser
     console.log("Bindings :", bindings);
     // resultBoxes contient les resultats sous forme de la structure de données ResultBox (voir ResultBox.ts)
-    const resultBoxes = this.parserBinding.extractResultData(
+    const resultBoxes = this.parserBindingM.extractResultData(
       bindings,
       this.query,
       this.queryConfiguration
     );
     //afficher les resultats dans le plugin
-    this.displayBoxHtml.displayResultBoxes(0, resultBoxes, this.yasr.resultsEl);
+    this.displayBoxHtmlM.displayResultBoxes(
+      0,
+      resultBoxes,
+      this.yasr.resultsEl
+    );
   }
 
   //verifier si le plugin peut afficher les resultats
   //sur cela je veux ajouter une condition qui verifier si la query ou la query config existe sinon false
-  //code here ...
 
   public canHandleResults(): boolean {
     // Vérifier si la query ou la query config existe sinon false

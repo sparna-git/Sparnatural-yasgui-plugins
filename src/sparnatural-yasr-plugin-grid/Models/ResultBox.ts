@@ -1,31 +1,27 @@
-import { Propertie } from "./Propertie";
-
-export class ResultBox {
-  docIcon: string;
-  docType: string;
-  docTitle: string;
-  docTitleURI: string;
-  docImageURI?: string;
-  predicates: Propertie[];
-  static docTitle: string;
+import { ResultBoxType } from "./ResultBoxType";
+import { Property } from "./Property";
+export class ResultBoxM {
+  typeResultBox: ResultBoxType; //type of the box exemple museum or person
+  title: string; //main title of the box
+  uri: string; //uri of the box using on the consult button
+  image?: string; //image if will be choosen in the query
+  predicates: Property[]; //liste of the properties of the box
 
   constructor(
-    icon: string,
-    documentType: string,
+    typeResultBox: ResultBoxType,
     title: string,
-    titleURI: string,
-    imageURI: string,
-    predicates: Propertie[]
+    uri: string,
+    image: string,
+    predicates: Property[]
   ) {
-    this.docIcon = icon;
-    this.docType = documentType;
-    this.docTitle = title;
-    this.docTitleURI = titleURI;
-    this.docImageURI = imageURI;
+    this.typeResultBox = typeResultBox;
+    this.title = title;
+    this.uri = uri;
+    this.image = image;
     this.predicates = predicates;
   }
 
-  addPredicate(predicate: Propertie) {
+  addPredicate(predicate: Property) {
     this.predicates.push(predicate);
   }
 }

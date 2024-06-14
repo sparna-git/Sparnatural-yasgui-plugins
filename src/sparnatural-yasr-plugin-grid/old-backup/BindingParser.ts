@@ -1,49 +1,12 @@
-import Parser from "../parsers";
+import Parser from "../../parsers";
 import { ResultBox } from "./Models/ResultBox";
 import { Propertie } from "./Models/Propertie";
-import { Branch, ISparJson } from "../ISparJson";
-import { bind } from "lodash-es";
+import { Branch, ISparJson } from "../../ISparJson";
 const im = require("../sparnatural-yasr-plugin-grid/image-defaults/imageNone.jpg");
 export class BindingParser {
   constructor() {}
 
-  //OK : changer plus tard comment on recupere les titres dans les branches
-  //condition entre les branches et les variables si variable existe voir
-  //si la branches elle est principale sinon voir dans les enfrants suite recursive
-  /*
-  public identifyPrincipalTitleColumn(
-    query: any,
-    bindings: Parser.Binding[]
-  ): string | undefined {
-    if (!query || !query.variables || query.variables.length === 0) {
-      console.error("Aucune variable trouvée dans la requête.");
-      return undefined;
-    }
-
-    // Parcourir toutes les variables de la requête
-    for (const variable of query.variables) {
-      const variableName = variable.value;
-
-      // Vérifier sur les 10 premiers bindings pour identifier la colonne du titre principal
-      // en cherchant la première colonne qui contient les informations du titre principal type = x-labelled-uri
-      // Limiter la recherche à 10 bindings pour éviter de parcourir tous les bindings
-      const bind = bindings.slice(0, 10);
-      for (const bindingSet of bind) {
-        if (bindingSet[variableName]) {
-          const value = bindingSet[variableName];
-          if (value.type === "x-labelled-uri") {
-            return variableName;
-          }
-        }
-      }
-    }
-    console.error(
-      "Impossible de trouver une colonne de titre avec des informations de type x-labelled-uri."
-    );
-    return undefined;
-  }
-*/
-  public identifyPrincipalTitleColumn(
+  private identifyPrincipalTitleColumn(
     query: any,
     bindings: Parser.Binding[]
   ): string | undefined {
@@ -59,12 +22,19 @@ export class BindingParser {
       // Initialiser un compteur pour les résultats valides
       let validCount = 0;
 
-      // Vérifier 2 résultats tous les 10 dans les 100 premiers bindings
-      for (let i = 0; i < 100; i += 10) {
+      // Calculer le nombre de paires à vérifier en fonction du nombre total de résultats
+      const totalResults = bindings.length;
+      const pairsToCheck = Math.ceil(totalResults / 10);
+      console.log("pairsToCheck", pairsToCheck);
+      console.log("pairsToCheck * 2", pairsToCheck * 2);
+      console.log("totalResults", totalResults);
+
+      // Vérifier les paires de résultats
+      for (let i = 0; i < totalResults; i += 10) {
         const indicesToCheck = [i, i + 1];
 
         for (const index of indicesToCheck) {
-          if (index < bindings.length && bindings[index][variableName]) {
+          if (index < totalResults && bindings[index][variableName]) {
             const value = bindings[index][variableName];
             if (value.type === "x-labelled-uri") {
               validCount++;
@@ -82,8 +52,8 @@ export class BindingParser {
         }
       }
 
-      // If we have found 20 valid results, return the variable name
-      if (validCount >= 20) {
+      // If we have found the required number of valid results, return the variable name
+      if (validCount >= pairsToCheck * 2) {
         return variableName;
       }
     }
@@ -94,7 +64,7 @@ export class BindingParser {
     return undefined;
   }
 
-  public extractMainTitleAndURI(
+  private extractMainTitleAndURI(
     bindingSet: Parser.Binding,
     principalColumnTitle: any
   ): {
@@ -111,9 +81,8 @@ export class BindingParser {
     return { title: mainTitle, uri: mainURI };
   }
 
-  //cette methode ca doit etre appeler dans extractResultData
-  //elle nous permet d'extraire la colonne de l'image principale
-  //prendre les images sur les branches principales avant de les prendre sur les branches enfants
+  // a modifier pour la nouvelle structure si la collone contient
+  // une liste des valeurs on predn pas cette colonne en conseideration
   private identifyPrincipalImageColumn(
     query: any,
     bindings: Parser.Binding[]
@@ -148,7 +117,7 @@ export class BindingParser {
   //OK
   //il manque le test si la colonne de l'image est optionnelle
 
-  public extractMainImageURI(
+  private extractMainImageURI(
     bindingSet: Parser.Binding,
     principalColumnImage: any
   ): string | undefined {

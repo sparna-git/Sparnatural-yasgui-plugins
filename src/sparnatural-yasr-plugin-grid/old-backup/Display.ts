@@ -73,62 +73,6 @@ export class DisplayBoxHtml {
   }
 
   //-------------------------------------------------------------------
-  //methode pour afficher les resultats de toutes les encadrés
-  public displayResultBoxesMerged(
-    startIndex: number = 0,
-    resultBoxes: ResultBox[],
-    resultsEl: HTMLElement
-  ) {
-    //affichage des resultats par bloc de 100 resultats
-    let results = this.mergeResultBoxes(resultBoxes);
-    const pageSize = 100;
-    const endIndex = Math.min(startIndex + pageSize, results.length);
-    const gridContainer = document.createElement("div");
-    gridContainer.className = "result-grid";
-    for (let i = startIndex; i < endIndex; i++) {
-      for (const result in results) {
-        gridContainer.appendChild(
-          this.createResultBoxWithoutImage(results[result])
-        );
-      }
-    }
-
-    //tracer un trait entra les anciens et les nouveaux resultats
-    if (startIndex === 0) {
-      resultsEl.innerHTML = "";
-      console.log("resultsEl cleared");
-    } else {
-      const separator = document.createElement("hr");
-      separator.className = "result-separator";
-      resultsEl.appendChild(separator);
-      console.log("separator added");
-    }
-    resultsEl.appendChild(gridContainer);
-
-    //ajouter le bouton load more a chaque fin de la page
-    if (endIndex < results.length) {
-      this.addLoadMoreButton(endIndex, resultBoxes, resultsEl);
-    } else {
-      //ajout du message de fin des resultats et du bouton retour au debut et le nombre total de resultats
-      const endMessage = document.createElement("div");
-      endMessage.textContent = "Fin des résultats.";
-      endMessage.classList.add("end-message");
-      const resultNumber = document.createElement("div");
-      resultNumber.textContent = `Nombre total de résultats obtenus : ${results.length}/${results.length}`;
-      resultNumber.classList.add("result-number");
-      const returnToTopButton = document.createElement("button");
-      returnToTopButton.textContent = "Retour au début";
-      returnToTopButton.classList.add("return-to-top-button");
-      returnToTopButton.addEventListener("click", () => {
-        window.scrollTo(0, 0);
-      });
-      //ajout des elements au DOM
-      resultsEl.appendChild(endMessage);
-      resultsEl.appendChild(resultNumber);
-      resultsEl.appendChild(returnToTopButton);
-    }
-  }
-  //-------------------------------------------------------------------
 
   //methode pour ajouter le bouton load more
   private addLoadMoreButton(
@@ -429,7 +373,7 @@ export class DisplayBoxHtml {
                 property.children.length > 0 &&
                 property.children.find((child) => child.value !== "")
               ) {
-                keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <span class="objet">(${property.typeObject})</span>ccc`;
+                keyValueElement.innerHTML = `<li/>${property.predicateAttribute} : <span class="objet">(${property.typeObject})</span>`;
                 key.appendChild(keyValueElement);
                 resultBoxElement.appendChild(key);
               }
@@ -544,8 +488,10 @@ export class DisplayBoxHtml {
     }
     return title ?? "";
   }
+}
 
-  //merger les resultats du meme objet principal
+/*
+  
   private mergeResultBoxes(resultBoxes: ResultBox[]): ResultBox[] {
     const mergedResultBoxes: ResultBox[] = [];
     const titleToResultBox = new Map<string, ResultBox>();
@@ -561,9 +507,9 @@ export class DisplayBoxHtml {
     }
     console.log("mergedResultBoxes", mergedResultBoxes);
     return mergedResultBoxes;
-  }
+  }*/
 
-  /*
+/*
   //merger les resultats qui ont le meme titre
   private mergeResultBoxes(resultBoxes: ResultBox[]): ResultBox[] {
     const mergedResultBoxes: ResultBox[] = [];
@@ -584,7 +530,7 @@ export class DisplayBoxHtml {
   
   */
 
-  /*
+/*
 
   private createPopupElement(): HTMLElement {
     const popup = document.createElement("div");
@@ -671,4 +617,3 @@ export class DisplayBoxHtml {
     popup.style.display = "block";
   }
   */
-}

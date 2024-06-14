@@ -1,7 +1,7 @@
 export class Propertie {
   predicateAttribute?: string;
-  value?: string;
-  uriValue?: string;
+  value?: string; //[] liste de string (value)
+  uriValue?: string; // [] liste de string (URI)
   typeObject?: string;
   children: Propertie[];
 

@@ -12,25 +12,29 @@
 /* Style for each result box */
 .result-box {
   border: none;
-  border-radius: 25px 25px 0 0;
+  border-radius: 15px;
   min-height: 130px;
-  padding: 15px;
+  padding: 15px 15px 0 15px;
   background-color: rgb(255, 255, 255);
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 10px 35px,
-    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.8) 0px 4px 6px,
-    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  border: 1px solid #29282861;
+  // box-shadow: rgba(0, 0, 0, 0.25) 0px 10px 35px,
+  // rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.8) 0px 4px 6px,
+  // rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
   position: relative;
 }
 
 /* Style for the document type container */
 .document-type-container {
   border-radius: 10px 0 10px 0;
+  z-index: 2;
   margin-top: 5px;
   margin-left: 5px;
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
   width: max-content;
-  border: 3px solid #29282861;
+  //border: 3px solid #29282861;
+  border: 2px solid #29282861;
+  //border-right: 3px solid #29282861;
   position: absolute;
   top: 10px;
   left: 10px;
@@ -43,7 +47,7 @@
   margin-top: 1px;
   //margin-left: 1px;
   background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+  //box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
   width: max-content;
   //max-width: 355px;
   top: 10px;
@@ -76,28 +80,72 @@
   color: rgb(30, 29, 29);
   text-align: left;
 }
+/* Style for the main title without image */
+.result-box .main-title-wo-image a {
+  text-decoration: none;
+  color: black;
+}
+/* Style for the main title without image */
+.result-box .main-title-wo-image a:hover {
+  text-decoration: none;
+  color: blue;
+}
 
 .result-box .key {
-  padding: 10px 35px 60px 15px;
+  padding: 15px 0 0 10px;
 }
 .result-box .key-wo-image {
-  padding: 0 10px 40px 0;
+  padding: 0 0 20px 10px;
 }
 
+/* Style for the scrollable container */
+/*.scrollable-container {
+  //faut que le height soit flexible pour qu'il prend le reste de la hauteur donc caluler
+  //ce qui reste dans le resultbox et le mettre dans le scrollable container
+  height: 300px;
+  overflow-y: auto;
+  margin-top: 5px;
+  border-right: 3px solid black;
+}*/
+
+.scrollable-container {
+  overflow-y: auto;
+  margin-top: 5px;
+  // border-right: 3px solid black;
+  max-height: 300px;
+  min-height: 100px; /* Vous pouvez ajuster cette valeur selon vos besoins */
+}
+/*
+.scrollable-container-wo-image {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 15px;
+  border-right: 3px solid black;
+}
+*/
+.scrollable-container-wo-image {
+  overflow-y: auto;
+  margin-top: 15px;
+  // border-right: 3px solid black;
+  max-height: 300px;
+  min-height: 100px; /* Vous pouvez ajuster cette valeur selon vos besoins */
+}
 /* Style for the key-value elements */
 .result-box .key-value-element {
-  margin-top: 8px;
+  margin-top: 5px;
   margin-left: 20px;
 }
 /* Style for the key-value elements */
 .result-box .key-value-element-wo-image {
   margin-top: 8px;
   margin-left: 30px;
+  padding-right: 10px;
 }
 
 .result-box-child {
-  margin-top: 7px;
-  margin-left: 22px;
+  margin-top: 5px;
+  margin-left: 25px;
+  padding-right: 10px;
 }
 
 /* Style for the consult button container */
@@ -107,9 +155,31 @@
   right: 12px;
 }
 
+/* Adjusted style for the consult button to place it on the image */
+.image-container {
+  position: relative;
+}
+
+.show-more {
+  padding-left: 5px;
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+  display: inline-block;
+  font-size: 12px;
+  //je veux que le text soit italique
+  font-style: italic;
+}
+
+.image-container .consult-button-container {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
 .result-box .consult-button-container button {
   background-color: #2f67c7;
-  border-radius: 20px 10px;
+  border-radius: 20px;
   box-shadow: rgba(44, 120, 187, 0.2) 0 -25px 18px -14px inset,
     rgba(44, 120, 187, 0.15) 0 1px 2px, rgba(44, 120, 187, 0.15) 0 2px 4px,
     rgba(44, 120, 187, 0.15) 0 4px 8px, rgba(44, 120, 187, 0.15) 0 8px 16px,
@@ -208,40 +278,15 @@
 /* Style for the image container */
 .result-box .image-container {
   overflow: hidden;
-  border: 3px solid #29282861;
-  max-height: 300px;
+  border: 2px solid #29282861;
+  //height: 300px;
   border-radius: 13px;
+  //position: relative;
 }
 
 .result-box .image-container img {
   width: 100%;
-  height: 250px;
+  object-fit: contain;
+  //height: max-content;
   border-radius: 10px;
 }
-
-/*
-.popup {
-  position: absolute;
-  z-index: 9999; //Assurez-vous que le popup est au-dessus de tous les autres éléments 
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  width: 500px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.popup-content {
-  display: flex;
-}
-
-.popup-image {
-  width: 100px; //Ajustez la taille de l'image selon vos besoins 
-  height: auto;
-  margin-right: 10px; // Espacement entre l'image et le texte 
-}
-
-.popup-text {
-  flex: 1; // Permet au texte de s'étendre pour remplir l'espace restant 
-}
-*/
