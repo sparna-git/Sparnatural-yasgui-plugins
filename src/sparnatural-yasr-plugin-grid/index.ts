@@ -1,7 +1,5 @@
-//import { DisplayBoxHtml } from "./Display";
-//import { BindingParser } from "./BindingParser";
-import { BindingParserM } from "./BindingParserM";
-import { DisplayBoxHtmlM } from "./DisplayM";
+import { BindingParser } from "./BindingParser";
+import { DisplayBoxHtml } from "./Display";
 import {
   SparnaturalPlugin,
   Yasr,
@@ -12,25 +10,16 @@ import * as faTh from "@fortawesome/free-solid-svg-icons/faTh";
 import Parser from "../parsers/index";
 import { TableXResults } from "../TableXResults";
 
-interface PersistentConfig {
-  //pageSize?: number;
-  //parserPindings: BindingParser;
-  //displayBoxHtml: DisplayBoxHtml;
-}
+interface PersistentConfig {}
 interface PluginConfig {
-  //parserPindings: BindingParser;
-  //displayBoxHtml: DisplayBoxHtml;
-  //pageSize?: number;
   L18n: {};
 }
 export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private yasr: Yasr;
   private query: any;
   private queryConfiguration: any;
-  //private displayBoxHtml = new DisplayBoxHtml();
-  //private parserBinding = new BindingParser();
-  private parserBindingM = new BindingParserM();
-  private displayBoxHtmlM = new DisplayBoxHtmlM();
+  private parserBinding = new BindingParser();
+  private displayBoxHtml = new DisplayBoxHtml();
 
   constructor(yasr: Yasr) {
     this.yasr = yasr;
@@ -57,25 +46,21 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     const results = new TableXResults(this.yasr.results as Parser);
     //recuperer les bindings
     const bindings: Parser.Binding[] = results.getBindings();
-    //passer les bindings à la methode extractResultData de la classe BindingParser
     console.log("Bindings :", bindings);
-    // resultBoxes contient les resultats sous forme de la structure de données ResultBox (voir ResultBox.ts)
-    const resultBoxes = this.parserBindingM.extractResultData(
+    //passer les bindings à la methode extractResultData de la classe BindingParser
+    // resultBoxes contient les resultats sous forme de la structure de données ResultBox (see Models Folder)
+    const resultBoxes = this.parserBinding.extractResultData(
       bindings,
       this.query,
       this.queryConfiguration
     );
+
     //afficher les resultats dans le plugin
-    this.displayBoxHtmlM.displayResultBoxes(
-      0,
-      resultBoxes,
-      this.yasr.resultsEl
-    );
+    this.displayBoxHtml.displayResultBoxes(0, resultBoxes, this.yasr.resultsEl);
   }
 
   //verifier si le plugin peut afficher les resultats
-  //sur cela je veux ajouter une condition qui verifier si la query ou la query config existe sinon false
-
+  //condition qui verifier si la query et la query config existe sinon false
   public canHandleResults(): boolean {
     // Vérifier si la query ou la query config existe sinon false
     if (!this.query || !this.queryConfiguration) {
@@ -103,6 +88,5 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   }
   notifyConfiguration(specProvider: any): any {
     this.queryConfiguration = specProvider;
-    console.log("Configuration query :", this.queryConfiguration);
   }
 }

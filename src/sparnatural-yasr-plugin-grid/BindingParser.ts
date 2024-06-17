@@ -7,7 +7,7 @@ import { ResultBoxType } from "./Models/ResultBoxType";
 
 import { Branch, ISparJson } from "../ISparJson";
 const im = require("./image-defaults/imageNone.jpg");
-export class BindingParserM {
+export class BindingParser {
   constructor() {}
 
   //methode qui va permettre de recuperer la colonne qui contient le titre principal
@@ -100,42 +100,6 @@ export class BindingParserM {
     return { title: mainTitle, uri: mainURI };
   }
 
-  //-------------------------------------------------------------------------------
-  // a modifier pour la nouvelle structure si la collone contient
-  // une liste des valeurs on prends pas cette colonne en conseideration
-  // recuperer toujours la colonne de l'objet principal de premier niveau
-  //cad si on on a une requette qui contient musée qui expose ouevre avec vignette de l'ouvre et vignette de musée
-  //on va prendre la colonne de musée et on va ignorer la colonne de l'ouvre
-  //cela permettra de recuperer les information logique au vu que si je veux voir les ouvres je doit commencer la requete paer oeuvre
-  //code here please
-  //utiliser la structure de la query pour recuperer l'image principal
-  //utiliser pas que les variables faut utiliser a la fois les variables pour veriifier si la colone existe et voir l'emplacement
-  //de l'image principale dans la query
-  /*
-  private identifyPrincipalImageColumn(
-    query: any,
-    bindings: Parser.Binding[]
-  ): string | undefined {
-    if (query && query.variables && query.variables.length > 0) {
-      for (const variable of query.variables) {
-        //parcourir les 10 premier bindings pour identifier la colonne de l'image principale
-        //en cherchant une uri d'image dans les bindings de chaque variable
-        //limiter la recherche à 10 bindings pour éviter de parcourir tous les bindings
-        //on recupere l'image qui appartient à la branche principale
-        const bind = bindings.slice(0, 10);
-        for (const bindingSet of bind) {
-          if (bindingSet[variable.value]) {
-            const value = bindingSet[variable.value];
-            if (value.type === "uri" && this.isImageURI(value.value)) {
-              return variable.value;
-            }
-          }
-        }
-      }
-    }
-    return undefined;
-  }
-  */
   private identifyPrincipalImageColumn(
     query: any,
     bindings: Parser.Binding[]
@@ -177,12 +141,12 @@ export class BindingParserM {
   //----------------------------------------------------------------------------------------
   //OK
   //verifier si une uri est une uri d'image ou non RegularExpression
-  private isImageURI(uri: string): boolean {
+  private isImageURI(uri: string | undefined): boolean {
+    if (!uri) {
+      return false;
+    }
     return uri.match(/\.(jpg|jpeg|png|svg)(\?.*)?$/i) !== null;
   }
-
-  //OK
-  //il manque le test si la colonne de l'image est optionnelle
 
   // une fois trouver la colonne de l'image principale on va extraire l'uri de l'image sur le bindingset
   //partie lecture
@@ -470,7 +434,7 @@ export class BindingParserM {
     const predicatesURI = this.getPredicateURI(query, queryConfig);
     const objectU = this.getObjectUri(query, queryConfig);
     const valuesArray: PropertyValue[] = [];
-
+    // si la valeur est un x-labelled-uri on va l'ajouter dans le tableau des valeurs
     if (
       value !== undefined &&
       value?.label !== undefined &&
@@ -487,18 +451,24 @@ export class BindingParserM {
       valuesArray.push(new PropertyValue(value.value ?? "", "", []));
     }
     if (
-      value !== undefined &&
-      value?.type !== "x-labelled-uri" &&
-      value?.type !== "literal"
+      value?.type === "uri" &&
+      value?.value !== undefined &&
+      !this.isImageURI(value.value)
     ) {
-      valuesArray.push(new PropertyValue("", value?.value ?? "", []));
+      valuesArray.push(new PropertyValue(value.value, value.value, []));
     }
-    const predicate = new Property(
-      predicates[objectVariable] ?? "",
-      valuesArray,
-      new ValueType(objectU[objectVariable], objects[objectVariable]),
-      predicatesURI[objectVariable] ?? ""
-    );
+
+    let predicate = new Property("", valuesArray, new ValueType("", ""), "");
+
+    // Skip the property if value type is "uri"
+    if (!this.isImageURI(value?.value)) {
+      predicate = new Property(
+        predicates[objectVariable] ?? "",
+        valuesArray,
+        new ValueType(objectU[objectVariable], objects[objectVariable]),
+        predicatesURI[objectVariable] ?? ""
+      );
+    }
 
     if (branch.children && branch.children.length > 0) {
       const childrenProperties = branch.children.flatMap((child) =>
@@ -531,11 +501,15 @@ export class BindingParserM {
       }
     }
 
-    propertiesList.push(predicate);
+    // Add the predicate only if it's not of type "uri"
+    if (!this.isImageURI(value?.value)) {
+      propertiesList.push(predicate);
+    }
 
     return propertiesList;
   }
 
+  //methode qui va permettre de fusionner les proprietes appartenant au meme objet principal
   private mergeProperties(existingProperty: Property, newProperty: Property) {
     // Iterate over the values of the new property
     for (const newValue of newProperty.values) {
@@ -646,33 +620,42 @@ export class BindingParserM {
       return [];
     }
 
+    //recuperer l'URI du type de document
     const documentTypeURI = this.extractDocumentTypeURIFromQuery(
       query.branches
     );
+    //recuperer le libéllé du type de document
     const documentTypeLabel = documentTypeURI
       ? this.getDocumentTypeLabel(documentTypeURI, queryConfig)
       : "";
+    //recuperer l'icone du type de document
     const documentTypeIcon = this.getDocumentTypeIconClass(
       documentTypeURI ?? "",
       queryConfig
     );
+    //creer un objet ResultBoxType "type de la boite de resultat"
     const type = new ResultBoxType(
       documentTypeURI ?? "",
       documentTypeLabel,
       documentTypeIcon
     );
 
+    //search for the principal title column
     const principalColumnTitle = this.identifyPrincipalTitleColumn(
       query,
       bindings
     );
+    //search for the principal image column
     const principalColumnImage = this.identifyPrincipalImageColumn(
       query,
       bindings
     );
+    //get the predicates columns
     const predicatesColumn = this.getPredicate(query, queryConfig);
+    //get the objects columns
     const objectsColumn = this.getObject(query, queryConfig);
 
+    //map to store the result boxes by title "Merged solution"
     const titleMap: Record<string, ResultBoxM> = {};
 
     for (const bindingSet of bindings) {

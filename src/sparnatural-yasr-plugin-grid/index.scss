@@ -13,13 +13,10 @@
 .result-box {
   border: none;
   border-radius: 15px;
-  min-height: 130px;
-  padding: 15px 15px 0 15px;
+  //min-height: 130px;
+  padding: 15px 1px 0 15px;
   background-color: rgb(255, 255, 255);
   border: 1px solid #29282861;
-  // box-shadow: rgba(0, 0, 0, 0.25) 0px 10px 35px,
-  // rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.8) 0px 4px 6px,
-  // rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
   position: relative;
 }
 
@@ -45,11 +42,8 @@
   align-items: center;
   border-radius: 10px;
   margin-top: 1px;
-  //margin-left: 1px;
   background-color: #ffffff;
-  //box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
-  width: max-content;
-  //max-width: 355px;
+  width: 330px;
   top: 10px;
   left: 10px;
 }
@@ -84,56 +78,40 @@
 .result-box .main-title-wo-image a {
   text-decoration: none;
   color: black;
+  transition: 0.3s;
 }
 /* Style for the main title without image */
 .result-box .main-title-wo-image a:hover {
   text-decoration: none;
-  color: blue;
+  transition: 0.2s;
+  color: rgb(11, 167, 229);
 }
 
 .result-box .key {
-  padding: 15px 0 0 10px;
+  padding: 15px 0 0 5px;
 }
 .result-box .key-wo-image {
-  padding: 0 0 20px 10px;
+  padding: 0;
 }
-
-/* Style for the scrollable container */
-/*.scrollable-container {
-  //faut que le height soit flexible pour qu'il prend le reste de la hauteur donc caluler
-  //ce qui reste dans le resultbox et le mettre dans le scrollable container
-  height: 300px;
-  overflow-y: auto;
-  margin-top: 5px;
-  border-right: 3px solid black;
-}*/
 
 .scrollable-container {
   overflow-y: auto;
   margin-top: 5px;
-  // border-right: 3px solid black;
   max-height: 300px;
-  min-height: 100px; /* Vous pouvez ajuster cette valeur selon vos besoins */
+  min-height: 100px;
 }
-/*
-.scrollable-container-wo-image {
-  max-height: 400px;
-  overflow-y: auto;
-  margin-top: 15px;
-  border-right: 3px solid black;
-}
-*/
+
 .scrollable-container-wo-image {
   overflow-y: auto;
-  margin-top: 15px;
-  // border-right: 3px solid black;
+  margin-top: 5px;
   max-height: 300px;
-  min-height: 100px; /* Vous pouvez ajuster cette valeur selon vos besoins */
+  min-height: 100px;
 }
 /* Style for the key-value elements */
 .result-box .key-value-element {
   margin-top: 5px;
-  margin-left: 20px;
+  margin-left: 15px;
+  padding-right: 8px;
 }
 /* Style for the key-value elements */
 .result-box .key-value-element-wo-image {
@@ -144,7 +122,7 @@
 
 .result-box-child {
   margin-top: 5px;
-  margin-left: 25px;
+  margin-left: 20px;
   padding-right: 10px;
 }
 
@@ -258,6 +236,17 @@
   padding: 2px;
 }
 
+/* Default link style */
+.popup-link {
+  color: blue; /* Example color for unvisited links */
+  text-decoration: none;
+}
+
+/* Clicked link style */
+.popup-link:visited {
+  color: purple; /* Example color for clicked links */
+}
+
 .truncated-title {
   color: black;
   cursor: pointer;
@@ -278,6 +267,7 @@
 /* Style for the image container */
 .result-box .image-container {
   overflow: hidden;
+  margin-right: 15px;
   border: 2px solid #29282861;
   //height: 300px;
   border-radius: 13px;
