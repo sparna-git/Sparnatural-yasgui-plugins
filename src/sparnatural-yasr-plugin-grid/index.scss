@@ -101,14 +101,16 @@
   overflow-y: auto;
   margin-top: 5px;
   max-height: 300px;
-  min-height: 100px;
+  min-height: min-content;
+  margin-bottom: 10px;
 }
 
 .scrollable-container-wo-image {
   overflow-y: auto;
   margin-top: 5px;
   max-height: 300px;
-  min-height: 100px;
+  margin-bottom: 10px;
+  min-height: min-content;
 }
 /* Style for the key-value elements */
 .result-box .key-value-element {
