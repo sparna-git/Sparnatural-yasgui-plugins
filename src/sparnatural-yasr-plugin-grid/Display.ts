@@ -6,6 +6,88 @@ const im = require("./image-defaults/imageNone.jpg");
 export class DisplayBoxHtml {
   constructor() {}
 
+  // Methode pour afficher les resultats de toutes les encadrés
+  public displayResultBoxes(
+    startIndex: number = 0,
+    resultBoxes: ResultBoxM[],
+    resultsEl: HTMLElement
+  ) {
+    // Affichage du nombre total de résultats obtenus
+    if (startIndex === 0) {
+      resultsEl.innerHTML = "";
+      const resultCount = document.createElement("div");
+      resultCount.className = "result-count";
+      resultCount.textContent = `Nombre total de résultats obtenus : ${resultBoxes.length} Boxes`;
+      resultsEl.appendChild(resultCount);
+    }
+
+    // Affichage des resultats par bloc de 100 resultats
+    const pageSize = 100;
+    const endIndex = Math.min(startIndex + pageSize, resultBoxes.length);
+    const gridContainer = document.createElement("div");
+    gridContainer.className = "result-grid";
+
+    // Parcourir le resultBoxes et créer un encadré pour chaque résultat
+    for (let i = startIndex; i < endIndex; i++) {
+      const resultBox = resultBoxes[i].image
+        ? this.createResultBoxWithImage(resultBoxes[i])
+        : this.createResultBoxWithoutImage(resultBoxes[i]);
+      gridContainer.appendChild(resultBox);
+    }
+
+    // Tracer un trait entre les anciens et les nouveaux résultats
+    if (startIndex !== 0) {
+      const separator = document.createElement("hr");
+      separator.className = "result-separator";
+      resultsEl.appendChild(separator);
+      console.log("separator added");
+    }
+
+    resultsEl.appendChild(gridContainer);
+
+    // Ajouter le bouton "load more" à chaque fin de la page
+    if (endIndex < resultBoxes.length) {
+      this.addLoadMoreButton(endIndex, resultBoxes, resultsEl);
+    } else {
+      // Ajout du message de fin des résultats et du bouton retour au début
+      const endMessage = document.createElement("div");
+      endMessage.textContent = "Fin des résultats.";
+      endMessage.classList.add("end-message");
+
+      const returnToTopButton = document.createElement("button");
+      returnToTopButton.textContent = "Retour au début";
+      returnToTopButton.classList.add("return-to-top-button");
+      returnToTopButton.addEventListener("click", () => {
+        window.scrollTo(0, 0);
+      });
+
+      // Ajout des éléments au DOM
+      resultsEl.appendChild(endMessage);
+      resultsEl.appendChild(returnToTopButton);
+    }
+
+    this.initializeClickEvents();
+  }
+
+  // Methode pour ajouter le bouton load more
+  private addLoadMoreButton(
+    endIndex: number,
+    resultBoxes: ResultBoxM[],
+    resultsEl: HTMLElement
+  ) {
+    const loadMoreButton = document.createElement("button");
+    loadMoreButton.textContent = "Load More";
+    loadMoreButton.className = "load-more-button";
+    loadMoreButton.addEventListener("click", () => {
+      const startIndex = endIndex;
+      this.displayResultBoxes(startIndex, resultBoxes, resultsEl);
+      console.log("charger les resultats suivants");
+      loadMoreButton.remove();
+    });
+    resultsEl.appendChild(loadMoreButton);
+  }
+
+  /*
   //methode pour afficher les resultats de toutes les encadrés
   public displayResultBoxes(
     startIndex: number = 0,
@@ -68,24 +150,7 @@ export class DisplayBoxHtml {
     }
     this.initializeClickEvents();
   }
-
-  //methode pour ajouter le bouton load more
-  private addLoadMoreButton(
-    endIndex: number,
-    resultBoxes: ResultBoxM[],
-    resultsEl: HTMLElement
-  ) {
-    const loadMoreButton = document.createElement("button");
-    loadMoreButton.textContent = "Load More";
-    loadMoreButton.className = "load-more-button";
-    loadMoreButton.addEventListener("click", () => {
-      const startIndex = endIndex;
-      this.displayResultBoxes(startIndex, resultBoxes, resultsEl);
-      console.log("charger les resultats suivants");
-      loadMoreButton.remove();
-    });
-    resultsEl.appendChild(loadMoreButton);
-  }
+  */
 
   //methode qui gere l'affichage des encadrés avec image
   //cette methode permet de creer un encadré pour chaque resultat qui contient une image
