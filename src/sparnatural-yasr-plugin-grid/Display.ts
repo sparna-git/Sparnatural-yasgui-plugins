@@ -529,7 +529,12 @@ export class DisplayBoxHtml {
                 keyValueElement.innerHTML = `<li/>${
                   property.label
                 } : ${this.limitLength(val, 150)}`;
-              } else if (value.predicates.length > 0) {
+              } else if (
+                value.predicates.length > 0 &&
+                value.predicates.find((predicate) =>
+                  predicate.values.find((value) => value.label !== "")
+                )
+              ) {
                 keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
               }
             } else if (value.predicates.length > 0) {
