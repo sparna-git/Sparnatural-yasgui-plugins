@@ -10,21 +10,21 @@ const stylesHandler = "style-loader";
 const config = {
   entry: "./src/index.ts",
   output: {
-    path: path.resolve(__dirname, "dist")
+    path: path.resolve(__dirname, "dist"),
   },
   devServer: {
-    static:{
+    static: {
       directory: path.resolve(__dirname, "./dev-page"),
     },
     hot: true,
-    open: ['/dev-page']
+    open: ["/dev-page"],
   },
   devtool: "source-map",
   plugins: [
     new HtmlWebpackPlugin({
-      filename: 'dev-page/index.html',
+      filename: "dev-page/index.html",
       template: __dirname + "/dev-page/index.html",
-      inject: 'body'
+      inject: "body",
     }),
 
     // Add your plugins here
@@ -47,7 +47,9 @@ const config = {
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
-        type: "asset",
+        // /!\ this tells Webpack 5 to inline the image as base64 inside the javascript
+        // see https://webpack.js.org/guides/asset-modules/#inlining-assets
+        type: "asset/inline",
       },
 
       // Add your rules for custom modules here
@@ -67,18 +69,16 @@ module.exports = () => {
   }
 
   config.optimization = {
-    minimize: true
+    minimize: true,
   };
 
   config.output = {
     library: {
-      name: 'SparnaturalYasguiPlugins',
-      type: 'umd'
+      name: "SparnaturalYasguiPlugins",
+      type: "umd",
     },
-    filename: "sparnatural-yasgui-plugins.js"
-  }
+    filename: "sparnatural-yasgui-plugins.js",
+  };
 
   return config;
 };
-
-

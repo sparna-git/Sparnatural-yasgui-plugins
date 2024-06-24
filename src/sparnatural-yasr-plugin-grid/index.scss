@@ -1,0 +1,289 @@
+/* Style for the main plugin container */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(360px, 1fr)
+  ); /* This line ensures the grid adapts to the screen size */
+  gap: 25px;
+  margin-top: 10px;
+}
+
+.result-count {
+  margin-top: 5px;
+}
+/* Style for each result box */
+.result-box {
+  border: none;
+  border-radius: 15px;
+  //min-height: 130px;
+  padding: 15px 1px 0 15px;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid #29282861;
+  position: relative;
+}
+
+/* Style for the document type container */
+.document-type-container {
+  border-radius: 10px 0 10px 0;
+  z-index: 2;
+  margin-top: 5px;
+  margin-left: 5px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+  width: max-content;
+  //border: 3px solid #29282861;
+  border: 2px solid #29282861;
+  //border-right: 3px solid #29282861;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.document-type-container-wo-image {
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  margin-top: 1px;
+  background-color: #ffffff;
+  width: 330px;
+  top: 10px;
+  left: 10px;
+}
+
+.objet {
+  font-size: 11px;
+}
+
+/* Style for the main title with image */
+.result-box .main-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: rgb(30, 29, 29);
+  max-width: 360px;
+  text-align: left;
+}
+
+.result-box .children-cont {
+  margin: 0;
+}
+
+/* Style for the main title without image */
+.result-box .main-title-wo-image {
+  font-size: 18px;
+  font-weight: bold;
+  margin-left: 10px;
+  max-width: 340px;
+  color: rgb(30, 29, 29);
+  display: inline-block;
+  text-align: left;
+}
+/* Style for the main title without image */
+.result-box .main-title-wo-image a {
+  text-decoration: none;
+  color: black;
+  transition: 0.3s;
+}
+/* Style for the main title without image */
+.result-box .main-title-wo-image a:hover {
+  text-decoration: none;
+  font-size: 19px;
+  transition: 0.2s;
+  color: rgb(11, 167, 229);
+}
+
+.result-box .key {
+  padding: 15px 0 0 5px;
+}
+.result-box .key-wo-image {
+  padding: 0;
+}
+
+.scrollable-container {
+  overflow-y: auto;
+  margin-top: 5px;
+  max-height: 300px;
+  min-height: min-content;
+  margin-bottom: 10px;
+}
+
+.scrollable-container-wo-image {
+  overflow-y: auto;
+  margin-top: 5px;
+  max-height: 300px;
+  margin-bottom: 10px;
+  min-height: min-content;
+  padding-left: 15px;
+}
+/* Style for the key-value elements */
+.result-box .key-value-element {
+  margin-top: 5px;
+  margin-left: 15px;
+  padding-right: 8px;
+}
+/* Style for the key-value elements */
+.result-box .key-value-element-wo-image {
+  margin-top: 8px;
+  margin-left: 30px;
+  padding-right: 10px;
+}
+
+.result-box-child {
+  margin-top: 5px;
+  margin-left: 20px;
+  padding-right: 10px;
+}
+
+/* Style for the consult button container */
+.result-box .consult-button-container {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+}
+
+/* Adjusted style for the consult button to place it on the image */
+.image-container {
+  position: relative;
+}
+
+.show-more {
+  padding-left: 5px;
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+  display: inline-block;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.image-container .consult-button-container {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+.result-box .consult-button-container button {
+  background-color: #2f67c7;
+  border-radius: 20px;
+  box-shadow: rgba(44, 120, 187, 0.2) 0 -25px 18px -14px inset,
+    rgba(44, 120, 187, 0.15) 0 1px 2px, rgba(44, 120, 187, 0.15) 0 2px 4px,
+    rgba(44, 120, 187, 0.15) 0 4px 8px, rgba(44, 120, 187, 0.15) 0 8px 16px,
+    rgba(44, 120, 187, 0.15) 0 16px 32px;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  display: inline-block;
+  font-family: CerebriSans-Regular, -apple-system, system-ui, Roboto, sans-serif;
+  padding: 6px 19px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 200ms;
+  border: 0;
+  font-weight: bold;
+  font-size: 14px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* Hover style for the button */
+.result-box .consult-button-container button:hover {
+  box-shadow: rgba(29, 99, 187, 0.36) 0 -25px 18px -14px inset,
+    rgba(44, 99, 187, 0.25) 0 1px 2px, rgba(44, 99, 187, 0.25) 0 2px 4px,
+    rgba(44, 99, 187, 0.25) 0 4px 8px, rgba(44, 99, 187, 0.25) 0 8px 16px,
+    rgba(44, 99, 187, 0.25) 0 16px 32px;
+  transform: scale(1.05) rotate(-1deg);
+}
+
+/* Style for the "Load More" button */
+.load-more-button,
+.return-to-top-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  width: 200px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+/* Hover style for the "Load More" button */
+.load-more-button:hover,
+.return-to-top-button:hover {
+  background-color: #0056b3;
+}
+
+/* Style for the end message */
+.end-message {
+  margin-top: 20px;
+  font-style: italic;
+  color: #666;
+}
+
+/* Style for the document type text */
+.document-type-label {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  font-weight: bold;
+  color: #333;
+  border-radius: 10px;
+}
+
+/* Style for the document type text */
+.document-type-label-wo-image {
+  display: block ruby;
+  font-size: 13px;
+  padding-left: 2px;
+  align-items: center;
+  font-weight: bold;
+  color: #333;
+  background: #ffffff;
+  padding: 2px;
+}
+
+/* Default link style */
+.popup-link {
+  color: blue; /* Example color for unvisited links */
+  text-decoration: none;
+}
+
+/* Clicked link style */
+.popup-link:visited {
+  color: purple; /* Example color for clicked links */
+}
+
+.truncated-title {
+  color: black;
+  cursor: pointer;
+  //filter: brightness(50%);
+}
+
+/* Style for the separator */
+.result-separator {
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  border: none;
+  border: 3px solid #1c1c1c;
+  border-radius: 50px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* Style for the image container */
+.result-box .image-container {
+  overflow: hidden;
+  margin-right: 15px;
+  border: 2px solid #29282861;
+  //height: 300px;
+  border-radius: 13px;
+  //position: relative;
+}
+
+.result-box .image-container img {
+  width: 100%;
+  object-fit: contain;
+  //height: max-content;
+  border-radius: 10px;
+}

@@ -90,6 +90,22 @@
          rdfs:label "country"@en ,
                     "pays"@fr .
 
+:thumbnail rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+         rdfs:domain [ rdf:type owl:Class ;
+                           owl:unionOf ( :Artwork
+                                         :Museum
+                                         :Person
+                                       )
+                         ] ;
+         rdfs:range :Image ;
+         <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<http://dbpedia.org/ontology/thumbnail>" ;
+         # mark the property as an image property
+         # dash:propertyRole dash:DepictionRole ;
+         rdfs:label "thumbnail"@en ,
+                    "vignette"@fr .
+
+
 
 ###  http://ontologies.sparna.fr/sparnatural-demo-dbpedia#countryOf
 :countryOf rdf:type owl:ObjectProperty ;
@@ -161,6 +177,16 @@
              <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<http://www.w3.org/2000/01/rdf-schema#comment>" ;
              rdfs:label "description"@en ,
                         "description"@fr .
+
+
+###  http://ontologies.sparna.fr/sparnatural-demo-dbpedia#description
+:numberOfVisitors rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NumberProperty> ;
+             rdfs:domain :Museum ;
+             rdfs:range :Number ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<http://dbpedia.org/ontology/numberOfVisitors>" ;
+             rdfs:label "number of visitors"@en ,
+                        "nombre de visiteurs"@fr .
 
 
 ###  http://ontologies.sparna.fr/sparnatural-demo-dbpedia#diedIn
@@ -236,20 +262,6 @@
        <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<http://www.w3.org/2000/01/rdf-schema#label>" ;
        rdfs:label "name"@en ,
                   "nom"@fr .
-
-
-:age rdf:type owl:ObjectProperty ;
-       rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NumberProperty> ;
-       rdfs:domain [ rdf:type owl:Class ;
-                     owl:unionOf ( 
-                                   :Person
-                                 )
-                   ] ;
-       rdfs:range :Text ;
-       <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<http://www.w3.org/2000/01/rdf-schema#label>" ;
-       rdfs:label "age"@en ,
-                  "age"@fr .
-
 
 
 ###  http://ontologies.sparna.fr/sparnatural-demo-dbpedia#label_select-only
@@ -334,6 +346,14 @@
                     "Pays"@fr .
 
 
+:Image rdf:type owl:Class ;
+         rdfs:subClassOf rdfs:Literal ;
+         <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "fad fa-image" ;
+         rdfs:label "Image"@en ,
+                    "Image"@fr .
+
+
+
 ###  http://ontologies.sparna.fr/sparnatural-demo-dbpedia#Date
 :Date rdf:type owl:Class ;
       rdfs:subClassOf rdfs:Literal ;
@@ -409,6 +429,12 @@
       rdfs:label "Text"@en ,
                  "Texte"@fr .
 
+
+:Number rdf:type owl:Class ;
+      rdfs:subClassOf rdfs:Literal ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "fad fa-1" ;
+      rdfs:label "Number"@en ,
+                 "Nombre"@fr .
 
 ###  http://xmlns.com/foaf/0.1/Person
 <http://xmlns.com/foaf/0.1/Person> rdf:type owl:Class .
