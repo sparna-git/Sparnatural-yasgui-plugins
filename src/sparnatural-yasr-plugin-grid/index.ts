@@ -9,12 +9,14 @@ import {
 import * as faTh from "@fortawesome/free-solid-svg-icons/faTh";
 import Parser from "../parsers/index";
 import { TableXResults } from "../TableXResults";
-import { faSlash } from "@fortawesome/free-solid-svg-icons";
 
-interface PersistentConfig {}
 interface PluginConfig {
-  L18n: {};
+  lang: "en"|"fr";
 }
+
+
+
+
 export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private yasr: Yasr;
   private query: any;
@@ -22,9 +24,17 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private parserBinding = new BindingParser();
   private displayBoxHtml = new DisplayBoxHtml();
 
+  private config: PluginConfig;
+
+  public static defaults: PluginConfig = {
+    lang: "en"
+  }
+
   constructor(yasr: Yasr) {
     this.yasr = yasr;
+    this.config = GridPlugin.defaults;
   }
+
   download(filename?: string) {
     return {
       getData: () => this.yasr.results?.asCsv() || "",
@@ -33,16 +43,18 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
       filename: `${filename || "queryResults"}.csv`,
     };
   }
+
+
   helpReference?: string;
   public priority = 10;
   public label = "Grid";
+
   //add icon
   public getIcon() {
     return drawSvgStringAsElement(drawFontAwesomeIconAsSvg(faTh));
   }
+
   public draw(persistentConfig: PersistentConfig) {
-    //verifications
-    console.log("Plugin drawing !");
     //recuperer les resultats
     const results = new TableXResults(this.yasr.results as Parser);
     //recuperer les bindings
@@ -59,6 +71,7 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     //afficher les resultats dans le plugin
     this.displayBoxHtml.displayResultBoxes(0, resultBoxes, this.yasr.resultsEl);
   }
+
   /*
   public canHandleResults(): boolean {
     if (!this.query || !this.queryConfiguration) {
@@ -125,7 +138,6 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   //notifier le plugin des changements dans les valeurs de query et queryConfiguration
   notifyQuery(sparnaturalQuery: any): any {
     this.query = sparnaturalQuery;
-    console.log("Query :", this.query);
   }
   notifyConfiguration(specProvider: any): any {
     this.queryConfiguration = specProvider;
