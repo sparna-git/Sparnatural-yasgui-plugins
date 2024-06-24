@@ -75,6 +75,7 @@
   margin-left: 10px;
   max-width: 340px;
   color: rgb(30, 29, 29);
+  display: inline-block;
   text-align: left;
 }
 /* Style for the main title without image */
@@ -86,6 +87,7 @@
 /* Style for the main title without image */
 .result-box .main-title-wo-image a:hover {
   text-decoration: none;
+  font-size: 19px;
   transition: 0.2s;
   color: rgb(11, 167, 229);
 }
@@ -111,6 +113,7 @@
   max-height: 300px;
   margin-bottom: 10px;
   min-height: min-content;
+  padding-left: 15px;
 }
 /* Style for the key-value elements */
 .result-box .key-value-element {
@@ -150,7 +153,6 @@
   text-decoration: underline;
   display: inline-block;
   font-size: 12px;
-  //je veux que le text soit italique
   font-style: italic;
 }
 
@@ -231,7 +233,7 @@
 
 /* Style for the document type text */
 .document-type-label-wo-image {
-  display: flex;
+  //display: flex;
   font-size: 13px;
   padding-left: 2px;
   align-items: center;

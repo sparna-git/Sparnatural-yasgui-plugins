@@ -53,13 +53,15 @@ $(document).ready(function ($) {
   Yasr.registerPlugin("TableX", SparnaturalYasguiPlugins.TableX);
   Yasr.registerPlugin("Map", SparnaturalYasguiPlugins.MapPlugin);
   Yasr.registerPlugin("GridPlugin", SparnaturalYasguiPlugins.GridPlugin);
+  Yasr.registerPlugin("StatsPlugin", SparnaturalYasguiPlugins.StatsPlugin);
+  Yasr.registerPlugin("Response", SparnaturalYasguiPlugins.Response);
 
   // exemple pour passer un paramètre de config à un plugin
   Yasr.plugins.TableX.defaults.openIriInNewWindow = true;
 
   delete Yasr.plugins["table"];
   const yasr = new Yasr(document.getElementById("yasr"), {
-    pluginOrder: ["TableX", "Response", "Map", "GridPlugin"],
+    pluginOrder: ["TableX", "Response", "Map", "GridPlugin", "StatsPlugin"],
     defaultPlugin: "TableX",
     //this way, the URLs in the results are prettified using the defined prefixes in the query
     getUsedPrefixes: yasqe.getPrefixesFromQuery,

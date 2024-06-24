@@ -9,6 +9,7 @@ import {
 import * as faTh from "@fortawesome/free-solid-svg-icons/faTh";
 import Parser from "../parsers/index";
 import { TableXResults } from "../TableXResults";
+import { faSlash } from "@fortawesome/free-solid-svg-icons";
 
 interface PersistentConfig {}
 interface PluginConfig {
@@ -33,7 +34,7 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     };
   }
   helpReference?: string;
-  public priority = 8;
+  public priority = 10;
   public label = "Grid";
   //add icon
   public getIcon() {
@@ -58,16 +59,21 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     //afficher les resultats dans le plugin
     this.displayBoxHtml.displayResultBoxes(0, resultBoxes, this.yasr.resultsEl);
   }
-
-  //verifier si le plugin peut afficher les resultats
-  //condition qui verifier si la query et la query config existe sinon false
+  /*
   public canHandleResults(): boolean {
-    // Vérifier si la query ou la query config existe sinon false
     if (!this.query || !this.queryConfiguration) {
       return false;
     }
+    // Vérifier si les variables de la query ont l'objet expression
+    for (const variable of this.query.variables) {
+      if (variable.expression && typeof variable.expression === "object") {
+        return false;
+      }
+    }
+
     const bindings = this.yasr.results?.getBindings();
     if (!bindings) return false;
+
     for (const bindingSet of bindings) {
       for (const value of Object.values(bindingSet)) {
         if (
@@ -79,8 +85,43 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
         }
       }
     }
+
+    return false;
+  }*/
+
+  public canHandleResults(): boolean {
+    // Vérification initiale
+    if (!this.query || !this.queryConfiguration) {
+      return false;
+    }
+
+    // Vérifier si les variables de la query ont l'objet expression
+    for (const variable of this.query.variables) {
+      if (variable.expression && typeof variable.expression === "object") {
+        return false;
+      }
+    }
+
+    // Récupérer les bindings
+    const bindings = this.yasr.results?.getBindings();
+    if (!bindings) return false;
+
+    // Vérifier les bindings pour les objets de type URI
+    for (const bindingSet of bindings) {
+      for (const value of Object.values(bindingSet)) {
+        if (
+          typeof value === "object" &&
+          value !== null &&
+          (value as { type: string }).type === "uri"
+        ) {
+          return true;
+        }
+      }
+    }
+
     return false;
   }
+
   //notifier le plugin des changements dans les valeurs de query et queryConfiguration
   notifyQuery(sparnaturalQuery: any): any {
     this.query = sparnaturalQuery;

@@ -17,7 +17,7 @@ export class DisplayBoxHtml {
       resultsEl.innerHTML = "";
       const resultCount = document.createElement("div");
       resultCount.className = "result-count";
-      resultCount.textContent = `Nombre total de résultats obtenus : ${resultBoxes.length} Boxes`;
+      resultCount.textContent = `${resultBoxes.length} objets dans le résultat`;
       resultsEl.appendChild(resultCount);
     }
 
@@ -270,7 +270,12 @@ export class DisplayBoxHtml {
                 keyValueElement.innerHTML = `<li/>${
                   property.label
                 } : ${this.limitLength(val, 150)}`;
-              } else if (value.predicates.length > 0) {
+              } else if (
+                value.predicates.length > 0 &&
+                value.predicates.find((predicate) =>
+                  predicate.values.find((value) => value.label !== "")
+                )
+              ) {
                 keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
               }
             } else if (value.predicates.length > 0) {
