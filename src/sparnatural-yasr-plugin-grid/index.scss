@@ -7,6 +7,7 @@
   ); /* This line ensures the grid adapts to the screen size */
   gap: 25px;
   margin-top: 10px;
+  color: black;
 }
 
 .result-count {
@@ -255,7 +256,7 @@
 }
 
 .truncated-title {
-  color: black;
+  //color: black;
   cursor: pointer;
   //filter: brightness(50%);
 }

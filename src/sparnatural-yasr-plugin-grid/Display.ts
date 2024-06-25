@@ -599,7 +599,7 @@ export class DisplayBoxHtml {
   ): string {
     if ((title ?? "").length > maxLength) {
       const truncatedTitle = (title ?? "").slice(0, maxLength) + "(...)";
-      const truncatedElement = `<span class="truncated-title" title="${title}">${truncatedTitle}</span>`;
+      const truncatedElement = `<span class="truncated-title" title="${title}" style="color:black;">${truncatedTitle}</span>`;
       return truncatedElement;
     }
     return title ?? "";

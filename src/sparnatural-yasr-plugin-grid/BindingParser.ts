@@ -6,6 +6,7 @@ import { PropertyValue } from "./Models/PropertyValue";
 import { ResultBoxType } from "./Models/ResultBoxType";
 
 import { Branch, ISparJson } from "../ISparJson";
+import { value } from "./old-backup/Models/value";
 const im = require("./image-defaults/imageNone.jpg");
 export class BindingParser {
   constructor() {}
@@ -166,6 +167,20 @@ export class BindingParser {
     return undefined;
   }
 
+  /*
+  private sortedpredicatesOrdredByVariables(predicates: Record<string, string>, query: ISparJson) {
+    const sortedPredicates: Record<string, string> = {};
+    //sorted by order un query.variables
+
+    for (const variable of query.variables) {
+      if (variable.value in predicates) {
+        sortedPredicates[variable.value] = predicates[variable.value];
+      }
+    }
+    return sortedPredicates;
+  }
+*/
+
   // Méthode pour récupérer le label des prédicats en utilisant les branches de la query
   private getPredicate(
     query: ISparJson,
@@ -180,7 +195,7 @@ export class BindingParser {
       // profondeur
       this.searchInBranch(branch, predicates, queryConfiguration, query);
     }
-
+    console.log("predicates", predicates);
     return predicates;
   }
 
@@ -194,13 +209,7 @@ export class BindingParser {
     const line = branch.line;
 
     // Ajouter le prédicat pour la propriété `o` de la branche
-    //ajouter une condition pour verifier si le predicates[line.o] est present dans les variables de la query
-    //si oui on recupere le label du prédicat
-    //sinon vide
-    if (
-      query.variables.find((variable: any) => variable.value === line.o) ||
-      line.o
-    ) {
+    if (line.o) {
       //recuperer le libelle du prédicat en utilisant la methode getLabelpre
       const predicateLabel = this.getLabelpre(line.p, queryConfiguration);
       predicates[line.o] = predicateLabel;
@@ -208,8 +217,6 @@ export class BindingParser {
 
     // Ajouter également le sujet si nécessaire
     if (!(line.s in predicates)) {
-      //const subjectTypeLabel = this.getLabelpre(line.p, queryConfiguration);
-      //predicates[line.o] = subjectTypeLabel;
       predicates[line.s] = "";
     }
 
@@ -414,6 +421,8 @@ export class BindingParser {
         propertiesList.push(prop);
       }
     }
+    //sort the properties by the order of the variables in the query
+
     return propertiesList;
   }
 
@@ -460,7 +469,7 @@ export class BindingParser {
 
     let predicate = new Property("", valuesArray, new ValueType("", ""), "");
 
-    // Skip the property if value type is "uri"
+    // Skip the property if value type is "ImageUri"
     if (!this.isImageURI(value?.value)) {
       predicate = new Property(
         predicates[objectVariable] ?? "",
@@ -651,9 +660,10 @@ export class BindingParser {
       bindings
     );
     //get the predicates columns
-    const predicatesColumn = this.getPredicate(query, queryConfig);
+    const predicatesColumnAndLabel = this.getPredicate(query, queryConfig);
+    console.log("predicatesColumn", predicatesColumnAndLabel);
     //get the objects columns
-    const objectsColumn = this.getObject(query, queryConfig);
+    const objectsColumnAndLabel = this.getObject(query, queryConfig);
 
     //map to store the result boxes by title "Merged solution"
     const titleMap: Record<string, ResultBoxM> = {};
@@ -667,8 +677,8 @@ export class BindingParser {
         query,
         queryConfig,
         [bindingSet],
-        predicatesColumn,
-        objectsColumn
+        predicatesColumnAndLabel,
+        objectsColumnAndLabel
       );
       const imageURI = this.extractMainImageURI(
         bindingSet,
