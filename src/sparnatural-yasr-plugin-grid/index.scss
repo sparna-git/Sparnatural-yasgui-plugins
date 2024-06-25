@@ -41,7 +41,7 @@
 }
 
 .document-type-container-wo-image {
-  display: flex;
+  display: -webkit-box;
   align-items: center;
   border-radius: 10px;
   margin-top: 1px;
@@ -233,7 +233,7 @@
 
 /* Style for the document type text */
 .document-type-label-wo-image {
-  display: block ruby;
+  //display: block ruby;
   font-size: 13px;
   padding-left: 2px;
   align-items: center;

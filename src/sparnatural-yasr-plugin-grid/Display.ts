@@ -10,14 +10,15 @@ export class DisplayBoxHtml {
   public displayResultBoxes(
     startIndex: number = 0,
     resultBoxes: ResultBoxM[],
-    resultsEl: HTMLElement
+    resultsEl: HTMLElement,
+    translations: any
   ) {
     // Affichage du nombre total de résultats obtenus
     if (startIndex === 0) {
       resultsEl.innerHTML = "";
       const resultCount = document.createElement("div");
       resultCount.className = "result-count";
-      resultCount.textContent = `${resultBoxes.length} objets dans le résultat`;
+      resultCount.textContent = `${resultBoxes.length} ${translations["ObjectsInResult"]}`;
       resultsEl.appendChild(resultCount);
     }
 
@@ -30,7 +31,7 @@ export class DisplayBoxHtml {
     // Parcourir le resultBoxes et créer un encadré pour chaque résultat
     for (let i = startIndex; i < endIndex; i++) {
       const resultBox = resultBoxes[i].image
-        ? this.createResultBoxWithImage(resultBoxes[i])
+        ? this.createResultBoxWithImage(resultBoxes[i], translations)
         : this.createResultBoxWithoutImage(resultBoxes[i]);
       gridContainer.appendChild(resultBox);
     }
@@ -47,15 +48,15 @@ export class DisplayBoxHtml {
 
     // Ajouter le bouton "load more" à chaque fin de la page
     if (endIndex < resultBoxes.length) {
-      this.addLoadMoreButton(endIndex, resultBoxes, resultsEl);
+      this.addLoadMoreButton(endIndex, resultBoxes, resultsEl, translations);
     } else {
       // Ajout du message de fin des résultats et du bouton retour au début
       const endMessage = document.createElement("div");
-      endMessage.textContent = "Fin des résultats.";
+      endMessage.textContent = `${translations["EndResults"]}`;
       endMessage.classList.add("end-message");
 
       const returnToTopButton = document.createElement("button");
-      returnToTopButton.textContent = "Retour au début";
+      returnToTopButton.textContent = `${translations["BackToTop"]}`;
       returnToTopButton.classList.add("return-to-top-button");
       returnToTopButton.addEventListener("click", () => {
         window.scrollTo(0, 0);
@@ -73,14 +74,15 @@ export class DisplayBoxHtml {
   private addLoadMoreButton(
     endIndex: number,
     resultBoxes: ResultBoxM[],
-    resultsEl: HTMLElement
+    resultsEl: HTMLElement,
+    translations: any
   ) {
     const loadMoreButton = document.createElement("button");
-    loadMoreButton.textContent = "Load More";
+    loadMoreButton.textContent = `${translations["LoadMore"]}`;
     loadMoreButton.className = "load-more-button";
     loadMoreButton.addEventListener("click", () => {
       const startIndex = endIndex;
-      this.displayResultBoxes(startIndex, resultBoxes, resultsEl);
+      this.displayResultBoxes(startIndex, resultBoxes, resultsEl, translations);
       console.log("charger les resultats suivants");
       loadMoreButton.remove();
     });
@@ -155,7 +157,10 @@ export class DisplayBoxHtml {
   //methode qui gere l'affichage des encadrés avec image
   //cette methode permet de creer un encadré pour chaque resultat qui contient une image
   //PS : travailler sur les conditions pour afficher les resultats sans probleme et sans doublon "gerer tout les cas possibles"
-  private createResultBoxWithImage(resultBox: ResultBoxM): HTMLDivElement {
+  private createResultBoxWithImage(
+    resultBox: ResultBoxM,
+    translations: any
+  ): HTMLDivElement {
     const resultBoxElement = document.createElement("div");
     resultBoxElement.className = "result-box";
 
@@ -194,7 +199,7 @@ export class DisplayBoxHtml {
     const consultButtonContainer = document.createElement("div");
     consultButtonContainer.className = "consult-button-container";
     const consultButton = document.createElement("button");
-    consultButton.textContent = "Consulter";
+    consultButton.textContent = `${translations["Consult"]}`;
     consultButton.addEventListener("click", () => {
       window.open(resultBox.uri, "_blank");
     });
