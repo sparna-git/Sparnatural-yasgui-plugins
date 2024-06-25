@@ -11,11 +11,8 @@ import Parser from "../parsers/index";
 import { TableXResults } from "../TableXResults";
 
 interface PluginConfig {
-  lang: "en"|"fr";
+  lang: "en" | "fr";
 }
-
-
-
 
 export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private yasr: Yasr;
@@ -27,8 +24,8 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private config: PluginConfig;
 
   public static defaults: PluginConfig = {
-    lang: "en"
-  }
+    lang: "en",
+  };
 
   constructor(yasr: Yasr) {
     this.yasr = yasr;
@@ -44,7 +41,6 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     };
   }
 
-
   helpReference?: string;
   public priority = 10;
   public label = "Grid";
@@ -54,7 +50,7 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     return drawSvgStringAsElement(drawFontAwesomeIconAsSvg(faTh));
   }
 
-  public draw(persistentConfig: PersistentConfig) {
+  public draw() {
     //recuperer les resultats
     const results = new TableXResults(this.yasr.results as Parser);
     //recuperer les bindings
