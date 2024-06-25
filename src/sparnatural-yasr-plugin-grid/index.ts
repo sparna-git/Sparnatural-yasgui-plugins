@@ -152,7 +152,7 @@ import {
 import * as faTh from "@fortawesome/free-solid-svg-icons/faTh";
 import Parser from "../parsers/index";
 import { TableXResults } from "../TableXResults";
-import { I18n } from "../../../Sparnatural/src/sparnatural/settings/I18n";
+import { I18n } from "./I18n";
 
 interface PluginConfig {
   lang: "en" | "fr";
@@ -170,7 +170,7 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private config: PluginConfig;
 
   public static defaults: PluginConfig = {
-    lang: "en",
+    lang: "fr",
   };
 
   constructor(yasr: Yasr) {
