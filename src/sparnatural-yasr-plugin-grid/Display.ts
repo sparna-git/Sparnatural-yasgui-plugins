@@ -160,7 +160,7 @@ export class DisplayBoxHtml {
     // Div pour les propriétés de l'encadré (scrollable)
     const scrollableContainer = document.createElement("div");
     scrollableContainer.className = "scrollable-container";
-    //PS : travailler sur les conditions pour afficher les resultats sans probleme et sans doublon
+    //PS : travailler sur les conditions pour afficher les resultats sans problemes et sans doublons
     resultBox.predicates.forEach((property) => {
       let keyValueElementCreated = false;
 

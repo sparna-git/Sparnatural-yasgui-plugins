@@ -81,9 +81,10 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   }
 
   public canHandleResults(): boolean {
+    /*
     if (!this.query || !this.queryConfiguration) {
       return false;
-    }
+    }*/
 
     for (const variable of this.query.variables) {
       if (variable.expression && typeof variable.expression === "object") {

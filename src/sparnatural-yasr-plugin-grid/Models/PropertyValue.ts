@@ -1,6 +1,6 @@
 import { Property } from "./Property";
 
-let propertyValueCounter = 0;
+let propertyValueCounter = 1;
 
 export class PropertyValue {
   id: number;

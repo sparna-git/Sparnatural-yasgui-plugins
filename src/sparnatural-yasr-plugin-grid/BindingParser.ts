@@ -6,6 +6,7 @@ import { PropertyValue } from "./Models/PropertyValue";
 import { ResultBoxType } from "./Models/ResultBoxType";
 
 import { Branch, ISparJson } from "../ISparJson";
+import { faDiceFive } from "@fortawesome/free-solid-svg-icons";
 const im = require("./image-defaults/imageNone.jpg");
 export class BindingParser {
   constructor() {}
@@ -177,7 +178,6 @@ export class BindingParser {
     // Parcourir les branches de la query
     for (const branch of query.branches) {
       // Appeler la méthode searchInBranch pour chaque branche
-      // profondeur
       this.searchInBranch(branch, predicates, queryConfiguration, query);
     }
 
@@ -197,10 +197,7 @@ export class BindingParser {
     //ajouter une condition pour verifier si le predicates[line.o] est present dans les variables de la query
     //si oui on recupere le label du prédicat
     //sinon vide
-    if (
-      query.variables.find((variable: any) => variable.value === line.o) ||
-      line.o
-    ) {
+    if (line.o) {
       //recuperer le libelle du prédicat en utilisant la methode getLabelpre
       const predicateLabel = this.getLabelpre(line.p, queryConfiguration);
       predicates[line.o] = predicateLabel;
@@ -208,8 +205,6 @@ export class BindingParser {
 
     // Ajouter également le sujet si nécessaire
     if (!(line.s in predicates)) {
-      //const subjectTypeLabel = this.getLabelpre(line.p, queryConfiguration);
-      //predicates[line.o] = subjectTypeLabel;
       predicates[line.s] = "";
     }
 
