@@ -22,6 +22,7 @@ export interface Yasr {
 export type Prefixes = { [prefixLabel: string]: string };
 
 export interface Plugin<Opts extends any> {
+  
   priority: number;
   canHandleResults(): boolean;
   hideFromSelection?: boolean;
