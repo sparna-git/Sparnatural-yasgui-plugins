@@ -7,6 +7,7 @@ import { ResultBoxType } from "./Models/ResultBoxType";
 
 import { Branch, ISparJson } from "../ISparJson";
 import { faDiceFive } from "@fortawesome/free-solid-svg-icons";
+import L from "leaflet";
 const im = require("./image-defaults/imageNone.jpg");
 export class BindingParser {
   constructor() {}
@@ -409,6 +410,23 @@ export class BindingParser {
         propertiesList.push(prop);
       }
     }
+    //ordonner les propriétés selon l'ordre des variables
+    // Récupérer l'ordre des variables
+    const variableOrder = query.variables.map(
+      (variable: any) => variable.value
+    );
+    /*
+    //pour que cela marche faut ajouter le nom de la colonne dans les properties de la class Property
+    // Ordonner les propriétés en fonction de l'ordre des variables de la requête
+    const ordredpropertiesList: Property[] = [];
+    for (const variable of variableOrder) {
+      const property = propertiesList.find((prop) => "Museum_1" === variable);
+      if (property) {
+        ordredpropertiesList.push(property);
+      }
+    }
+    console.log("Properties list ordred", ordredpropertiesList);
+*/
     return propertiesList;
   }
 
@@ -645,10 +663,10 @@ export class BindingParser {
       query,
       bindings
     );
-    //get the predicates columns
-    const predicatesColumn = this.getPredicate(query, queryConfig);
-    //get the objects columns
-    const objectsColumn = this.getObject(query, queryConfig);
+    //get the predicates columns {o: p.label}
+    const predicatesColumnLabel = this.getPredicate(query, queryConfig);
+    //get the objects columns {o: oType.label}
+    const objectsColumnLabel = this.getObject(query, queryConfig);
 
     //map to store the result boxes by title "Merged solution"
     const titleMap: Record<string, ResultBoxM> = {};
@@ -662,8 +680,8 @@ export class BindingParser {
         query,
         queryConfig,
         [bindingSet],
-        predicatesColumn,
-        objectsColumn
+        predicatesColumnLabel,
+        objectsColumnLabel
       );
       const imageURI = this.extractMainImageURI(
         bindingSet,
