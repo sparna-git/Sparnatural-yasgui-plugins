@@ -102,7 +102,7 @@
 .scrollable-container {
   overflow-y: auto;
   margin-top: 5px;
-  max-height: 300px;
+  max-height: calc(100vh - 100px); /* Adjusted to ensure it takes the full viewport height minus some margin */
   min-height: min-content;
   margin-bottom: 10px;
 }
@@ -110,7 +110,7 @@
 .scrollable-container-wo-image {
   overflow-y: auto;
   margin-top: 5px;
-  max-height: 300px;
+  max-height: calc(100vh - 20px); /* Adjusted similarly */
   margin-bottom: 10px;
   min-height: min-content;
   padding-left: 15px;

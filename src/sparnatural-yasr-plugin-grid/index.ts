@@ -27,7 +27,7 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private config: PluginConfig;
 
   public static defaults: PluginConfig = {
-    lang: "fr",
+    lang: "en",
   };
 
   constructor(yasr: Yasr) {
