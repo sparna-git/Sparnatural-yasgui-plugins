@@ -13,10 +13,8 @@ export class DisplayStats {
 
   // Méthode displayStats permet d'afficher les statistiques
   public displayStats(bindings: Parser.Binding[], resultsEl: HTMLElement) {
-    // Parcourir chaque bindingset dans bindings
-    for (const bindingset of bindings) {
       // Vérification si le nombre de clés dans bindingset est égal à 1
-      if (Object.keys(bindingset).length === 1 || bindings.length === 1) {
+      if (Object.keys(bindings[0]).length === 1 || bindings.length === 1) {
         this.displayNumber(bindings, resultsEl);
       } else {
         if (bindings.length !== 1) {
@@ -24,7 +22,6 @@ export class DisplayStats {
           this.displayCharts(bindings, resultsEl, this.currentChartType);
         }
       }
-    }
   }
 
   //methode displaycharts qui propose un switch avec les methode displayPie et displayBar et displayDoughnut et display Polar
