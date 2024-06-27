@@ -19,9 +19,11 @@ export class ParseDataStats {
         //check if the column is a label or data
         if (!bindingSet[key]?.label) {
           //the key is the column name
+          console.log("key :", key);
           dataColumn = key;
         } else {
           //the key is the column name
+          console.log("key :", key);
           labelColumn = key;
         }
       }
@@ -37,6 +39,8 @@ export class ParseDataStats {
     let dataStats: DataStats[] = [];
     //idenitification des column
     const { data, label } = this.identifyColumns(Binding);
+    console.log("data :", data);
+    console.log("label :", label);
 
     // Loop through the bindings
     for (const bindingSet of Binding) {

@@ -11,14 +11,19 @@ export class DisplayStats {
 
   constructor() {}
 
-  //this methode displayStats permet d'afficher les statistiques
+  // Méthode displayStats permet d'afficher les statistiques
   public displayStats(bindings: Parser.Binding[], resultsEl: HTMLElement) {
-    //si le nombre de bindings est égale à 1 on affiche le nombre active 'displayNumber'
-    if (bindings.length === 1) {
-      this.displayNumber(bindings, resultsEl);
-    } else {
-      //sinon on affiche les charts selon le choix de l'utilisateur
-      this.displayCharts(bindings, resultsEl, this.currentChartType);
+    // Parcourir chaque bindingset dans bindings
+    for (const bindingset of bindings) {
+      // Vérification si le nombre de clés dans bindingset est égal à 1
+      if (Object.keys(bindingset).length === 1 || bindings.length === 1) {
+        this.displayNumber(bindings, resultsEl);
+      } else {
+        if (bindings.length !== 1) {
+          // Sinon, on affiche les charts selon le choix de l'utilisateur
+          this.displayCharts(bindings, resultsEl, this.currentChartType);
+        }
+      }
     }
   }
 
@@ -202,17 +207,25 @@ export class DisplayStats {
 
     const contain = document.createElement("div");
     contain.classList.add("contain");
+
+    // Create and append the "Quantity to display :" text
     const textquantity = document.createElement("p");
     textquantity.textContent = "Quantity to display :";
     contain.appendChild(textquantity);
+
+    // Create and append the quantity dropdown
     let buttonQuantity = document.createElement("select");
-    buttonQuantity.classList.add("chart-dropdown-quantity");
+    buttonQuantity.classList.add("cc");
     buttonQuantity = this.chosenQuantity(bindings, resultsEl);
     contain.appendChild(buttonQuantity);
+
+    // Create and append the chart type dropdown
     let button = document.createElement("select");
-    button.classList.add("chart-dropdown-type");
+    button.classList.add("chart-dropdown");
     button = this.displayDropdownList(bindings, resultsEl);
     contain.appendChild(button);
+
+    // Append the container to the main container
     container.appendChild(contain);
   }
 
@@ -261,14 +274,6 @@ export class DisplayStats {
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            display: false,
-            position: "right",
-            labels: {
-              boxWidth: 20,
-              padding: 10,
-            },
-          },
           title: {
             display: false,
             text: "Bar Chart",
@@ -281,17 +286,25 @@ export class DisplayStats {
 
     const contain = document.createElement("div");
     contain.classList.add("contain");
+
+    // Create and append the "Quantity to display :" text
     const textquantity = document.createElement("p");
     textquantity.textContent = "Quantity to display :";
     contain.appendChild(textquantity);
+
+    // Create and append the quantity dropdown
     let buttonQuantity = document.createElement("select");
     buttonQuantity.classList.add("chart-dropdown-quantity");
     buttonQuantity = this.chosenQuantity(bindings, resultsEl);
     contain.appendChild(buttonQuantity);
+
+    // Create and append the chart type dropdown
     let button = document.createElement("select");
-    button.classList.add("chart-dropdown-type");
+    button.classList.add("chart-dropdown");
     button = this.displayDropdownList(bindings, resultsEl);
     contain.appendChild(button);
+
+    // Append the container to the main container
     container.appendChild(contain);
   }
 
@@ -359,17 +372,25 @@ export class DisplayStats {
 
     const contain = document.createElement("div");
     contain.classList.add("contain");
+
+    // Create and append the "Quantity to display :" text
     const textquantity = document.createElement("p");
     textquantity.textContent = "Quantity to display :";
     contain.appendChild(textquantity);
+
+    // Create and append the quantity dropdown
     let buttonQuantity = document.createElement("select");
     buttonQuantity.classList.add("chart-dropdown-quantity");
     buttonQuantity = this.chosenQuantity(bindings, resultsEl);
     contain.appendChild(buttonQuantity);
+
+    // Create and append the chart type dropdown
     let button = document.createElement("select");
-    button.classList.add("chart-dropdown-type");
+    button.classList.add("chart-dropdown");
     button = this.displayDropdownList(bindings, resultsEl);
     contain.appendChild(button);
+
+    // Append the container to the main container
     container.appendChild(contain);
   }
 
@@ -437,22 +458,50 @@ export class DisplayStats {
 
     const contain = document.createElement("div");
     contain.classList.add("contain");
+
+    // Create and append the "Quantity to display :" text
     const textquantity = document.createElement("p");
     textquantity.textContent = "Quantity to display :";
     contain.appendChild(textquantity);
+
+    // Create and append the quantity dropdown
     let buttonQuantity = document.createElement("select");
     buttonQuantity.classList.add("chart-dropdown-quantity");
     buttonQuantity = this.chosenQuantity(bindings, resultsEl);
     contain.appendChild(buttonQuantity);
+
+    // Create and append the chart type dropdown
     let button = document.createElement("select");
-    button.classList.add("chart-dropdown-type");
+    button.classList.add("chart-dropdown");
     button = this.displayDropdownList(bindings, resultsEl);
     contain.appendChild(button);
+
+    // Append the container to the main container
     container.appendChild(contain);
   }
 
   public displayNumber(bindings: Parser.Binding[], resultsEl: HTMLElement) {
     resultsEl.innerHTML = ""; // Effacer le contenu précédent
+
+    //column for our dataStats
+    let dataColumn: string = "";
+    let labelColumn: string = "";
+
+    //loop through the bindings to identify the columns
+    for (let bindingSet of bindings) {
+      for (const key in bindingSet) {
+        //check if the column is a label or data
+        if (!bindingSet[key]?.label) {
+          //the key is the column name
+          console.log("key :", key);
+          dataColumn = key;
+        } else {
+          //the key is the column name
+          console.log("key :", key);
+          labelColumn = key;
+        }
+      }
+    }
 
     const container = document.createElement("div");
     container.classList.add("result-container-pie");
@@ -465,7 +514,7 @@ export class DisplayStats {
 
     for (let bindingSet of bindings) {
       for (const key in bindingSet) {
-        valueDiv.textContent = bindingSet[key].value;
+        valueDiv.textContent = bindingSet[dataColumn].value;
       }
     }
     box.appendChild(valueDiv);

@@ -7,7 +7,7 @@
   padding: 20px;
   border: 1px solid #007bff;
   border-radius: 10px;
-  background-color: #f0f0f0;
+  background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   height: 800px;
   min-height: 400px; /* Dimension minimale pour éviter que le graphique disparaisse */
@@ -51,7 +51,7 @@
   display: flex;
   justify-content: center;
   margin-top: 10px;
-  background-color: transparent;
+  background-color: white;
 }
 
 .result-box-pie {
@@ -63,8 +63,7 @@
   padding: 10px;
   border: 3px solid #007bff;
   border-radius: 10px;
-  background-color: #f0f0f0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
 }
 
 .result-value-pie {
@@ -80,6 +79,43 @@
   background-color: #ccc;
   padding: 20px;
   border-radius: 10px;
+}
+
+.contain {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 100vh;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.chart-dropdown,
+.chart-dropdown-quantity {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4680bf;
+  border-radius: 20px;
+  color: white;
+  margin: 10px;
+  border: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.chart-dropdown-quantity {
+  width: 100px;
+}
+
+.chart-dropdown {
+  width: 200px;
+}
+
+.contain p {
+  font-size: 18px;
+  margin-right: 10px;
 }
 
 @media (min-width: 768px) {
@@ -102,23 +138,4 @@
   .result-value-pie {
     margin-bottom: 0;
   }
-}
-
-.contain {
-  display: block ruby;
-  margin-left: 10px;
-  justify-content: space-between;
-  align-items: center;
-  height: 100vh;
-}
-
-.chart-dropdown {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #4680bf;
-  border-radius: 5px;
-  color: white;
-  margin: 10px;
-  border: none;
-  cursor: pointer;
 }
