@@ -388,6 +388,7 @@ export class BindingParser {
   //pour chaque bindingSet on va lire ses propriétés utilisant la structure de la query
   //pour garder la forme de la configuration de la query
   //on va lire les propriétés pour chaque branche une apres l'autre
+  /*
   public readProperties(
     query: ISparJson,
     queryConfig: any,
@@ -415,21 +416,106 @@ export class BindingParser {
     const variableOrder = query.variables.map(
       (variable: any) => variable.value
     );
-    /*
+
     //pour que cela marche faut ajouter le nom de la colonne dans les properties de la class Property
     // Ordonner les propriétés en fonction de l'ordre des variables de la requête
     const ordredpropertiesList: Property[] = [];
+
     for (const variable of variableOrder) {
-      const property = propertiesList.find((prop) => "Museum_1" === variable);
+      // Chercher une propriété dans propertiesList où la colonne correspond à variable
+      const property = propertiesList.find((prop) =>
+        prop.values.some((val) => val.column === variable)
+      );
+
+      if (property) {
+        ordredpropertiesList.push(property);
+      }
+    }
+    /*for (const variable of variableOrder) {
+      const property = propertiesList.find((prop) => "" === variable);
       if (property) {
         ordredpropertiesList.push(property);
       }
     }
     console.log("Properties list ordred", ordredpropertiesList);
-*/
+
+    console.log("Properties list", propertiesList);
     return propertiesList;
   }
+*/
+  /*
+  public readProperties(
+    query: ISparJson,
+    queryConfig: any,
+    bindingSet: Parser.Binding[],
+    predicates: Record<string, string>,
+    objects: Record<string, string>
+  ): Property[] {
+    const propertiesList: Property[] = [];
 
+    // Lire les propriétés pour chaque branche du query
+    for (const branch of query.branches) {
+      const properties = this.readPropertyForLine(
+        branch,
+        bindingSet,
+        query,
+        queryConfig,
+        predicates,
+        objects
+      );
+      propertiesList.push(...properties); // Ajouter les propriétés à propertiesList
+    }
+
+    // Récupérer l'ordre des variables à partir de query.variables
+    const variableOrder = query.variables.map(
+      (variable: any) => variable.value
+    );
+
+    // Ordonner les propriétés en fonction de l'ordre des variables
+    let ordredpropertiesList: Property[] = [];
+
+    ordredpropertiesList = this.ordredpropertiesListfun(
+      variableOrder,
+      propertiesList
+    );
+
+    console.log("Properties list ordred", ordredpropertiesList);
+    console.log("Properties list", propertiesList); // Afficher la liste non ordonnée pour vérification si nécessaire
+
+    return ordredpropertiesList; // Retourner la liste ordonnée des propriétés
+  }
+  */
+  /*
+  private ordredpropertiesListfun(
+    variableOrder: any,
+    propertiesList: Property[]
+  ): Property[] {
+    const ordredpropertiesList: Property[] = [];
+
+    for (const variable of variableOrder) {
+      // Chercher une propriété dans propertiesList où la colonne correspond à variable
+      const property = propertiesList.find((prop) =>
+        prop.values.some((val) => val.column === variable)
+      );
+
+      if (property) {
+        // Ordre les fils de chaque propriété récursivement
+        for (const value of property.values) {
+          if (value.predicates.length > 0) {
+            value.predicates = this.ordredpropertiesListfun(
+              variableOrder,
+              value.predicates
+            );
+          }
+        }
+        ordredpropertiesList.push(property);
+      }
+    }
+
+    return ordredpropertiesList;
+  }
+*/
+  /*
   // Méthode pour lire les propriétés pour une branche donnée
   public readPropertyForLine(
     branch: Branch,
@@ -454,21 +540,27 @@ export class BindingParser {
       value?.type === "x-labelled-uri"
     ) {
       // Ajouter la valeur à valuesArray
-      valuesArray.push(new PropertyValue(value.label ?? "", value.value, []));
+      valuesArray.push(
+        new PropertyValue(value.label ?? "", value.value, objectVariable, [])
+      );
     }
     if (
       value?.value !== undefined &&
       value?.label === undefined &&
       value?.type === "literal"
     ) {
-      valuesArray.push(new PropertyValue(value.value ?? "", "", []));
+      valuesArray.push(
+        new PropertyValue(value.value ?? "", "", objectVariable, [])
+      );
     }
     if (
       value?.type === "uri" &&
       value?.value !== undefined &&
       !this.isImageURI(value.value)
     ) {
-      valuesArray.push(new PropertyValue(value.value, value.value, []));
+      valuesArray.push(
+        new PropertyValue(value.value, value.value, objectVariable, [])
+      );
     }
 
     let predicate = new Property("", valuesArray, new ValueType("", ""), "");
@@ -499,7 +591,7 @@ export class BindingParser {
 
       if (value === undefined) {
         // Si la valeur est indéfinie, ajouter directement les enfants comme valeurs
-        const valueWithChildren = new PropertyValue("", "", []);
+        const valueWithChildren = new PropertyValue("", "", objectVariable, []);
         for (const childProp of childrenProperties) {
           valueWithChildren.addPredicate(childProp);
         }
@@ -516,6 +608,166 @@ export class BindingParser {
 
     // Add the predicate only if it's not of type "uri"
     if (!this.isImageURI(value?.value)) {
+      propertiesList.push(predicate);
+    }
+
+    return propertiesList;
+  }
+*/
+  public readProperties(
+    query: ISparJson,
+    queryConfig: any,
+    bindingSet: Parser.Binding[],
+    predicates: Record<string, string>,
+    objects: Record<string, string>
+  ): Property[] {
+    const propertiesList: Property[] = [];
+
+    // Lire les propriétés pour chaque branche du query
+    for (const branch of query.branches) {
+      const properties = this.readPropertyForLine(
+        branch,
+        bindingSet,
+        query,
+        queryConfig,
+        predicates,
+        objects
+      );
+      propertiesList.push(...properties); // Ajouter les propriétés à propertiesList
+    }
+
+    // Récupérer l'ordre des variables à partir de query.variables
+    const variableOrder = query.variables.map(
+      (variable: any) => variable.value
+    );
+
+    // Ordonner les propriétés en fonction de l'ordre des variables
+    let ordredpropertiesList: Property[] = [];
+
+    ordredpropertiesList = this.ordredpropertiesListfun(
+      variableOrder,
+      propertiesList
+    );
+
+    console.log("Properties list ordred", ordredpropertiesList);
+    console.log("Properties list", propertiesList); // Afficher la liste non ordonnée pour vérification si nécessaire
+
+    return ordredpropertiesList; // Retourner la liste ordonnée des propriétés
+  }
+
+  private ordredpropertiesListfun(
+    variableOrder: any,
+    propertiesList: Property[]
+  ): Property[] {
+    const ordredpropertiesList: Property[] = [];
+
+    for (const variable of variableOrder) {
+      // Chercher une propriété dans propertiesList où la colonne correspond à variable
+      const property = propertiesList.find((prop) =>
+        prop.values.some((val) => val.column === variable)
+      );
+
+      if (property) {
+        // Ordre les fils de chaque propriété récursivement
+        for (const value of property.values) {
+          if (value.predicates.length > 0) {
+            value.predicates = this.ordredpropertiesListfun(
+              variableOrder,
+              value.predicates
+            );
+          }
+        }
+        ordredpropertiesList.push(property);
+      }
+    }
+
+    return ordredpropertiesList;
+  }
+
+  // Méthode pour lire les propriétés pour une branche donnée
+  public readPropertyForLine(
+    branch: Branch,
+    bindingSet: Parser.Binding[],
+    query: ISparJson,
+    queryConfig: any,
+    predicates: Record<string, string>,
+    objects: Record<string, string>
+  ): Property[] {
+    const propertiesList: Property[] = [];
+
+    const objectVariable = branch.line.o;
+    const value = this.getValueFromBindings(bindingSet, objectVariable);
+    const predicatesURI = this.getPredicateURI(query, queryConfig);
+    const objectU = this.getObjectUri(query, queryConfig);
+    const valuesArray: PropertyValue[] = [];
+
+    if (value !== undefined) {
+      if (value?.label !== undefined && value?.type === "x-labelled-uri") {
+        valuesArray.push(
+          new PropertyValue(value.label ?? "", value.value, objectVariable, [])
+        );
+      } else if (value?.value !== undefined && value?.type === "literal") {
+        valuesArray.push(
+          new PropertyValue(value.value ?? "", "", objectVariable, [])
+        );
+      } else if (value?.type === "uri" && !this.isImageURI(value.value)) {
+        valuesArray.push(
+          new PropertyValue(value.value, value.value, objectVariable, [])
+        );
+      }
+    }
+
+    const predicate = new Property(
+      predicates[objectVariable] ?? "",
+      valuesArray,
+      new ValueType(objectU[objectVariable], objects[objectVariable]),
+      predicatesURI[objectVariable] ?? ""
+    );
+
+    // Skip the property if value type is "uri"
+    if (!this.isImageURI(value?.value)) {
+      if (branch.children && branch.children.length > 0) {
+        const childrenProperties = branch.children.flatMap((child) =>
+          this.readPropertyForLine(
+            child,
+            bindingSet,
+            query,
+            queryConfig,
+            predicates,
+            objects
+          )
+        );
+
+        if (value === undefined) {
+          // Si la valeur est indéfinie, ajouter directement les enfants comme valeurs
+          for (const childProp of childrenProperties) {
+            const valueWithChildren = new PropertyValue(
+              "",
+              "",
+              objectVariable,
+              [childProp]
+            );
+            propertiesList.push(
+              new Property(
+                predicates[branch.line.s] ?? "",
+                [valueWithChildren],
+                new ValueType(objectU[branch.line.s], objects[branch.line.s]),
+                predicatesURI[branch.line.s] ?? ""
+              )
+            );
+          }
+        } else {
+          // Si la valeur est définie, ajouter les enfants comme prédicats des PropertyValue
+          for (const val of predicate.values) {
+            for (const childProp of childrenProperties) {
+              val.addPredicate(childProp);
+            }
+          }
+        }
+      }
+    }
+
+    if (value !== undefined || propertiesList.length === 0) {
       propertiesList.push(predicate);
     }
 
