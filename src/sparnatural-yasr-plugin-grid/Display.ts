@@ -32,7 +32,7 @@ export class DisplayBoxHtml {
     for (let i = startIndex; i < endIndex; i++) {
       const resultBox = resultBoxes[i].image
         ? this.createResultBoxWithImage(resultBoxes[i], translations)
-        : this.createResultBoxWithoutImage(resultBoxes[i]);
+        : this.createResultBoxWithoutImage(resultBoxes[i], translations);
       gridContainer.appendChild(resultBox);
     }
 
@@ -177,7 +177,7 @@ export class DisplayBoxHtml {
                 const val = value.label || "";
                 keyValueElement.innerHTML = `<li/>${
                   property.label
-                } : ${this.limitLength(val, 150)}`;
+                } : ${this.limitLength(val, 150, translations)}`;
               } else if (value.predicates.length > 0) {
                 keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
               }
@@ -189,7 +189,8 @@ export class DisplayBoxHtml {
               value.predicates.forEach((child) => {
                 const childElement = this.createResultBoxFromProperty(
                   child,
-                  resultBox
+                  resultBox,
+                  translations
                 );
                 keyValueElement.appendChild(childElement);
               });
@@ -209,7 +210,7 @@ export class DisplayBoxHtml {
                 const val = value.label || "";
                 keyValueElement.innerHTML = `<li/>${
                   property.label
-                } : ${this.limitLength(val, 150)}`;
+                } : ${this.limitLength(val, 150, translations)}`;
               } else if (
                 value.predicates.length > 0 &&
                 value.predicates.find((predicate) =>
@@ -226,7 +227,8 @@ export class DisplayBoxHtml {
               value.predicates.forEach((child) => {
                 const childElement = this.createResultBoxFromProperty(
                   child,
-                  resultBox
+                  resultBox,
+                  translations
                 );
                 keyValueElement.appendChild(childElement);
               });
@@ -243,7 +245,11 @@ export class DisplayBoxHtml {
             if (value.uri && value.id) {
               return `<a href="${value.uri}" target="_blank" class="popup-link" data-uri="${value.uri}"><strong>${value.label}</strong></a>`;
             } else {
-              return `${this.limitLength(value.label || "", 150)}`;
+              return `${this.limitLength(
+                value.label || "",
+                150,
+                translations
+              )}`;
             }
           })
           .join(", ");
@@ -277,7 +283,8 @@ export class DisplayBoxHtml {
   // PS : travailler sur les conditions pour afficher les resultats sans probleme et sans doublon "gerer tout les cas possibles"
   private createResultBoxFromProperty(
     property: Property,
-    resultBox: ResultBoxM
+    resultBox: ResultBoxM,
+    translations: any
   ): HTMLDivElement {
     const resultBoxElement = document.createElement("div");
     resultBoxElement.className = "result-box-child";
@@ -314,7 +321,7 @@ export class DisplayBoxHtml {
         if (value.uri && value.label) {
           return `<a href="${value.uri}" target="_blank" class="popup-link" data-uri="${value.uri}"><strong>${value.label}</strong></a>`;
         } else {
-          return `${this.limitLength(value.label || "", 150)}`;
+          return `${this.limitLength(value.label || "", 150, translations)}`;
         }
       })
       .join(", ");
@@ -332,7 +339,7 @@ export class DisplayBoxHtml {
         } else if (value.label !== "") {
           keyValueElement.innerHTML = `<li/>${
             property.label
-          } : ${this.limitLength(value.label, 150)}`;
+          } : ${this.limitLength(value.label, 150, translations)}`;
           resultBoxElement.appendChild(keyValueElement);
           valueAppended = true;
           break;
@@ -369,7 +376,8 @@ export class DisplayBoxHtml {
         value.predicates.forEach((child) => {
           const childElement = this.createResultBoxFromProperty(
             child,
-            resultBox
+            resultBox,
+            translations
           );
           keyValueElement.appendChild(childElement);
         });
@@ -388,7 +396,10 @@ export class DisplayBoxHtml {
 
   //methode qui est charger de creer un encadré pour chaque resultat sans image
   //PS : travailler sur les condition pour afficher les resultats sans probleme et sans doublon
-  private createResultBoxWithoutImage(resultBox: ResultBoxM): HTMLDivElement {
+  private createResultBoxWithoutImage(
+    resultBox: ResultBoxM,
+    translations: any
+  ): HTMLDivElement {
     const resultBoxElement = document.createElement("div");
     resultBoxElement.className = "result-box";
 
@@ -436,7 +447,7 @@ export class DisplayBoxHtml {
                 const val = value.label || "";
                 keyValueElement.innerHTML = `<li/>${
                   property.label
-                } : ${this.limitLength(val, 150)}`;
+                } : ${this.limitLength(val, 150, translations)}`;
               } else if (value.predicates.length > 0) {
                 keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
               }
@@ -448,7 +459,8 @@ export class DisplayBoxHtml {
               value.predicates.forEach((child) => {
                 const childElement = this.createResultBoxFromProperty(
                   child,
-                  resultBox
+                  resultBox,
+                  translations
                 );
                 keyValueElement.appendChild(childElement);
               });
@@ -468,7 +480,7 @@ export class DisplayBoxHtml {
                 const val = value.label || "";
                 keyValueElement.innerHTML = `<li/>${
                   property.label
-                } : ${this.limitLength(val, 150)}`;
+                } : ${this.limitLength(val, 150, translations)}`;
               } else if (
                 value.predicates.length > 0 &&
                 value.predicates.find((predicate) =>
@@ -485,7 +497,8 @@ export class DisplayBoxHtml {
               value.predicates.forEach((child) => {
                 const childElement = this.createResultBoxFromProperty(
                   child,
-                  resultBox
+                  resultBox,
+                  translations
                 );
                 keyValueElement.appendChild(childElement);
               });
@@ -502,7 +515,11 @@ export class DisplayBoxHtml {
             if (value.uri && value.label) {
               return `<a href="${value.uri}" target="_blank" class="popup-link" data-uri="${value.uri}"><strong>${value.label}</strong></a>`;
             } else {
-              return `${this.limitLength(value.label || "", 150)}`;
+              return `${this.limitLength(
+                value.label || "",
+                150,
+                translations
+              )}`;
             }
           })
           .join(", ");
@@ -548,13 +565,17 @@ export class DisplayBoxHtml {
   // cette methode permet de limiter la longueur du texte
   // si on clique sur "lire la suite", on affiche le texte complet
   //cette methode permet de laisser l'encadré lisible et de ne pas surcharger l'interface
-  private limitLength(text: string | undefined, maxLength: number): string {
+  private limitLength(
+    text: string | undefined,
+    maxLength: number,
+    translations: any
+  ): string {
     if ((text ?? "").length > maxLength) {
       const truncatedTitle = (text ?? "").slice(0, maxLength);
       const remainingTitle = (text ?? "").slice(maxLength);
       const truncatedElement = `
             <span class="truncated-title" title="${text}">
-                ${truncatedTitle}<a class="show-more">lire la suite</a><span class="remaining-title" style="display: none;">${remainingTitle}</span>
+                ${truncatedTitle}<a class="show-more">${translations["more"]}</a><span class="remaining-title" style="display: none;">${remainingTitle}</span>
             </span>`;
       return truncatedElement;
     }

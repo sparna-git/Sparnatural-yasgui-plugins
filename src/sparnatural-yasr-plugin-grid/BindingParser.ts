@@ -72,7 +72,7 @@ export class BindingParser {
       }
 
       // If we have found the required number of valid results, return the variable name
-      if (validCount >= pairsToCheck * 2) {
+      if (validCount >= pairsToCheck * 2 - 1) {
         return variableName;
       }
     }
