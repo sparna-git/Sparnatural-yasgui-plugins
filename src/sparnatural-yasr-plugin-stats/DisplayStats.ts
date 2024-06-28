@@ -1,6 +1,6 @@
 import Chart from "chart.js/auto";
 import Parser from "../parsers";
-require("./indexs.scss");
+import "./indexs.scss";
 import { ParseDataStats } from "./ParseDataStats";
 
 export class DisplayStats {

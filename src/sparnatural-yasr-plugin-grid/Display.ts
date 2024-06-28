@@ -1,6 +1,6 @@
 import { ResultBoxM } from "./Models/ResultBox";
 import { Property } from "./Models/Property";
-require("./index.scss");
+require("./indexGrid.scss");
 const im = require("./image-defaults/imageNone.jpg");
 
 export class DisplayBoxHtml {
