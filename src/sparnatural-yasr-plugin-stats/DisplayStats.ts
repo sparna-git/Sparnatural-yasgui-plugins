@@ -13,15 +13,15 @@ export class DisplayStats {
 
   // Méthode displayStats permet d'afficher les statistiques
   public displayStats(bindings: Parser.Binding[], resultsEl: HTMLElement) {
-      // Vérification si le nombre de clés dans bindingset est égal à 1
-      if (Object.keys(bindings[0]).length === 1 || bindings.length === 1) {
-        this.displayNumber(bindings, resultsEl);
-      } else {
-        if (bindings.length !== 1) {
-          // Sinon, on affiche les charts selon le choix de l'utilisateur
-          this.displayCharts(bindings, resultsEl, this.currentChartType);
-        }
+    // Vérification si le nombre de clés dans bindingset est égal à 1
+    if (Object.keys(bindings[0]).length === 1 || bindings.length === 1) {
+      this.displayNumber(bindings, resultsEl);
+    } else {
+      if (bindings.length !== 1) {
+        // Sinon, on affiche les charts selon le choix de l'utilisateur
+        this.displayCharts(bindings, resultsEl, this.currentChartType);
       }
+    }
   }
 
   //methode displaycharts qui propose un switch avec les methode displayPie et displayBar et displayDoughnut et display Polar
@@ -171,6 +171,28 @@ export class DisplayStats {
     //creation du contenu html pour le chart
     const container = document.createElement("div");
     container.classList.add("pie-chart-container");
+    const contain = document.createElement("div");
+    contain.classList.add("contain");
+
+    // Create and append the "Quantity to display :" text
+    const textquantity = document.createElement("p");
+    textquantity.textContent = "Quantity to display :";
+    contain.appendChild(textquantity);
+
+    // Create and append the quantity dropdown
+    let buttonQuantity = document.createElement("select");
+    buttonQuantity.classList.add("cc");
+    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
+    contain.appendChild(buttonQuantity);
+
+    // Create and append the chart type dropdown
+    let button = document.createElement("select");
+    button.classList.add("chart-dropdown");
+    button = this.displayDropdownList(bindings, resultsEl);
+    contain.appendChild(button);
+
+    // Append the container to the main container
+    container.appendChild(contain);
 
     const canvas = document.createElement("canvas");
     canvas.classList.add("chart-pie");
@@ -201,29 +223,6 @@ export class DisplayStats {
         },
       },
     });
-
-    const contain = document.createElement("div");
-    contain.classList.add("contain");
-
-    // Create and append the "Quantity to display :" text
-    const textquantity = document.createElement("p");
-    textquantity.textContent = "Quantity to display :";
-    contain.appendChild(textquantity);
-
-    // Create and append the quantity dropdown
-    let buttonQuantity = document.createElement("select");
-    buttonQuantity.classList.add("cc");
-    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
-    contain.appendChild(buttonQuantity);
-
-    // Create and append the chart type dropdown
-    let button = document.createElement("select");
-    button.classList.add("chart-dropdown");
-    button = this.displayDropdownList(bindings, resultsEl);
-    contain.appendChild(button);
-
-    // Append the container to the main container
-    container.appendChild(contain);
   }
 
   //same methods of pie chart we will change only the type of chart type:'Bar'
@@ -259,6 +258,29 @@ export class DisplayStats {
     const container = document.createElement("div");
     container.classList.add("pie-chart-container");
 
+    const contain = document.createElement("div");
+    contain.classList.add("contain");
+
+    // Create and append the "Quantity to display :" text
+    const textquantity = document.createElement("p");
+    textquantity.textContent = "Quantity to display :";
+    contain.appendChild(textquantity);
+
+    // Create and append the quantity dropdown
+    let buttonQuantity = document.createElement("select");
+    buttonQuantity.classList.add("cc");
+    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
+    contain.appendChild(buttonQuantity);
+
+    // Create and append the chart type dropdown
+    let button = document.createElement("select");
+    button.classList.add("chart-dropdown");
+    button = this.displayDropdownList(bindings, resultsEl);
+    contain.appendChild(button);
+
+    // Append the container to the main container
+    container.appendChild(contain);
+
     const canvas = document.createElement("canvas");
     canvas.classList.add("chart-pie");
     container.appendChild(canvas);
@@ -280,29 +302,6 @@ export class DisplayStats {
         },
       },
     });
-
-    const contain = document.createElement("div");
-    contain.classList.add("contain");
-
-    // Create and append the "Quantity to display :" text
-    const textquantity = document.createElement("p");
-    textquantity.textContent = "Quantity to display :";
-    contain.appendChild(textquantity);
-
-    // Create and append the quantity dropdown
-    let buttonQuantity = document.createElement("select");
-    buttonQuantity.classList.add("chart-dropdown-quantity");
-    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
-    contain.appendChild(buttonQuantity);
-
-    // Create and append the chart type dropdown
-    let button = document.createElement("select");
-    button.classList.add("chart-dropdown");
-    button = this.displayDropdownList(bindings, resultsEl);
-    contain.appendChild(button);
-
-    // Append the container to the main container
-    container.appendChild(contain);
   }
 
   public displayDoughnut(bindings: Parser.Binding[], resultsEl: HTMLElement) {
@@ -337,6 +336,29 @@ export class DisplayStats {
     const container = document.createElement("div");
     container.classList.add("pie-chart-container");
 
+    const contain = document.createElement("div");
+    contain.classList.add("contain");
+
+    // Create and append the "Quantity to display :" text
+    const textquantity = document.createElement("p");
+    textquantity.textContent = "Quantity to display :";
+    contain.appendChild(textquantity);
+
+    // Create and append the quantity dropdown
+    let buttonQuantity = document.createElement("select");
+    buttonQuantity.classList.add("cc");
+    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
+    contain.appendChild(buttonQuantity);
+
+    // Create and append the chart type dropdown
+    let button = document.createElement("select");
+    button.classList.add("chart-dropdown");
+    button = this.displayDropdownList(bindings, resultsEl);
+    contain.appendChild(button);
+
+    // Append the container to the main container
+    container.appendChild(contain);
+
     const canvas = document.createElement("canvas");
     canvas.classList.add("chart-pie");
     container.appendChild(canvas);
@@ -366,29 +388,6 @@ export class DisplayStats {
         },
       },
     });
-
-    const contain = document.createElement("div");
-    contain.classList.add("contain");
-
-    // Create and append the "Quantity to display :" text
-    const textquantity = document.createElement("p");
-    textquantity.textContent = "Quantity to display :";
-    contain.appendChild(textquantity);
-
-    // Create and append the quantity dropdown
-    let buttonQuantity = document.createElement("select");
-    buttonQuantity.classList.add("chart-dropdown-quantity");
-    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
-    contain.appendChild(buttonQuantity);
-
-    // Create and append the chart type dropdown
-    let button = document.createElement("select");
-    button.classList.add("chart-dropdown");
-    button = this.displayDropdownList(bindings, resultsEl);
-    contain.appendChild(button);
-
-    // Append the container to the main container
-    container.appendChild(contain);
   }
 
   public displayPolar(bindings: Parser.Binding[], resultsEl: HTMLElement) {
@@ -423,6 +422,29 @@ export class DisplayStats {
     const container = document.createElement("div");
     container.classList.add("pie-chart-container");
 
+    const contain = document.createElement("div");
+    contain.classList.add("contain");
+
+    // Create and append the "Quantity to display :" text
+    const textquantity = document.createElement("p");
+    textquantity.textContent = "Quantity to display :";
+    contain.appendChild(textquantity);
+
+    // Create and append the quantity dropdown
+    let buttonQuantity = document.createElement("select");
+    buttonQuantity.classList.add("cc");
+    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
+    contain.appendChild(buttonQuantity);
+
+    // Create and append the chart type dropdown
+    let button = document.createElement("select");
+    button.classList.add("chart-dropdown");
+    button = this.displayDropdownList(bindings, resultsEl);
+    contain.appendChild(button);
+
+    // Append the container to the main container
+    container.appendChild(contain);
+
     const canvas = document.createElement("canvas");
     canvas.classList.add("chart-pie");
     container.appendChild(canvas);
@@ -452,29 +474,6 @@ export class DisplayStats {
         },
       },
     });
-
-    const contain = document.createElement("div");
-    contain.classList.add("contain");
-
-    // Create and append the "Quantity to display :" text
-    const textquantity = document.createElement("p");
-    textquantity.textContent = "Quantity to display :";
-    contain.appendChild(textquantity);
-
-    // Create and append the quantity dropdown
-    let buttonQuantity = document.createElement("select");
-    buttonQuantity.classList.add("chart-dropdown-quantity");
-    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
-    contain.appendChild(buttonQuantity);
-
-    // Create and append the chart type dropdown
-    let button = document.createElement("select");
-    button.classList.add("chart-dropdown");
-    button = this.displayDropdownList(bindings, resultsEl);
-    contain.appendChild(button);
-
-    // Append the container to the main container
-    container.appendChild(contain);
   }
 
   public displayNumber(bindings: Parser.Binding[], resultsEl: HTMLElement) {
