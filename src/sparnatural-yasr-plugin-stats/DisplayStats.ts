@@ -168,6 +168,8 @@ export class DisplayStats {
     // Effacer le contenu précédent
     resultsEl.innerHTML = "";
 
+    const containerCentre = document.createElement("div");
+    containerCentre.classList.add("chart-center");
     //creation du contenu html pour le chart
     const container = document.createElement("div");
     container.classList.add("pie-chart-container");
@@ -197,8 +199,8 @@ export class DisplayStats {
     const canvas = document.createElement("canvas");
     canvas.classList.add("chart-pie");
     container.appendChild(canvas);
-
-    resultsEl.appendChild(container);
+    containerCentre.appendChild(container);
+    resultsEl.appendChild(containerCentre);
     //creation du chart
     new Chart(canvas, {
       type: "pie",
@@ -255,6 +257,9 @@ export class DisplayStats {
 
     resultsEl.innerHTML = ""; // Effacer le contenu précédent
 
+    const containerCentre = document.createElement("div");
+    containerCentre.classList.add("chart-center");
+
     const container = document.createElement("div");
     container.classList.add("pie-chart-container");
 
@@ -284,8 +289,8 @@ export class DisplayStats {
     const canvas = document.createElement("canvas");
     canvas.classList.add("chart-pie");
     container.appendChild(canvas);
-
-    resultsEl.appendChild(container);
+    containerCentre.appendChild(container);
+    resultsEl.appendChild(containerCentre);
 
     new Chart(canvas, {
       type: "bar",
@@ -332,7 +337,8 @@ export class DisplayStats {
     };
 
     resultsEl.innerHTML = ""; // Effacer le contenu précédent
-
+    const containerCentre = document.createElement("div");
+    containerCentre.classList.add("chart-center");
     const container = document.createElement("div");
     container.classList.add("pie-chart-container");
 
@@ -362,8 +368,8 @@ export class DisplayStats {
     const canvas = document.createElement("canvas");
     canvas.classList.add("chart-pie");
     container.appendChild(canvas);
-
-    resultsEl.appendChild(container);
+    containerCentre.appendChild(container);
+    resultsEl.appendChild(containerCentre);
 
     new Chart(canvas, {
       type: "doughnut",
@@ -418,7 +424,8 @@ export class DisplayStats {
     };
 
     resultsEl.innerHTML = ""; // Effacer le contenu précédent
-
+    const containerCentre = document.createElement("div");
+    containerCentre.classList.add("chart-center");
     const container = document.createElement("div");
     container.classList.add("pie-chart-container");
 
@@ -448,8 +455,8 @@ export class DisplayStats {
     const canvas = document.createElement("canvas");
     canvas.classList.add("chart-pie");
     container.appendChild(canvas);
-
-    resultsEl.appendChild(container);
+    containerCentre.appendChild(container);
+    resultsEl.appendChild(containerCentre);
 
     new Chart(canvas, {
       type: "polarArea",

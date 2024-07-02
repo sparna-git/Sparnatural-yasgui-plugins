@@ -1,16 +1,22 @@
+.chart-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .pie-chart-container {
   display: grid;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-top: 10px;
-  padding: 20px;
-  border: 1px solid #007bff;
+  padding: 10px 20px 0 20px;
+  border: 2px solid #007bff;
   border-radius: 10px;
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: max-content;
-  height: 700px;
+  width: 800px;
+  height: 870px;
   min-height: 400px; /* Dimension minimale pour éviter que le graphique disparaisse */
 }
 
@@ -21,6 +27,8 @@
   min-width: 300px; /* Largeur minimale pour le canvas */
   padding: 10px;
   flex-grow: 1; /* Permettre au canvas de s'étendre */
+  border: 2px solid black;
+  border-radius: 10px;
 }
 
 .chart-legend-pie {
@@ -95,9 +103,9 @@
   display: flex;
   justify-content: center;
   font-size: 16px;
-  background-color: #4680bf;
+  background-color: #d9d9d9;
   border-radius: 20px;
-  color: white;
+  color: rgb(0, 0, 0);
   margin: 10px;
   border: none;
   cursor: pointer;
@@ -114,9 +122,15 @@
   width: 200px;
 }
 
+.chart-dropdown option {
+  display: flex;
+  justify-content: center;
+}
+
 .contain p {
   font-size: 18px;
   margin-right: 10px;
+  margin-top: 10px;
 }
 
 @media (min-width: 768px) {
