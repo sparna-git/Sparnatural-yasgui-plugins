@@ -575,7 +575,7 @@ export class DisplayBoxHtml {
       const remainingTitle = (text ?? "").slice(maxLength);
       const truncatedElement = `
             <span class="truncated-title" title="${text}">
-                ${truncatedTitle}<a class="show-more">${translations["more"]}</a><span class="remaining-title" style="display: none;">${remainingTitle}</span>
+                ${truncatedTitle}... <a class="show-more">${translations["more"]}</a><span class="remaining-title" style="display: none;">${remainingTitle}</span>
             </span>`;
       return truncatedElement;
     }

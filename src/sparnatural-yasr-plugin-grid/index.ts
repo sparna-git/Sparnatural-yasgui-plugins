@@ -33,7 +33,6 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   constructor(yasr: Yasr) {
     this.yasr = yasr;
     this.config = GridPlugin.defaults;
-    this.loadTranslations(this.config.lang);
   }
 
   private async loadTranslations(lang: string) {
@@ -62,9 +61,10 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   }
 
   public draw(PersistentConfig: PersistentConfig) {
+    // init labels
+    this.loadTranslations(this.config.lang);
     const results = new TableXResults(this.yasr.results as Parser);
     const bindings: Parser.Binding[] = results.getBindings();
-    console.log("Bindings :", bindings);
 
     const resultBoxes = this.parserBinding.extractResultData(
       bindings,
