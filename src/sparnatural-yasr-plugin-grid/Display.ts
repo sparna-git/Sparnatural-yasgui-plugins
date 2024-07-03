@@ -579,7 +579,7 @@ export class DisplayBoxHtml {
             </span>`;
       return truncatedElement;
     }
-    return text ?? "";
+    return `<span class="property-text">${text ?? ""}</span>`;
   }
 
   //cette methode permet d'initialiser les evenements click
