@@ -574,7 +574,7 @@ export class DisplayBoxHtml {
       const truncatedTitle = (text ?? "").slice(0, maxLength);
       const remainingTitle = (text ?? "").slice(maxLength);
       const truncatedElement = `
-            <span class="truncated-title" title="${text}">
+            <span class="" title="${text}">
                 ${truncatedTitle} <a class="show-more">${translations["more"]}</a><span class="remaining-title" style="display: none;">${remainingTitle}</span>
             </span>`;
       return truncatedElement;
@@ -586,15 +586,18 @@ export class DisplayBoxHtml {
   //prend la class "show-more" et affiche le texte complet
   //eventListener
   public initializeClickEvents() {
-    document.addEventListener("click", function (event) {
-      const target = event.target as HTMLElement;
-      if (target && target.classList.contains("show-more")) {
-        const remainingTextElement = target.nextElementSibling as HTMLElement;
-        if (remainingTextElement) {
-          remainingTextElement.style.display = "inline";
-          target.style.display = "none";
+    const showMoreElements = document.querySelectorAll(".show-more");
+    showMoreElements.forEach((element) => {
+      element.addEventListener("click", function (event) {
+        const target = event.target as HTMLElement;
+        if (target && target.classList.contains("show-more")) {
+          const remainingTextElement = target.nextElementSibling as HTMLElement;
+          if (remainingTextElement) {
+            remainingTextElement.style.display = "inline";
+            target.style.display = "none";
+          }
         }
-      }
+      });
     });
   }
 }
