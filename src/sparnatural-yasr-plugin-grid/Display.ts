@@ -590,12 +590,10 @@ export class DisplayBoxHtml {
     showMoreElements.forEach((element) => {
       element.addEventListener("click", function (event) {
         const target = event.target as HTMLElement;
-        if (target && target.classList.contains("show-more")) {
-          const remainingTextElement = target.nextElementSibling as HTMLElement;
-          if (remainingTextElement) {
-            remainingTextElement.style.display = "inline";
-            target.style.display = "none";
-          }
+        const remainingTextElement = target.nextElementSibling as HTMLElement;
+        if (remainingTextElement) {
+          remainingTextElement.style.display = "inline";
+          target.style.display = "none";
         }
       });
     });
