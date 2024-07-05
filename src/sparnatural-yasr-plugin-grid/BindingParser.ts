@@ -10,7 +10,7 @@ const im = require("./image-defaults/imageNone.jpg");
 
 export class BindingParser {
   constructor() {}
-
+  /*
   //OK
   //methode qui va permettre de recuperer la colonne qui contient le titre principal
   private identifyPrincipalTitleColumn(
@@ -28,25 +28,22 @@ export class BindingParser {
     //loop through all the variables in the query
     for (const variable of query.variables) {
       const variableName = variable.value;
-
       // Initialiser un compteur pour les résultats valides
       //initialize a counter for valid results
       let validCount = 0;
-
       // Calculer le nombre de paires à vérifier en fonction du nombre total de résultats
       //calculate the number of pairs to check based on the total number of results
       const totalResults = bindings.length;
       //ceil c'est pour arrondir à l'entier supérieur a voire !!!
-      const pairsToCheck = Math.ceil(totalResults / 10);
+      const pairsToCheck = Math.ceil((totalResults) / 10);
       /*
       console.log("pairsToCheck", pairsToCheck);
       console.log("pairsToCheck * 2", pairsToCheck * 2);
       console.log("totalResults", totalResults);
       */
-      // Vérifier les paires de résultats
-      for (let i = 0; i < totalResults; i += 10) {
+  // Vérifier les paires de résultats
+  /*for (let i = 0; i < totalResults; i += 10) {
         const indicesToCheck = [i, i + 1];
-
         for (const index of indicesToCheck) {
           if (index < totalResults && bindings[index][variableName]) {
             const value = bindings[index][variableName];
@@ -62,7 +59,6 @@ export class BindingParser {
             }
           }
         }
-
         // If any of the 10 result pairs are invalid, continue to the next variable
         //pour chaque paire des resultats si un des resultats n'est pas un x-labelled-uri on arrete la boucle
         if (validCount < 2) {
@@ -70,7 +66,6 @@ export class BindingParser {
           break;
         }
       }
-
       // If we have found the required number of valid results, return the variable name
       //i have added the condition -1 to avoid the case when the last couple of results are not valid
       //exemple we have 121 box to check when we reach 121 we will have validCount < pairsToCheck * 2
@@ -81,6 +76,55 @@ export class BindingParser {
       }
     }
     // If no valid column is found, log an error and return undefined
+    console.error(
+      "Impossible de trouver une colonne de titre avec des informations de type x-labelled-uri."
+    );
+    return undefined;
+  }*/
+
+  private identifyPrincipalTitleColumn(
+    query: any,
+    bindings: Parser.Binding[]
+  ): string | undefined {
+    // Vérifier si la requête est disponible et si elle contient des variables
+    if (!query || !query.variables || query.variables.length === 0) {
+      console.error("Aucune variable trouvée dans la requête.");
+      return undefined;
+    }
+
+    // Définir la tolérance aux erreurs (pourcentage de valeurs non conformes acceptables)
+    const errorTolerance = 0.05; // 5%
+
+    // Parcourir toutes les variables de la requête
+    for (const variable of query.variables) {
+      const variableName = variable.value;
+      let validCount = 0;
+      let totalChecked = 0;
+      const totalResults = bindings.length;
+      const pairsToCheck = Math.ceil(totalResults / 10);
+
+      for (let i = 0; i < totalResults; i += 10) {
+        const indicesToCheck = [i, i + 1];
+        for (const index of indicesToCheck) {
+          if (index < totalResults && bindings[index][variableName]) {
+            const value = bindings[index][variableName];
+            if (value.type === "x-labelled-uri") {
+              validCount++;
+            }
+            totalChecked++;
+          }
+        }
+      }
+
+      // Calculer le pourcentage de valeurs valides
+      const validPercentage = validCount / totalChecked;
+
+      // Si le pourcentage de valeurs valides dépasse le seuil toléré, retourner le nom de la variable
+      if (validPercentage >= 1 - errorTolerance) {
+        return variableName;
+      }
+    }
+
     console.error(
       "Impossible de trouver une colonne de titre avec des informations de type x-labelled-uri."
     );
@@ -761,9 +805,10 @@ export class BindingParser {
         bindingSet,
         principalColumnImage
       );
+
       //merger les resultats par titre "Merged solution"
-      if (title in titleMap) {
-        const existingBox = titleMap[title];
+      if (uri in titleMap && title !== "") {
+        const existingBox = titleMap[uri];
         for (const predicate of predicates) {
           const existingPredicate = existingBox.predicates.find(
             (p) => p.uri === predicate.uri
@@ -778,23 +823,26 @@ export class BindingParser {
           existingBox.image = imageURI;
         }
       } else {
-        //creer un objet ResultBoxM pour chaque titre
-        const resultBox = new ResultBoxM(
-          type,
-          title,
-          uri,
-          imageURI ?? "",
-          predicates
-        );
-        //maper le resultBox par titre "Merged solution"
-        titleMap[title] = resultBox;
+        if (title !== "") {
+          //creer un objet ResultBoxM pour chaque titre
+          const resultBox = new ResultBoxM(
+            type,
+            title,
+            uri,
+            imageURI ?? "",
+            predicates
+          );
+          //maper le resultBox par titre "Merged solution"
+          titleMap[uri] = resultBox;
+        }
       }
     }
 
     //ajouter les resultats de la mergedMaps dans le tableau des resultats
-    for (const title in titleMap) {
-      resultBoxes.push(titleMap[title]);
+    for (const uri in titleMap) {
+      resultBoxes.push(titleMap[uri]);
     }
+
     //
     //retourner les resultats 'Vérification'
     console.log("Result boxes", resultBoxes);

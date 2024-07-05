@@ -41,7 +41,6 @@ export class DisplayBoxHtml {
       const separator = document.createElement("hr");
       separator.className = "result-separator";
       resultsEl.appendChild(separator);
-      console.log("separator added");
     }
 
     resultsEl.appendChild(gridContainer);
@@ -83,7 +82,6 @@ export class DisplayBoxHtml {
     loadMoreButton.addEventListener("click", () => {
       const startIndex = endIndex;
       this.displayResultBoxes(startIndex, resultBoxes, resultsEl, translations);
-      console.log("charger les resultats suivants");
       loadMoreButton.remove();
     });
     resultsEl.appendChild(loadMoreButton);
@@ -264,7 +262,6 @@ export class DisplayBoxHtml {
           } else {
             if (property.values[i].label !== "") {
               keyValueElement.innerHTML = `<li/>${property.label} : ${valuesList}`;
-              console.log("yo");
             }
           }
           scrollableContainer.appendChild(keyValueElement);
@@ -534,7 +531,6 @@ export class DisplayBoxHtml {
           } else {
             if (property.values[i].label !== "") {
               keyValueElement.innerHTML = `<li/>${property.label} : ${valuesList}`;
-              console.log("yo");
             }
           }
           scrollableContainer.appendChild(keyValueElement);
