@@ -91,7 +91,6 @@ export class BindingParser {
       console.error("Aucune variable trouvée dans la requête.");
       return undefined;
     }
-
     // Définir la tolérance aux erreurs (pourcentage de valeurs non conformes acceptables)
     const errorTolerance = 0.05; // 5%
 
