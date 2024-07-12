@@ -10,14 +10,15 @@ export class DisplayBoxHtml {
   public displayResultBoxes(
     startIndex: number = 0,
     resultBoxes: ResultBoxM[],
-    resultsEl: HTMLElement
+    resultsEl: HTMLElement,
+    translations: any
   ) {
     // Affichage du nombre total de résultats obtenus
     if (startIndex === 0) {
       resultsEl.innerHTML = "";
       const resultCount = document.createElement("div");
       resultCount.className = "result-count";
-      resultCount.textContent = `${resultBoxes.length} objets dans le résultat`;
+      resultCount.textContent = `${resultBoxes.length} ${translations["ObjectsInResult"]}`;
       resultsEl.appendChild(resultCount);
     }
 
@@ -30,8 +31,8 @@ export class DisplayBoxHtml {
     // Parcourir le resultBoxes et créer un encadré pour chaque résultat
     for (let i = startIndex; i < endIndex; i++) {
       const resultBox = resultBoxes[i].image
-        ? this.createResultBoxWithImage(resultBoxes[i])
-        : this.createResultBoxWithoutImage(resultBoxes[i]);
+        ? this.createResultBoxWithImage(resultBoxes[i], translations)
+        : this.createResultBoxWithoutImage(resultBoxes[i], translations);
       gridContainer.appendChild(resultBox);
     }
 
@@ -40,22 +41,21 @@ export class DisplayBoxHtml {
       const separator = document.createElement("hr");
       separator.className = "result-separator";
       resultsEl.appendChild(separator);
-      console.log("separator added");
     }
 
     resultsEl.appendChild(gridContainer);
 
     // Ajouter le bouton "load more" à chaque fin de la page
     if (endIndex < resultBoxes.length) {
-      this.addLoadMoreButton(endIndex, resultBoxes, resultsEl);
+      this.addLoadMoreButton(endIndex, resultBoxes, resultsEl, translations);
     } else {
       // Ajout du message de fin des résultats et du bouton retour au début
       const endMessage = document.createElement("div");
-      endMessage.textContent = "Fin des résultats.";
+      endMessage.textContent = `${translations["EndResults"]}`;
       endMessage.classList.add("end-message");
 
       const returnToTopButton = document.createElement("button");
-      returnToTopButton.textContent = "Retour au début";
+      returnToTopButton.textContent = `${translations["BackToTop"]}`;
       returnToTopButton.classList.add("return-to-top-button");
       returnToTopButton.addEventListener("click", () => {
         window.scrollTo(0, 0);
@@ -73,89 +73,27 @@ export class DisplayBoxHtml {
   private addLoadMoreButton(
     endIndex: number,
     resultBoxes: ResultBoxM[],
-    resultsEl: HTMLElement
+    resultsEl: HTMLElement,
+    translations: any
   ) {
     const loadMoreButton = document.createElement("button");
-    loadMoreButton.textContent = "Load More";
+    loadMoreButton.textContent = `${translations["LoadMore"]}`;
     loadMoreButton.className = "load-more-button";
     loadMoreButton.addEventListener("click", () => {
       const startIndex = endIndex;
-      this.displayResultBoxes(startIndex, resultBoxes, resultsEl);
-      console.log("charger les resultats suivants");
+      this.displayResultBoxes(startIndex, resultBoxes, resultsEl, translations);
       loadMoreButton.remove();
     });
     resultsEl.appendChild(loadMoreButton);
   }
 
-  /*
-  //methode pour afficher les resultats de toutes les encadrés
-  public displayResultBoxes(
-    startIndex: number = 0,
-    resultBoxes: ResultBoxM[],
-    resultsEl: HTMLElement
-  ) {
-    //affichage des resultats par bloc de 100 resultats
-    const pageSize = 100;
-    const endIndex = Math.min(startIndex + pageSize, resultBoxes.length);
-    const gridContainer = document.createElement("div");
-    gridContainer.className = "result-grid";
-    //parcourir le resultBoxes et creer un encadré pour chaque resultat
-    //si le resultat contient une image on utilise la methode createResultBoxWithImage
-    //sinon on utilise la methode createResultBoxWithoutImage
-    for (let i = startIndex; i < endIndex; i++) {
-      //creer un encadré pour chaque resultat
-      if (resultBoxes[i].image) {
-        //with image
-        const resultBox = this.createResultBoxWithImage(resultBoxes[i]);
-        gridContainer.appendChild(resultBox);
-      } else {
-        //without image
-        const resultBox = this.createResultBoxWithoutImage(resultBoxes[i]);
-        gridContainer.appendChild(resultBox);
-      }
-    }
-
-    //tracer un trait entre les anciens et les nouveaux resultats
-    if (startIndex === 0) {
-      resultsEl.innerHTML = "";
-    } else {
-      const separator = document.createElement("hr");
-      separator.className = "result-separator";
-      resultsEl.appendChild(separator);
-      console.log("separator added");
-    }
-    resultsEl.appendChild(gridContainer);
-
-    //ajouter le bouton load more a chaque fin de la page
-    if (endIndex < resultBoxes.length) {
-      this.addLoadMoreButton(endIndex, resultBoxes, resultsEl);
-    } else {
-      //ajout du message de fin des resultats et du bouton retour au debut et le nombre total de resultats
-      const endMessage = document.createElement("div");
-      endMessage.textContent = "Fin des résultats.";
-      endMessage.classList.add("end-message");
-      const resultNumber = document.createElement("div");
-      resultNumber.textContent = `Nombre total de résultats obtenus : ${resultBoxes.length}/${resultBoxes.length}`;
-      resultNumber.classList.add("result-number");
-      const returnToTopButton = document.createElement("button");
-      returnToTopButton.textContent = "Retour au début";
-      returnToTopButton.classList.add("return-to-top-button");
-      returnToTopButton.addEventListener("click", () => {
-        window.scrollTo(0, 0);
-      });
-      //ajout des elements au DOM
-      resultsEl.appendChild(endMessage);
-      resultsEl.appendChild(resultNumber);
-      resultsEl.appendChild(returnToTopButton);
-    }
-    this.initializeClickEvents();
-  }
-  */
-
   //methode qui gere l'affichage des encadrés avec image
   //cette methode permet de creer un encadré pour chaque resultat qui contient une image
   //PS : travailler sur les conditions pour afficher les resultats sans probleme et sans doublon "gerer tout les cas possibles"
-  private createResultBoxWithImage(resultBox: ResultBoxM): HTMLDivElement {
+  private createResultBoxWithImage(
+    resultBox: ResultBoxM,
+    translations: any
+  ): HTMLDivElement {
     const resultBoxElement = document.createElement("div");
     resultBoxElement.className = "result-box";
 
@@ -194,7 +132,7 @@ export class DisplayBoxHtml {
     const consultButtonContainer = document.createElement("div");
     consultButtonContainer.className = "consult-button-container";
     const consultButton = document.createElement("button");
-    consultButton.textContent = "Consulter";
+    consultButton.textContent = `${translations["Consult"]}`;
     consultButton.addEventListener("click", () => {
       window.open(resultBox.uri, "_blank");
     });
@@ -220,7 +158,7 @@ export class DisplayBoxHtml {
     // Div pour les propriétés de l'encadré (scrollable)
     const scrollableContainer = document.createElement("div");
     scrollableContainer.className = "scrollable-container";
-    //PS : travailler sur les conditions pour afficher les resultats sans probleme et sans doublon
+    //PS : travailler sur les conditions pour afficher les resultats sans problemes et sans doublons
     resultBox.predicates.forEach((property) => {
       let keyValueElementCreated = false;
 
@@ -237,7 +175,7 @@ export class DisplayBoxHtml {
                 const val = value.label || "";
                 keyValueElement.innerHTML = `<li/>${
                   property.label
-                } : ${this.limitLength(val, 150)}`;
+                } : ${this.limitLength(val, 150, translations)}`;
               } else if (value.predicates.length > 0) {
                 keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
               }
@@ -249,7 +187,8 @@ export class DisplayBoxHtml {
               value.predicates.forEach((child) => {
                 const childElement = this.createResultBoxFromProperty(
                   child,
-                  resultBox
+                  resultBox,
+                  translations
                 );
                 keyValueElement.appendChild(childElement);
               });
@@ -269,7 +208,7 @@ export class DisplayBoxHtml {
                 const val = value.label || "";
                 keyValueElement.innerHTML = `<li/>${
                   property.label
-                } : ${this.limitLength(val, 150)}`;
+                } : ${this.limitLength(val, 150, translations)}`;
               } else if (
                 value.predicates.length > 0 &&
                 value.predicates.find((predicate) =>
@@ -286,7 +225,8 @@ export class DisplayBoxHtml {
               value.predicates.forEach((child) => {
                 const childElement = this.createResultBoxFromProperty(
                   child,
-                  resultBox
+                  resultBox,
+                  translations
                 );
                 keyValueElement.appendChild(childElement);
               });
@@ -303,7 +243,11 @@ export class DisplayBoxHtml {
             if (value.uri && value.id) {
               return `<a href="${value.uri}" target="_blank" class="popup-link" data-uri="${value.uri}"><strong>${value.label}</strong></a>`;
             } else {
-              return `${this.limitLength(value.label || "", 150)}`;
+              return `${this.limitLength(
+                value.label || "",
+                150,
+                translations
+              )}`;
             }
           })
           .join(", ");
@@ -318,7 +262,6 @@ export class DisplayBoxHtml {
           } else {
             if (property.values[i].label !== "") {
               keyValueElement.innerHTML = `<li/>${property.label} : ${valuesList}`;
-              console.log("yo");
             }
           }
           scrollableContainer.appendChild(keyValueElement);
@@ -337,7 +280,8 @@ export class DisplayBoxHtml {
   // PS : travailler sur les conditions pour afficher les resultats sans probleme et sans doublon "gerer tout les cas possibles"
   private createResultBoxFromProperty(
     property: Property,
-    resultBox: ResultBoxM
+    resultBox: ResultBoxM,
+    translations: any
   ): HTMLDivElement {
     const resultBoxElement = document.createElement("div");
     resultBoxElement.className = "result-box-child";
@@ -374,7 +318,7 @@ export class DisplayBoxHtml {
         if (value.uri && value.label) {
           return `<a href="${value.uri}" target="_blank" class="popup-link" data-uri="${value.uri}"><strong>${value.label}</strong></a>`;
         } else {
-          return `${this.limitLength(value.label || "", 150)}`;
+          return `${this.limitLength(value.label || "", 150, translations)}`;
         }
       })
       .join(", ");
@@ -392,7 +336,7 @@ export class DisplayBoxHtml {
         } else if (value.label !== "") {
           keyValueElement.innerHTML = `<li/>${
             property.label
-          } : ${this.limitLength(value.label, 150)}`;
+          } : ${this.limitLength(value.label, 150, translations)}`;
           resultBoxElement.appendChild(keyValueElement);
           valueAppended = true;
           break;
@@ -429,7 +373,8 @@ export class DisplayBoxHtml {
         value.predicates.forEach((child) => {
           const childElement = this.createResultBoxFromProperty(
             child,
-            resultBox
+            resultBox,
+            translations
           );
           keyValueElement.appendChild(childElement);
         });
@@ -448,7 +393,10 @@ export class DisplayBoxHtml {
 
   //methode qui est charger de creer un encadré pour chaque resultat sans image
   //PS : travailler sur les condition pour afficher les resultats sans probleme et sans doublon
-  private createResultBoxWithoutImage(resultBox: ResultBoxM): HTMLDivElement {
+  private createResultBoxWithoutImage(
+    resultBox: ResultBoxM,
+    translations: any
+  ): HTMLDivElement {
     const resultBoxElement = document.createElement("div");
     resultBoxElement.className = "result-box";
 
@@ -496,7 +444,7 @@ export class DisplayBoxHtml {
                 const val = value.label || "";
                 keyValueElement.innerHTML = `<li/>${
                   property.label
-                } : ${this.limitLength(val, 150)}`;
+                } : ${this.limitLength(val, 150, translations)}`;
               } else if (value.predicates.length > 0) {
                 keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
               }
@@ -508,7 +456,8 @@ export class DisplayBoxHtml {
               value.predicates.forEach((child) => {
                 const childElement = this.createResultBoxFromProperty(
                   child,
-                  resultBox
+                  resultBox,
+                  translations
                 );
                 keyValueElement.appendChild(childElement);
               });
@@ -528,7 +477,7 @@ export class DisplayBoxHtml {
                 const val = value.label || "";
                 keyValueElement.innerHTML = `<li/>${
                   property.label
-                } : ${this.limitLength(val, 150)}`;
+                } : ${this.limitLength(val, 150, translations)}`;
               } else if (
                 value.predicates.length > 0 &&
                 value.predicates.find((predicate) =>
@@ -545,7 +494,8 @@ export class DisplayBoxHtml {
               value.predicates.forEach((child) => {
                 const childElement = this.createResultBoxFromProperty(
                   child,
-                  resultBox
+                  resultBox,
+                  translations
                 );
                 keyValueElement.appendChild(childElement);
               });
@@ -562,7 +512,11 @@ export class DisplayBoxHtml {
             if (value.uri && value.label) {
               return `<a href="${value.uri}" target="_blank" class="popup-link" data-uri="${value.uri}"><strong>${value.label}</strong></a>`;
             } else {
-              return `${this.limitLength(value.label || "", 150)}`;
+              return `${this.limitLength(
+                value.label || "",
+                150,
+                translations
+              )}`;
             }
           })
           .join(", ");
@@ -577,7 +531,6 @@ export class DisplayBoxHtml {
           } else {
             if (property.values[i].label !== "") {
               keyValueElement.innerHTML = `<li/>${property.label} : ${valuesList}`;
-              console.log("yo");
             }
           }
           scrollableContainer.appendChild(keyValueElement);
@@ -608,32 +561,37 @@ export class DisplayBoxHtml {
   // cette methode permet de limiter la longueur du texte
   // si on clique sur "lire la suite", on affiche le texte complet
   //cette methode permet de laisser l'encadré lisible et de ne pas surcharger l'interface
-  private limitLength(text: string | undefined, maxLength: number): string {
+  private limitLength(
+    text: string | undefined,
+    maxLength: number,
+    translations: any
+  ): string {
     if ((text ?? "").length > maxLength) {
       const truncatedTitle = (text ?? "").slice(0, maxLength);
       const remainingTitle = (text ?? "").slice(maxLength);
       const truncatedElement = `
-            <span class="truncated-title" title="${text}">
-                ${truncatedTitle}<a class="show-more">lire la suite</a><span class="remaining-title" style="display: none;">${remainingTitle}</span>
+            <span class="" title="${text}">
+                ${truncatedTitle}<a class="show-more">${translations["more"]}</a><span class="remaining-title" style="display: none;">${remainingTitle}</span>
             </span>`;
       return truncatedElement;
     }
-    return text ?? "";
+    return `<span class="property-text">${text ?? ""}</span>`;
   }
 
   //cette methode permet d'initialiser les evenements click
   //prend la class "show-more" et affiche le texte complet
   //eventListener
   public initializeClickEvents() {
-    document.addEventListener("click", function (event) {
-      const target = event.target as HTMLElement;
-      if (target && target.classList.contains("show-more")) {
+    const showMoreElements = document.querySelectorAll(".show-more");
+    showMoreElements.forEach((element) => {
+      element.addEventListener("click", function (event) {
+        const target = event.target as HTMLElement;
         const remainingTextElement = target.nextElementSibling as HTMLElement;
         if (remainingTextElement) {
           remainingTextElement.style.display = "inline";
           target.style.display = "none";
         }
-      }
+      });
     });
   }
 }

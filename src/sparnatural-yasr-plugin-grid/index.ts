@@ -9,10 +9,13 @@ import {
 import * as faTh from "@fortawesome/free-solid-svg-icons/faTh";
 import Parser from "../parsers/index";
 import { TableXResults } from "../TableXResults";
+import { I18n } from "./I18n";
 
 interface PluginConfig {
   lang: "en" | "fr";
 }
+
+interface PersistentConfig {}
 
 export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private yasr: Yasr;
@@ -32,11 +35,19 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     this.config = GridPlugin.defaults;
   }
 
+  private async loadTranslations(lang: string) {
+    await I18n.init(lang);
+  }
+
+  private getTranslation(key: string): string {
+    return I18n.labels ? I18n.labels[key] || key : key;
+  }
+
   download(filename?: string) {
     return {
       getData: () => this.yasr.results?.asCsv() || "",
       contentType: "text/csv",
-      title: "Download result",
+      title: this.getTranslation("Download result"),
       filename: `${filename || "queryResults"}.csv`,
     };
   }
@@ -45,35 +56,35 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   public priority = 10;
   public label = "Grid";
 
-  //add icon
   public getIcon() {
     return drawSvgStringAsElement(drawFontAwesomeIconAsSvg(faTh));
   }
 
-  public draw() {
-    //recuperer les resultats
+  public draw(PersistentConfig: PersistentConfig) {
+    // init labels
+    this.loadTranslations(this.config.lang);
     const results = new TableXResults(this.yasr.results as Parser);
-    //recuperer les bindings
     const bindings: Parser.Binding[] = results.getBindings();
-    console.log("Bindings :", bindings);
-    //passer les bindings à la methode extractResultData de la classe BindingParser
-    // resultBoxes contient les resultats sous forme de la structure de données ResultBox (see Models Folder)
+
     const resultBoxes = this.parserBinding.extractResultData(
       bindings,
       this.query,
       this.queryConfiguration
     );
 
-    //afficher les resultats dans le plugin
-    this.displayBoxHtml.displayResultBoxes(0, resultBoxes, this.yasr.resultsEl);
+    this.displayBoxHtml.displayResultBoxes(
+      0,
+      resultBoxes,
+      this.yasr.resultsEl,
+      I18n.labels
+    );
   }
 
-  /*
   public canHandleResults(): boolean {
     if (!this.query || !this.queryConfiguration) {
       return false;
     }
-    // Vérifier si les variables de la query ont l'objet expression
+
     for (const variable of this.query.variables) {
       if (variable.expression && typeof variable.expression === "object") {
         return false;
@@ -96,45 +107,12 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     }
 
     return false;
-  }*/
-
-  public canHandleResults(): boolean {
-    // Vérification initiale
-    if (!this.query || !this.queryConfiguration) {
-      return false;
-    }
-
-    // Vérifier si les variables de la query ont l'objet expression
-    for (const variable of this.query.variables) {
-      if (variable.expression && typeof variable.expression === "object") {
-        return false;
-      }
-    }
-
-    // Récupérer les bindings
-    const bindings = this.yasr.results?.getBindings();
-    if (!bindings) return false;
-
-    // Vérifier les bindings pour les objets de type URI
-    for (const bindingSet of bindings) {
-      for (const value of Object.values(bindingSet)) {
-        if (
-          typeof value === "object" &&
-          value !== null &&
-          (value as { type: string }).type === "uri"
-        ) {
-          return true;
-        }
-      }
-    }
-
-    return false;
   }
 
-  //notifier le plugin des changements dans les valeurs de query et queryConfiguration
   notifyQuery(sparnaturalQuery: any): any {
     this.query = sparnaturalQuery;
   }
+
   notifyConfiguration(specProvider: any): any {
     this.queryConfiguration = specProvider;
   }

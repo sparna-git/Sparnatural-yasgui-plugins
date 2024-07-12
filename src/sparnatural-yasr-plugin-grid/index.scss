@@ -41,7 +41,7 @@
 }
 
 .document-type-container-wo-image {
-  display: flex;
+  display: -webkit-box;
   align-items: center;
   border-radius: 10px;
   margin-top: 1px;
@@ -91,6 +91,9 @@
   transition: 0.2s;
   color: rgb(11, 167, 229);
 }
+.result-box .truncated-title:hover {
+  color: rgb(11, 167, 229);
+}
 
 .result-box .key {
   padding: 15px 0 0 5px;
@@ -102,7 +105,7 @@
 .scrollable-container {
   overflow-y: auto;
   margin-top: 5px;
-  max-height: 300px;
+  max-height: 350px;
   min-height: min-content;
   margin-bottom: 10px;
 }
@@ -147,7 +150,7 @@
 }
 
 .show-more {
-  padding-left: 5px;
+  //padding-left: 5px;
   cursor: pointer;
   color: blue;
   text-decoration: underline;
@@ -233,7 +236,7 @@
 
 /* Style for the document type text */
 .document-type-label-wo-image {
-  display: block ruby;
+  //display: block ruby;
   font-size: 13px;
   padding-left: 2px;
   align-items: center;
@@ -258,6 +261,10 @@
   color: black;
   cursor: pointer;
   //filter: brightness(50%);
+}
+
+.property-text {
+  color: black;
 }
 
 /* Style for the separator */
