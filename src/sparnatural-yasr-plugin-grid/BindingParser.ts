@@ -6,6 +6,7 @@ import { PropertyValue } from "./Models/PropertyValue";
 import { ResultBoxType } from "./Models/ResultBoxType";
 
 import { Branch, ISparJson } from "../ISparJson";
+import { value } from "./old-backup/Models/value";
 const im = require("./image-defaults/imageNone.jpg");
 
 export class BindingParser {
@@ -246,6 +247,8 @@ export class BindingParser {
     query: any
   ): void {
     const line = branch.line;
+
+    // Ajouter le prédicat pour la propriété `o` de la branche
     if (line.o) {
       //recuperer le libelle du prédicat en utilisant la methode getLabelpre
       const predicateLabel = this.getLabelpre(line.p, queryConfiguration);
@@ -581,7 +584,7 @@ export class BindingParser {
       objectVariable
     );
 
-    // Skip the property if value type is "uri"
+    // Skip the property if value type is "ImageUri"
     if (!this.isImageURI(value?.value)) {
       predicate = new Property(
         predicates[objectVariable] ?? "",

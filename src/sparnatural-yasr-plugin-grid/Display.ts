@@ -1,6 +1,6 @@
 import { ResultBoxM } from "./Models/ResultBox";
 import { Property } from "./Models/Property";
-require("./index.scss");
+require("./indexGrid.scss");
 const im = require("./image-defaults/imageNone.jpg");
 
 export class DisplayBoxHtml {
@@ -552,7 +552,7 @@ export class DisplayBoxHtml {
   ): string {
     if ((title ?? "").length > maxLength) {
       const truncatedTitle = (title ?? "").slice(0, maxLength) + "(...)";
-      const truncatedElement = `<span class="truncated-title" title="${title}">${truncatedTitle}</span>`;
+      const truncatedElement = `<span class="truncated-title" title="${title}" style="color:black;">${truncatedTitle}</span>`;
       return truncatedElement;
     }
     return title ?? "";
