@@ -4,5 +4,11 @@
   "Consult": "View",
   "EndResults": "End of results",
   "BackToTop": "Back to top",
-  "more": "... read more"
+  "more": "... read more",
+  "quantity": "Quantity to display: ",
+  "pie": "Pie chart",
+  "bar": "Bar chart",
+  "doughnut": "Doughnut chart",
+  "polar": "Polar chart",
+  "others": "Others"
 }

@@ -4,5 +4,11 @@
   "Consult": "Consulter",
   "EndResults": "Fin des résultats",
   "BackToTop": "Retour en haut",
-  "more": "... voir tout"
+  "more": "... voir tout",
+  "quantity": "Quantité à afficher :",
+  "pie": "Camembert",
+  "bar": "barre",
+  "doughnut": "anneau",
+  "polar": "secteurs polaires",
+  "others": "Autres"
 }

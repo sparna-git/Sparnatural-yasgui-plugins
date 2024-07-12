@@ -9,11 +9,13 @@ import Parser from "../parsers/index";
 import { TableXResults } from "../TableXResults";
 import { DisplayStats } from "./DisplayStats";
 import { ParseDataStats } from "./ParseDataStats";
+import { I18n } from "../sparnatural-yasr-plugin-grid/I18n";
+
+interface PluginConfig {
+  lang: "en" | "fr";
+}
 
 interface PersistentConfig {}
-interface PluginConfig {
-  L18n: {};
-}
 
 export class StatsPlugin implements SparnaturalPlugin<PluginConfig> {
   private yasr: Yasr;
@@ -22,8 +24,23 @@ export class StatsPlugin implements SparnaturalPlugin<PluginConfig> {
   private parseDataStats = new ParseDataStats();
   private queryConfiguration: any;
 
+  private config: PluginConfig;
+
+  public static defaults: PluginConfig = {
+    lang: "en",
+  };
+
   constructor(yasr: Yasr) {
     this.yasr = yasr;
+    this.config = StatsPlugin.defaults;
+  }
+
+  private async loadTranslations(lang: string) {
+    await I18n.init(lang);
+  }
+
+  private getTranslation(key: string): string {
+    return I18n.labels ? I18n.labels[key] || key : key;
   }
 
   download(filename?: string) {
@@ -45,13 +62,14 @@ export class StatsPlugin implements SparnaturalPlugin<PluginConfig> {
   }
 
   public draw(persistentConfig: PersistentConfig) {
+    this.loadTranslations(this.config.lang);
     console.log("Plugin drawing !");
     // Récupérer les résultats
     const results = new TableXResults(this.yasr.results as Parser);
     // Récupérer les bindings
     const bindings: Parser.Binding[] = results.getBindings();
     console.log("Bindings :", bindings);
-    this.displayStats.displayStats(bindings, this.yasr.resultsEl);
+    this.displayStats.displayStats(bindings, this.yasr.resultsEl, I18n.labels);
   }
 
   //limiter ce plugin sur deux colonne si le nombre de colonne est superieur à 2 ne s'acctive pas

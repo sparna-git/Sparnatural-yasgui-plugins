@@ -2,6 +2,7 @@ import Chart from "chart.js/auto";
 import Parser from "../parsers";
 import "./indexs.scss";
 import { ParseDataStats } from "./ParseDataStats";
+import { triggerOption } from "../../../Sparnatural/src/sparnatural/components/builder-section/groupwrapper/groupwrapperevents/events/TriggerOption";
 
 export class DisplayStats {
   private parseDataStats = new ParseDataStats();
@@ -12,14 +13,23 @@ export class DisplayStats {
   constructor() {}
 
   // Méthode displayStats permet d'afficher les statistiques
-  public displayStats(bindings: Parser.Binding[], resultsEl: HTMLElement) {
+  public displayStats(
+    bindings: Parser.Binding[],
+    resultsEl: HTMLElement,
+    translations: any
+  ) {
     // Vérification si le nombre de clés dans bindingset est égal à 1
     if (Object.keys(bindings[0]).length === 1 || bindings.length === 1) {
       this.displayNumber(bindings, resultsEl);
     } else {
       if (bindings.length !== 1) {
         // Sinon, on affiche les charts selon le choix de l'utilisateur
-        this.displayCharts(bindings, resultsEl, this.currentChartType);
+        this.displayCharts(
+          bindings,
+          resultsEl,
+          this.currentChartType,
+          translations
+        );
       }
     }
   }
@@ -28,20 +38,21 @@ export class DisplayStats {
   public displayCharts(
     bindings: Parser.Binding[],
     resultsEl: HTMLElement,
-    chartType: string
+    chartType: string,
+    translations: any
   ) {
     switch (chartType) {
       case "pie":
-        this.displayPie(bindings, resultsEl);
+        this.displayPie(bindings, resultsEl, translations);
         break;
       case "bar":
-        this.displayBar(bindings, resultsEl);
+        this.displayBar(bindings, resultsEl, translations);
         break;
       case "doughnut":
-        this.displayDoughnut(bindings, resultsEl);
+        this.displayDoughnut(bindings, resultsEl, translations);
         break;
       case "polar":
-        this.displayPolar(bindings, resultsEl);
+        this.displayPolar(bindings, resultsEl, translations);
         break;
     }
   }
@@ -49,17 +60,18 @@ export class DisplayStats {
   //methode displayDropdownList qui permet d'afficher un dropdown list pour choisir le type de chart
   public displayDropdownList(
     bindings: Parser.Binding[],
-    resultsEl: HTMLElement
+    resultsEl: HTMLElement,
+    translations: any
   ): HTMLSelectElement {
     const dropdownList = document.createElement("select");
     dropdownList.classList.add("chart-dropdown");
 
     // Options for the dropdown
     const options = [
-      { value: "pie", text: "Pie Chart" },
-      { value: "bar", text: "Bar Chart" },
-      { value: "doughnut", text: "Doughnut Chart" },
-      { value: "polar", text: "Polar Chart" },
+      { value: "pie", text: `${translations["pie"]}` },
+      { value: "bar", text: `${translations["bar"]}` },
+      { value: "doughnut", text: `${translations["doughnut"]}` },
+      { value: "polar", text: `${translations["polar"]}` },
     ];
 
     options.forEach((option) => {
@@ -72,7 +84,12 @@ export class DisplayStats {
     // Event listener for change
     dropdownList.addEventListener("change", () => {
       this.currentChartType = dropdownList.value;
-      this.displayCharts(bindings, resultsEl, this.currentChartType);
+      this.displayCharts(
+        bindings,
+        resultsEl,
+        this.currentChartType,
+        translations
+      );
     });
 
     // Set initial selected option
@@ -95,7 +112,8 @@ export class DisplayStats {
   //methode qui permet de choisir la quantité des elements à afficher propose 4 valeur 5 10 20 40
   public chosenQuantity(
     bindings: Parser.Binding[],
-    resultsEl: HTMLElement
+    resultsEl: HTMLElement,
+    translations: any
   ): HTMLSelectElement {
     const dropdownList = document.createElement("select");
     dropdownList.classList.add("chart-dropdown");
@@ -119,7 +137,12 @@ export class DisplayStats {
     dropdownList.addEventListener("change", () => {
       //convert the value to number
       this.number = parseInt(dropdownList.value);
-      this.displayCharts(bindings, resultsEl, this.currentChartType);
+      this.displayCharts(
+        bindings,
+        resultsEl,
+        this.currentChartType,
+        translations
+      );
     });
 
     // Set initial selected option
@@ -130,7 +153,11 @@ export class DisplayStats {
   }
 
   //methode displayPie qui permet d'afficher un pie chart
-  public displayPie(bindings: Parser.Binding[], resultsEl: HTMLElement) {
+  public displayPie(
+    bindings: Parser.Binding[],
+    resultsEl: HTMLElement,
+    translations: any
+  ) {
     let labels: string[] = [];
     let data: number[] = [];
 
@@ -139,7 +166,8 @@ export class DisplayStats {
     //recuperer les valeur selon la quantité demandée par l'utilisateur
     const dataF = this.parseDataStats.extractOnlyDataNeeded(
       parsedData,
-      this.number
+      this.number,
+      translations
     );
 
     console.log("DataF :", dataF);
@@ -178,19 +206,19 @@ export class DisplayStats {
 
     // Create and append the "Quantity to display :" text
     const textquantity = document.createElement("p");
-    textquantity.textContent = "Quantity to display :";
+    textquantity.textContent = `${translations["quantity"]}`;
     contain.appendChild(textquantity);
 
     // Create and append the quantity dropdown
     let buttonQuantity = document.createElement("select");
     buttonQuantity.classList.add("cc");
-    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
+    buttonQuantity = this.chosenQuantity(bindings, resultsEl, translations);
     contain.appendChild(buttonQuantity);
 
     // Create and append the chart type dropdown
     let button = document.createElement("select");
     button.classList.add("chart-dropdown");
-    button = this.displayDropdownList(bindings, resultsEl);
+    button = this.displayDropdownList(bindings, resultsEl, translations);
     contain.appendChild(button);
 
     // Append the container to the main container
@@ -228,14 +256,19 @@ export class DisplayStats {
   }
 
   //same methods of pie chart we will change only the type of chart type:'Bar'
-  public displayBar(bindings: Parser.Binding[], resultsEl: HTMLElement) {
+  public displayBar(
+    bindings: Parser.Binding[],
+    resultsEl: HTMLElement,
+    translations: any
+  ) {
     let labels: string[] = [];
     let data: number[] = [];
 
     const parsedData = this.parseDataStats.extractdata(bindings);
     const dataF = this.parseDataStats.extractOnlyDataNeeded(
       parsedData,
-      this.number
+      this.number,
+      translations
     );
     console.log("DataF :", dataF);
     for (const bindingSet of dataF) {
@@ -268,19 +301,19 @@ export class DisplayStats {
 
     // Create and append the "Quantity to display :" text
     const textquantity = document.createElement("p");
-    textquantity.textContent = "Quantity to display :";
+    textquantity.textContent = `${translations["quantity"]}`;
     contain.appendChild(textquantity);
 
     // Create and append the quantity dropdown
     let buttonQuantity = document.createElement("select");
     buttonQuantity.classList.add("cc");
-    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
+    buttonQuantity = this.chosenQuantity(bindings, resultsEl, translations);
     contain.appendChild(buttonQuantity);
 
     // Create and append the chart type dropdown
     let button = document.createElement("select");
     button.classList.add("chart-dropdown");
-    button = this.displayDropdownList(bindings, resultsEl);
+    button = this.displayDropdownList(bindings, resultsEl, translations);
     contain.appendChild(button);
 
     // Append the container to the main container
@@ -309,14 +342,19 @@ export class DisplayStats {
     });
   }
 
-  public displayDoughnut(bindings: Parser.Binding[], resultsEl: HTMLElement) {
+  public displayDoughnut(
+    bindings: Parser.Binding[],
+    resultsEl: HTMLElement,
+    translations: any
+  ) {
     let labels: string[] = [];
     let data: number[] = [];
 
     const parsedData = this.parseDataStats.extractdata(bindings);
     const dataF = this.parseDataStats.extractOnlyDataNeeded(
       parsedData,
-      this.number
+      this.number,
+      translations
     );
     console.log("DataF :", dataF);
     for (const bindingSet of dataF) {
@@ -347,19 +385,19 @@ export class DisplayStats {
 
     // Create and append the "Quantity to display :" text
     const textquantity = document.createElement("p");
-    textquantity.textContent = "Quantity to display :";
+    textquantity.textContent = `${translations["quantity"]}`;
     contain.appendChild(textquantity);
 
     // Create and append the quantity dropdown
     let buttonQuantity = document.createElement("select");
     buttonQuantity.classList.add("cc");
-    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
+    buttonQuantity = this.chosenQuantity(bindings, resultsEl, translations);
     contain.appendChild(buttonQuantity);
 
     // Create and append the chart type dropdown
     let button = document.createElement("select");
     button.classList.add("chart-dropdown");
-    button = this.displayDropdownList(bindings, resultsEl);
+    button = this.displayDropdownList(bindings, resultsEl, translations);
     contain.appendChild(button);
 
     // Append the container to the main container
@@ -396,14 +434,19 @@ export class DisplayStats {
     });
   }
 
-  public displayPolar(bindings: Parser.Binding[], resultsEl: HTMLElement) {
+  public displayPolar(
+    bindings: Parser.Binding[],
+    resultsEl: HTMLElement,
+    translations: any
+  ) {
     let labels: string[] = [];
     let data: number[] = [];
 
     const parsedData = this.parseDataStats.extractdata(bindings);
     const dataF = this.parseDataStats.extractOnlyDataNeeded(
       parsedData,
-      this.number
+      this.number,
+      translations
     );
     console.log("DataF :", dataF);
     for (const bindingSet of dataF) {
@@ -434,19 +477,19 @@ export class DisplayStats {
 
     // Create and append the "Quantity to display :" text
     const textquantity = document.createElement("p");
-    textquantity.textContent = "Quantity to display :";
+    textquantity.textContent = `${translations["quantity"]}`;
     contain.appendChild(textquantity);
 
     // Create and append the quantity dropdown
     let buttonQuantity = document.createElement("select");
     buttonQuantity.classList.add("cc");
-    buttonQuantity = this.chosenQuantity(bindings, resultsEl);
+    buttonQuantity = this.chosenQuantity(bindings, resultsEl, translations);
     contain.appendChild(buttonQuantity);
 
     // Create and append the chart type dropdown
     let button = document.createElement("select");
     button.classList.add("chart-dropdown");
-    button = this.displayDropdownList(bindings, resultsEl);
+    button = this.displayDropdownList(bindings, resultsEl, translations);
     contain.appendChild(button);
 
     // Append the container to the main container

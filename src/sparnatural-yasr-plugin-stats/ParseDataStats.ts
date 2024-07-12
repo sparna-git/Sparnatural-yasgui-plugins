@@ -59,7 +59,8 @@ export class ParseDataStats {
   // cette methode recupere les dataStats et retourne les 19 premiers elements (maxValues on dataStats) et additionne les autres sous la propriété "Others"
   public extractOnlyDataNeeded(
     dataStats: DataStats[],
-    quantity: number
+    quantity: number,
+    translations: any
   ): DataStats[] {
     //declare an array of DataStats
     let topDataStats: DataStats[] = [];
@@ -76,7 +77,9 @@ export class ParseDataStats {
     }, 0);
     //add the "Others" entry if more than quantity entries
     if (dataStats.length > quantity) {
-      topDataStats.push(new DataStats("Others", othersCount));
+      topDataStats.push(
+        new DataStats(`${translations["others"]}`, othersCount)
+      );
     }
     //att the end we get the topDataStats "quantity elements"
     return topDataStats;
