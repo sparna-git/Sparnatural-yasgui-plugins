@@ -24,6 +24,7 @@ export class StatsPlugin implements SparnaturalPlugin<PluginConfig> {
   private parseDataStats = new ParseDataStats();
   private queryConfiguration: any;
 
+  // the plugin configuration
   private config: PluginConfig;
 
   public static defaults: PluginConfig = {
@@ -63,7 +64,6 @@ export class StatsPlugin implements SparnaturalPlugin<PluginConfig> {
 
   public draw(persistentConfig: PersistentConfig) {
     this.loadTranslations(this.config.lang);
-    console.log("Plugin drawing !");
     // Récupérer les résultats
     const results = new TableXResults(this.yasr.results as Parser);
     // Récupérer les bindings

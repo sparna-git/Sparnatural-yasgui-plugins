@@ -4,7 +4,6 @@ export * from "./sparnatural-yasr-plugin-grid";
 export * from "./sparnatural-yasr-tablex-plugin";
 export * from "./sparnatural-yasr-plugin-stats";
 export * from "./sparnatural-yasr-htmltemplate-plugin";
-//export * from "./sparnatural-yasr-plugin-stats";
 export * from "./sparnatural-yasr-map-plugin";
 
 export interface Yasr {
