@@ -354,7 +354,7 @@ export class BindingParser {
 
     // Ajouter l'objet pour la propriété `o` de la branche
     if (query.variables.find((variable: any) => variable.value === line.o)) {
-      const objectTypeLabel = this.getObjectLabel(
+      const objectTypeLabel = this.getEntityLabel(
         line.oType,
         queryConfiguration
       );
@@ -362,7 +362,7 @@ export class BindingParser {
     }
     // Ajouter également le sujet si nécessaire
     if (!(line.s in objects)) {
-      const subjectTypeLabel = this.getObjectLabel(
+      const subjectTypeLabel = this.getEntityLabel(
         line.sType,
         queryConfiguration
       );
@@ -376,20 +376,20 @@ export class BindingParser {
 
   //OK
   // Méthode pour retourner le label de l'objet en prenant l'URI de l'objet comme paramètre
-  private getObjectLabel(objectURI: string, queryConfiguration: any): string {
+  private getEntityLabel(entityURI: string, queryConfiguration: any): string {
     if (
       queryConfiguration &&
       typeof queryConfiguration.getProperty === "function"
     ) {
       // Récupérer le type de l'objet avec la méthode getProperty
-      const object = queryConfiguration.getProperty(objectURI);
+      const object = queryConfiguration.getEntity(entityURI);
       if (object) {
-        return object.getLabel() || objectURI;
+        return object.getLabel() || entityURI;
       } else {
-        return objectURI;
+        return entityURI;
       }
     } else {
-      return objectURI;
+      return entityURI;
     }
   }
 
