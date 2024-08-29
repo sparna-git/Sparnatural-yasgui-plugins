@@ -5,10 +5,10 @@
   "EndResults": "Fin des résultats",
   "BackToTop": "Retour en haut",
   "more": "... voir tout",
-  "quantity": "Quantité à afficher :",
-  "pie": "Camembert",
-  "bar": "barre",
-  "doughnut": "anneau",
+  "quantity": "Nombre d'items:",
+  "pie": "secteurs",
+  "bar": "histogramme",
+  "doughnut": "anneaux",
   "polar": "secteurs polaires",
   "others": "Autres"
 }

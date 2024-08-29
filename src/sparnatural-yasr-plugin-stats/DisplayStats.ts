@@ -2,7 +2,6 @@ import Chart from "chart.js/auto";
 import Parser from "../parsers";
 import "./indexs.scss";
 import { ParseDataStats } from "./ParseDataStats";
-import { triggerOption } from "../../../Sparnatural/src/sparnatural/components/builder-section/groupwrapper/groupwrapperevents/events/TriggerOption";
 
 export class DisplayStats {
   private parseDataStats = new ParseDataStats();
