@@ -106,6 +106,15 @@ export class DisplayBoxHtml {
     documentTypeContainer.className = "document-type-container";
     const documentTypeLabel = document.createElement("div");
     documentTypeLabel.className = "document-type-label";
+    // build the icon HTML
+    let iconHtml = '';
+    if(resultBox.typeResultBox.icon && resultBox.typeResultBox.icon.startsWith("<")) {
+      // old Sparnatural : icon is returned with outer span
+      iconHtml = resultBox.typeResultBox.icon;
+    } else if(resultBox.typeResultBox.icon) {
+      // new Sparnatural : icon is returned with just the code
+      iconHtml = `<i style="font-size:180%" class="${resultBox.typeResultBox.icon}"></i>`
+    }
     documentTypeLabel.innerHTML = `${resultBox.typeResultBox.icon}<strong>${resultBox.typeResultBox.label}</strong>`;
     documentTypeContainer.appendChild(documentTypeLabel);
     //ajouter le type de document au container general
@@ -408,10 +417,21 @@ export class DisplayBoxHtml {
 
     const documentTypeLabel = document.createElement("div");
     documentTypeLabel.className = "document-type-label-wo-image";
-    if (resultBox.typeResultBox.icon) {
-      documentTypeLabel.innerHTML = `${resultBox.typeResultBox.icon}`;
+    
+    // build the icon HTML
+    let iconHtml = '';
+    if(resultBox.typeResultBox.icon && resultBox.typeResultBox.icon.startsWith("<")) {
+      // old Sparnatural : icon is returned with outer span
+      iconHtml = resultBox.typeResultBox.icon;
+    } else if(resultBox.typeResultBox.icon) {
+      // new Sparnatural : icon is returned with just the code
+      iconHtml = `<i style="font-size:180%" class="${resultBox.typeResultBox.icon}"></i>`
+    }
+    
+    if (iconHtml) {
+      documentTypeLabel.innerHTML = `${iconHtml}`;
     } else {
-      documentTypeLabel.innerHTML = `${resultBox.typeResultBox.icon}<strong>${resultBox.typeResultBox.label}</strong>`;
+      documentTypeLabel.innerHTML = `<strong>${resultBox.typeResultBox.label}</strong>`;
     }
     const titleElement = document.createElement("div");
     titleElement.className = "main-title-wo-image";
