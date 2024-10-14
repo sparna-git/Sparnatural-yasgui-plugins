@@ -113,9 +113,9 @@ export class DisplayBoxHtml {
       iconHtml = resultBox.typeResultBox.icon;
     } else if(resultBox.typeResultBox.icon) {
       // new Sparnatural : icon is returned with just the code
-      iconHtml = `<i style="font-size:180%" class="${resultBox.typeResultBox.icon}"></i>`
+      iconHtml = `<i style="font-size:180%" class="${resultBox.typeResultBox.icon}"></i>&nbsp;`
     }
-    documentTypeLabel.innerHTML = `${resultBox.typeResultBox.icon}<strong>${resultBox.typeResultBox.label}</strong>`;
+    documentTypeLabel.innerHTML = `${iconHtml}<strong>${resultBox.typeResultBox.label}</strong>`;
     documentTypeContainer.appendChild(documentTypeLabel);
     //ajouter le type de document au container general
     containerImageType.appendChild(documentTypeContainer);
@@ -186,7 +186,9 @@ export class DisplayBoxHtml {
                   property.label
                 } : ${this.limitLength(val, 150, translations)}`;
               } else if (value.predicates.length > 0) {
-                keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+                // keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+                // Thomas 2024-10-17 : avoid printing the valueType label if there is no actual value
+                keyValueElement.innerHTML = `<li/>${property.label} : `;
               }
             } else if (value.predicates.length > 0) {
               keyValueElement.innerHTML = `<li/>${property.label} <span class="objet">(${property.valueType.label})</span>`;
@@ -224,10 +226,14 @@ export class DisplayBoxHtml {
                   predicate.values.find((value) => value.label !== "")
                 )
               ) {
-                keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+                // keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+                // Thomas 2024-10-17 : avoid printing the valueType label if there is no actual value
+                keyValueElement.innerHTML = `<li/>${property.label} : `;
               }
             } else if (value.predicates.length > 0) {
-              keyValueElement.innerHTML = `<li/>${property.label} <span class="objet">(${property.valueType.label})</span>`;
+              // keyValueElement.innerHTML = `<li/>${property.label} <span class="objet">(${property.valueType.label})</span>`;
+              // Thomas 2024-10-17 : avoid printing the valueType label if there is no actual value
+              keyValueElement.innerHTML = `<li/>${property.label} `;
             }
 
             if (value.predicates && value.predicates.length > 0) {
@@ -354,7 +360,9 @@ export class DisplayBoxHtml {
             predicate.values.find((value) => value.label !== "")
           )
         ) {
-          keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+          // keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+          // Thomas 2024-10-17 : avoid printing the valueType label if there is no actual value
+          keyValueElement.innerHTML = `<li/>${property.label} : `;
           resultBoxElement.appendChild(keyValueElement);
           valueAppended = true;
           break;
@@ -369,7 +377,9 @@ export class DisplayBoxHtml {
 
     //filter les valeurs a chaque fois qu'il y a un doublon
     if (!valueAppended && filteredValues.find((value) => value.id !== "")) {
-      keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+      // keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+      // Thomas 2024-10-17 : avoid printing the valueType label if there is no actual value
+      keyValueElement.innerHTML = `<li/>${property.label} : `;
       resultBoxElement.appendChild(keyValueElement);
     } else if (!valueAppended) {
       keyValueElement.innerHTML = ``;
@@ -466,7 +476,9 @@ export class DisplayBoxHtml {
                   property.label
                 } : ${this.limitLength(val, 150, translations)}`;
               } else if (value.predicates.length > 0) {
-                keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+                // keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+                // Thomas 2024-10-17 : avoid printing the valueType label if there is no actual value
+                keyValueElement.innerHTML = `<li/>${property.label} : `;
               }
             } else if (value.predicates.length > 0) {
               keyValueElement.innerHTML = `<li/>${property.label} <span class="objet">(${property.valueType.label})</span>`;
@@ -504,10 +516,14 @@ export class DisplayBoxHtml {
                   predicate.values.find((value) => value.label !== "")
                 )
               ) {
-                keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+                // keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
+                // Thomas 2024-10-17 : avoid printing the valueType label if there is no actual value
+                keyValueElement.innerHTML = `<li/>${property.label} : `;
               }
             } else if (value.predicates.length > 0) {
-              keyValueElement.innerHTML = `<li/>${property.label} <span class="objet">(${property.valueType.label})</span>`;
+              // keyValueElement.innerHTML = `<li/>${property.label} <span class="objet">(${property.valueType.label})</span>`;
+              // Thomas 2024-10-17 : avoid printing the valueType label if there is no actual value
+              keyValueElement.innerHTML = `<li/>${property.label}`;
             }
 
             if (value.predicates && value.predicates.length > 0) {
