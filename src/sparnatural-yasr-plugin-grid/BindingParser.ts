@@ -83,7 +83,7 @@ export class BindingParser {
     return undefined;
   }*/
 
-  private identifyPrincipalTitleColumn(
+  private identifyMainTitleColumn(
     query: any,
     bindings: Parser.Binding[]
   ): string | undefined {
@@ -101,7 +101,6 @@ export class BindingParser {
       let validCount = 0;
       let totalChecked = 0;
       const totalResults = bindings.length;
-      const pairsToCheck = Math.ceil(totalResults / 10);
 
       for (let i = 0; i < totalResults; i += 10) {
         const indicesToCheck = [i, i + 1];
@@ -125,10 +124,14 @@ export class BindingParser {
       }
     }
 
-    console.error(
-      "Impossible de trouver une colonne de titre avec des informations de type x-labelled-uri."
+    console.warn(
+      "Cannot find a column of type x-labelled-uri - will use the first column as title column"
     );
-    return undefined;
+
+
+    // no x-labelled-uri column found
+    // take the first variable in the result set
+    return query.variables[0].value
   }
 
   //OK
@@ -145,7 +148,8 @@ export class BindingParser {
     //verifier si la colonne du titre principal existe
     if (principalColumnTitle && bindingSet[principalColumnTitle]) {
       const value = bindingSet[principalColumnTitle];
-      mainTitle = value.label ?? "";
+      // try to find the label key if x-labelled-uri, otherwise take the value key
+      mainTitle = ((value.label)?value.label:value.value) ?? "";
       mainURI = value.value ?? "";
     }
     //we are ensure that at the return we will have a title and an uri
@@ -711,24 +715,28 @@ export class BindingParser {
     }
   }
 
-  //OK
-  //cette methode permet de recuperer l'icone du type de document en utilisant son uri
+  /**
+   * 
+   * @param documentTypeURI 
+   * @param queryConfiguration 
+   * @returns l'icone du type de document en utilisant son uri, ou bien undefined s'il n'y a pas d'icône
+   */
   public getDocumentTypeIconClass(
     documentTypeURI: string,
     queryConfiguration: any
-  ): string {
+  ): string|undefined {
     if (
       queryConfiguration &&
       typeof queryConfiguration.getEntity === "function"
     ) {
       const entity = queryConfiguration.getEntity(documentTypeURI);
       if (entity) {
-        return entity.getIcon() || documentTypeURI;
+        return entity.getIcon() || undefined;
       } else {
-        return documentTypeURI;
+        return undefined;
       }
     } else {
-      return documentTypeURI;
+      return undefined;
     }
   }
 
@@ -766,11 +774,11 @@ export class BindingParser {
     const type = new ResultBoxType(
       documentTypeURI ?? "",
       documentTypeLabel,
-      documentTypeIcon
+      documentTypeIcon??""
     );
 
     //search for the principal title column
-    const principalColumnTitle = this.identifyPrincipalTitleColumn(
+    const principalColumnTitle = this.identifyMainTitleColumn(
       query,
       bindings
     );
@@ -794,6 +802,7 @@ export class BindingParser {
         bindingSet,
         principalColumnTitle
       );
+
       //extraire les prédicats
       const predicates: Property[] = this.readProperties(
         query,
