@@ -5,7 +5,7 @@ For integration with Sparnatural, there is a [dedicated documentation page](http
 
 ## The Plugins
 
-### TableX
+### TableX plugin
 
 This is an adaptation of the original YaSR Table plugin. Its main enhancement is that it can hide URI columns "behind" a correspondig label column, thus hiding technical URIs for end-users. The link URLs can also be customzed to navigate to another URL than the original URI.
 
@@ -25,6 +25,15 @@ The Grid plugin:
 - displays the other columns in each card by replicating the original query structure from Sparnatural
 - can look for an image column (containing URIs ending in `.png` or `.jpg`)
 
+### Stats plugin
+
+The Stats plugin can:
+- display a simple COUNT query, with only an integer result
+- generate simple pie or bar charts from a `COUNT` + `GROUP BY` query
+
+### Timeline plugin
+
+TODO
 
 ## Developers
 
