@@ -35,13 +35,14 @@ Here is how it looks like with an image column selected:
 
 ![](docs/images/grid-1.png)
 
-The original result set was the following:
+The original query was the following: (_All chairmans of EU political groups, with dates of chair and image_, based on the [European Parliament Open Data Portal](https://data.europarl.europa.eu/) datasets)
+
+![](docs/images/grid-3.png)
+
+The original result set was the following - note how each person is duplicated as many times as it was a chairman of a group, with different dates:
 
 ![](docs/images/grid-4.png)
 
-And the original query was the following: (_All chairmans of EU political groups, with dates of chair and image_, based on the [European Parliament Open Data Portal](https://data.europarl.europa.eu/) datasets)
-
-![](docs/images/grid-3.png)
 
 Here is a focus on one card, note how the lines corresponding to the same entity have been merged, and how the original query structure is replicated inside the card:
 
@@ -63,9 +64,147 @@ The Stats plugin can:
 ![](docs/images/stats-3.png)
 
 
+### Map plugin
+
+The map plugin:
+
+- Reads columns with a datatype of `geo:wktLiteral`
+- Can display Points and Polygons. MultiPolygons are currently not supported
+- Displays the original query area coming from the query, if present
+- Displays information bubbles by reading all columns from the result set
+- Splits polygons into different layers according to their size, so that the user can reduce the number of polygons displayed on the map for clarity
+- Can warn users if some lines in the result set do not have their coordinates filled int
+
+Here is an exampe:
+
+![](docs/images/map-1.png)
+
 ### Timeline plugin
 
 TODO
+
+### Integration in the page
+
+#### Declaration with YasGUI / YasR
+
+```html
+<script type="text/javascript" src="./sparnatural-yasgui-plugins.js"></script>
+```
+
+```javascript
+      Yasr.registerPlugin("TableX",SparnaturalYasguiPlugins.TableX);
+      Yasr.registerPlugin("Grid",SparnaturalYasguiPlugins.GridPlugin);
+      Yasr.registerPlugin("Stats",SparnaturalYasguiPlugins.StatsPlugin);
+      Yasr.registerPlugin("Map",SparnaturalYasguiPlugins.MapPlugin);
+
+      delete Yasr.plugins['table'];
+      delete Yasr.plugins['response'];
+      const yasr = new Yasr(document.getElementById("yasr"), {
+        pluginOrder: ["TableX", "Grid", "Stats", "Map"],
+        defaultPlugin: "TableX",
+        // disable persistency
+        persistencyExpire: 0,
+        maxPersistentResponseSize: 0
+      });
+
+      if(lang == "fr") { 
+        yasr.plugins["Grid"].config.lang = "fr";
+        yasr.plugins["Stats"].config.lang = "fr";
+      } else {
+        yasr.plugins["Grid"].config.lang = "en";
+        yasr.plugins["Stats"].config.lang = "en";
+      }
+
+      yasr.plugins["TableX"].config.uriHrefAdapter = function(uri) {
+        if(uri.startsWith("http://fr.dbpedia.org/resource/")) {
+          return "http://fr.wikipedia.org/wiki/" + uri.substring("http://fr.dbpedia.org/resource/".length);
+        } else {
+          return uri;
+        }
+      };
+
+      // binds Sparnatural with the YasR plugins
+      bindSparnaturalWithYasrPlugins(sparnatural, yasr);
+```
+
+#### Integration with Sparnatural
+
+These plugins require a specific integration with Sparnatural to work. See the [Sparnatural documentation page](https://docs.sparnatural.eu/YasGUI-plugins.html). See the file `sparnatural-bindings.js` in Sparnatural releases.
+
+#### API
+
+These plugins have the following methods:
+
+- `notifyQuery(query)` : expects the Sparnatural query structure, to be notified of the original query structure that was executed.
+- `notifyConfig(specProvider)` : expects the Sparnatural configuration, to be aware of the labels and icons of the properties and classes in the config.
+
+#### Configuration
+
+##### TableX plugin
+
+```typescript
+export interface PluginConfig {
+  openIriInNewWindow: boolean;
+  tableConfig: DataTables.Settings;
+  includeControls: boolean;
+  uriHrefAdapter?: (uri: string) => string;
+  bindingSetAdapter?: (binding: Parser.Binding) => Parser.Binding;
+}
+```
+
+##### Grid plugin
+
+```typescript
+interface PluginConfig {
+  lang: "en" | "fr";
+}
+```
+
+##### Stats plugin
+
+```typescript
+interface PluginConfig {
+  lang: "en" | "fr";
+}
+```
+
+##### Map plugin
+
+```typescript
+interface PluginConfig {
+    baseLayers: Array<{
+        urlTemplate: string, 
+        options?: L.TileLayerOptions
+    }>
+    polylineOptions: L.PolylineOptions | null,
+    markerOptions: L.MarkerOptions | null,
+    geoDataType: Array<string>,
+    polygonDefaultColor: string,
+    polygonColors: Array<string>,
+    searchedPolygon: {
+        fillColor: string,
+        weight: number,
+        opacity: number,
+        color: string,
+        dashArray: string,
+        fillOpacity: number
+    },
+    mapSize: {
+        width:string,
+        height:string
+    }
+    setView: {
+        center: L.LatLngExpression,
+        zoom?: number,
+        options?: L.ZoomPanOptions
+    }
+    parsingFunction: (literalValue:string)=> Geometry,
+    L18n: {
+        warnFindNoCoordinate: string, // use "<count>" pattern to replace with count of results with no geo coordinates
+        warnFindNoCoordinateBtn: string // Link label for plugin table display on warnig message
+    }   
+}
+```
 
 ## Developers
 
