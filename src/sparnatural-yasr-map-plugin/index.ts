@@ -201,7 +201,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
             })
         }
 
-        console.log("have_geo ?"+have_geo)
+        
         // also see cases where we have a latitude and longitude columns
         if(!have_geo) {
             if(
@@ -315,7 +315,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
                                 // we fake a wktLiteral
                                 geoLiterals.push({
                                     cellValue: {
-                                        value:"POINT("+cell.value+" "+row[longKey].value+")",
+                                        value:"POINT("+row[longKey].value+" "+cell.value+")",
                                         type:"literal",
                                         datatype:"http://www.opengis.net/ont/geosparql#wktLiteral"
                                     },
