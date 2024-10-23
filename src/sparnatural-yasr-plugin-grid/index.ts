@@ -10,6 +10,7 @@ import * as faTh from "@fortawesome/free-solid-svg-icons/faTh";
 import Parser from "../parsers/index";
 import { TableXResults } from "../TableXResults";
 import { I18n } from "./I18n";
+import { ISparJson } from "../ISparJson";
 
 interface PluginConfig {
   lang: "en" | "fr";
@@ -19,7 +20,7 @@ interface PersistentConfig {}
 
 export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private yasr: Yasr;
-  private query: any;
+  private query?: ISparJson;
   private queryConfiguration: any;
   private parserBinding = new BindingParser();
   private displayBoxHtml = new DisplayBoxHtml();
@@ -66,18 +67,20 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     const results = new TableXResults(this.yasr.results as Parser);
     const bindings: Parser.Binding[] = results.getBindings();
 
-    const resultBoxes = this.parserBinding.extractResultData(
-      bindings,
-      this.query,
-      this.queryConfiguration
-    );
+    if(this.query) {
+      const resultBoxes = this.parserBinding.extractResultData(
+        bindings,
+        this.query,
+        this.queryConfiguration
+      );
 
-    this.displayBoxHtml.displayResultBoxes(
-      0,
-      resultBoxes,
-      this.yasr.resultsEl,
-      I18n.labels
-    );
+      this.displayBoxHtml.displayResultBoxes(
+        0,
+        resultBoxes,
+        this.yasr.resultsEl,
+        I18n.labels
+      );
+    }
   }
 
   public canHandleResults(): boolean {
@@ -86,7 +89,7 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     }
 
     for (const variable of this.query.variables) {
-      if (variable.expression && typeof variable.expression === "object") {
+      if (variable["expression"] && typeof variable["expression"] === "object") {
         return false;
       }
     }
@@ -109,7 +112,7 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     return false;
   }
 
-  notifyQuery(sparnaturalQuery: any): any {
+  notifyQuery(sparnaturalQuery: ISparJson): any {
     this.query = sparnaturalQuery;
   }
 

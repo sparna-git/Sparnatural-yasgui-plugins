@@ -49,7 +49,7 @@ It then doesn't init the map.pm attribute. (stays undefined) and when it tries t
 // import customIcon from 'leaflet/dist/images/marker-icon.png';
 // import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import Parser from "../parsers";
-import { ISparJson } from "../ISparJson";
+import { Branch, ISparJson } from "../ISparJson";
 import { TableXResults } from "../TableXResults";
 
 /*
@@ -95,19 +95,10 @@ interface PluginConfig {
 // represents a yasr result cell with a geo literal
 interface GeoCell {
     cellValue: Parser.BindingValue, // literal value of the cell
-    colIndex:number, // column index of the cell
+    variable:string, // variable of the cell
     parsedLit?: Geometry,
     area?: number,
 }
-
-interface rowObject {
-    parsedLit: Geometry,
-    colIndex: number,
-    popUpString: string, 
-    area: number,
-}
-
-type DataRow = [number, ...(Parser.BindingValue | "")[]];
 
 
 export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
@@ -130,6 +121,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     haveResultWithoutGeo: number = 0 ;
     bounds: any; // Instantiate LatLngBounds object
     sparnaturalQuery: ISparJson | null = null ;
+    specProvider: any;
     layerGroupsLabels: Array<any> = [];
 
     private results?: TableXResults;
@@ -196,11 +188,11 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     // Map plugin can handle results in the form of geosparql wktLiterals
     // http://schemas.opengis.net/geosparql/1.0/geosparql_vocab_all.rdf#wktLiteral
     canHandleResults(): boolean {
-        let rows = this.getRows(new TableXResults(this.yasr.results as Parser))
+        let tableXResults:TableXResults = new TableXResults(this.yasr.results as Parser);
         let have_geo = false ;
         this.haveResultWithoutGeo = 0;
-        if(rows && rows.length > 0){
-            rows.some((row: DataRow)=>{ // if a cell contains a geosparql value
+        if(tableXResults && tableXResults.getBindings().length > 0){
+            tableXResults.getBindings().some((row: Parser.Binding)=>{ // if a cell contains a geosparql value
                 if(this.getGeosparqlValue(row)){
                     have_geo =  true
                 } else {
@@ -208,122 +200,236 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
                 }
             })
         }
+
+        console.log("have_geo ?"+have_geo)
+        // also see cases where we have a latitude and longitude columns
+        if(!have_geo) {
+            if(
+                this.sparnaturalQuery
+                &&
+                MapPlugin.getLatitudeColumn(tableXResults, this.sparnaturalQuery)
+                &&
+                MapPlugin.getLongitudeColumn(tableXResults, this.sparnaturalQuery)
+            ) {
+                return true;
+            }
+        }
+
         return have_geo ;
     }
 
-    // this method checks if there is a geosparql value in a cell for a given row
-    private getGeosparqlValue(row:DataRow): GeoCell[] | null {
-        let geoLiterals:Array<GeoCell> = []
-        row.forEach((cell,index)=>{
-            if(this.isBindingValue(cell)){
-               if(this.config.geoDataType.includes(cell.datatype as string)){
-                // cell contains a geoliteral
-                geoLiterals.push({cellValue:cell,colIndex:index-1})
-               }
+    private static getLatitudeColumn(tableXResults:TableXResults, query:ISparJson):string|undefined {
+        if(!query) return;
+        // analyze the predicate of each column
+        for(let i in tableXResults.getVariables()) {
+            let varName = tableXResults.getVariables()[i]
+            let property = MapPlugin.getVariablePredicateRec(query, varName);
+            if(
+                // property == "https://schema.org/latitude"
+                // ||
+                // property == "http://www.w3.org/2003/01/geo/wgs84_pos#lat"
+                property
+                &&
+                property?.toLowerCase().indexOf("lat") > -1
+            ) {
+                return varName;
             }
-            return false
-        });
+        }
+    }
+
+    private static getLongitudeColumn(tableXResults:TableXResults, query:ISparJson):string|undefined {
+        if(!query) return;
+        // analyze the predicate of each column
+        for(let i in tableXResults.getVariables()) {
+            let varName = tableXResults.getVariables()[i]
+            let property = MapPlugin.getVariablePredicateRec(query, varName);
+            
+            if(
+                // property == "https://schema.org/longitude"
+                // ||
+                // property == "http://www.w3.org/2003/01/geo/wgs84_pos#long"
+                property
+                &&
+                property?.toLowerCase().indexOf("long") > -1
+            ) {
+                return varName;
+            }
+        }
+    }
+
+    private static getVariablePredicateRec(query:ISparJson|Branch, varName:string):string|undefined {
+        let branchWithVar:Branch|undefined = MapPlugin.findBranchWithObjectVar(query,varName);
+        if(branchWithVar) {
+            return branchWithVar.line.p;
+        }
+    }
+
+    private static findBranchWithObjectVar(query:ISparJson|Branch, varName:string):Branch|undefined {
+        if(query["branches"]) {
+            for (let index = 0; index < (query as ISparJson).branches.length; index++) {
+                const branch = (query as ISparJson).branches[index];
+                let result = MapPlugin.findBranchWithObjectVar(branch, varName);
+                if(result) return result;
+            }
+        } else {
+            if ((query as Branch).line.o == varName) {
+                return (query as Branch);
+            } else {
+                for (let index = 0; index < (query as Branch).children.length; index++) {
+                    const branch = (query as Branch).children[index];
+                    let result = MapPlugin.findBranchWithObjectVar(branch, varName);
+                    if(result) return result;
+                }
+            }
+        }
+    }
+
+
+    /**
+     * @param row a binding set
+     * @returns an array of GeoCell objects containing the literal value and column index, for each column having a geo datatype
+     */
+    private getGeosparqlValue(row:Parser.Binding): GeoCell[] | null {
+        console.log("getGeosparqlValue")
+        let geoLiterals:Array<GeoCell> = []
+        for (var key in row) {
+            let cell = row[key];
+            if(this.isBindingValue(cell)){
+                if(this.isGeoValue(cell)){
+                    // cell contains a geoliteral
+                    geoLiterals.push({cellValue:cell, variable:key})
+                } else if(this.sparnaturalQuery) {
+                    let property = MapPlugin.getVariablePredicateRec(this.sparnaturalQuery, key)  
+                    console.log(property)
+                    if(property && property.toLowerCase().indexOf("lat") > -1) {
+                        // find the longitude key
+                        var longKey:string|undefined = undefined
+                        for (var anotherKey in row) {
+                            let anotherProperty = MapPlugin.getVariablePredicateRec(this.sparnaturalQuery, anotherKey) 
+                            if(anotherProperty && anotherProperty.toLowerCase().indexOf("long") > -1) {
+                                console.log("found longKey"+longKey)
+                                longKey = anotherKey
+                            }
+
+                            if(longKey) {
+                                // we fake a wktLiteral
+                                geoLiterals.push({
+                                    cellValue: {
+                                        value:"POINT("+cell.value+" "+row[longKey].value+")",
+                                        type:"literal",
+                                        datatype:"http://www.opengis.net/ont/geosparql#wktLiteral"
+                                    },
+                                    variable:key
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if(geoLiterals.length > 0 ) return geoLiterals
         return null
+    }
+
+    private isGeoValue(cell:Parser.BindingValue):boolean {
+        let isGeoSparql = this.config.geoDataType.includes(cell.datatype as string);
+        return isGeoSparql;
     }
 
     draw(persistentConfig: any, runtimeConfig?: any): void | Promise<void> {
 
         this.results = new TableXResults(this.yasr.results as Parser);
-        const rows = this.getRows(this.results)
         //if the resultset changed, then cleanup and rerender
         this.cleanUp()
         this.createMap();
 
-        let geo_rows: Array<any>[] ;
-        geo_rows = Array() ;
+        let geo_rows: {
+            [variable:string]: Array<GeoCell>   
+        } = {};
         this.layerGroupsLabels = Array() ;
 
-        const drawables = rows.flatMap((row:DataRow)=>{ 
+        this.results.getBindings().forEach((row:Parser.Binding)=>{ 
             const geoCells =  this.parseGeoLiteral(row,this.config.parsingFunction)
             // features are in this case either GeoJson Point or Polygons
             if(geoCells.length === 0) { 
-
                 return
             }
 
-
-            return geoCells.map(c=>{
+            return geoCells.map(geoCell=>{
                 let popUpString = this.createPopUpString(row)
-                if(c.parsedLit?.type === "Point") this.drawMarker(c.parsedLit,c.colIndex,popUpString)
-                if(c.parsedLit?.type === "Polygon")  {
+                if(geoCell.parsedLit?.type === "Point") this.drawMarker(geoCell.parsedLit,geoCell.variable,popUpString)
+                if(geoCell.parsedLit?.type === "Polygon")  {
+                    // compute Polygon area and store it
+                    let area:number = this.polygonArea(geoCell.parsedLit?.coordinates) ;
                     let rowObject = {
-                        parsedLit: c.parsedLit,
-                        colIndex: c.colIndex,
+                        cellValue: geoCell.cellValue,
+                        parsedLit: geoCell.parsedLit,
+                        variable: geoCell.variable,
                         popUpString: popUpString, 
-                        area: c.area
+                        area: area
                     }
-                    if (geo_rows[c.colIndex] == undefined) {
-                        geo_rows[c.colIndex] = Array()  ;
+                    if (geo_rows[geoCell.variable] == undefined) {
+                        geo_rows[geoCell.variable] = Array()  ;
                     }
-                    //console.log(c.colIndex) ;
-                    geo_rows[c.colIndex].push(rowObject) ;
-                    //this.drawPoly(c.parsedLit,c.colIndex,popUpString)
+                    geo_rows[geoCell.variable].push(rowObject) ;
                 }
-                    
-                    
             })
         });
 
-        
-        if (geo_rows.length > 0) {
-            let layersRows: Array<any>[] ;
-            layersRows = [];
-            for(let i = 0; i < geo_rows.length; i++){
-                if (geo_rows[i] ) {
-                    let colIndexArray = geo_rows[i] ;
-                    let sortedArray: {
-                        cellValue: Parser.BindingValue; // literal value of the cell
-                        colIndex:number; // column index of the cell
-                        parsedLit: Geometry;
-                        area: number;
-                    }[] = colIndexArray.sort((n1, n2) => {
+        // prepare the polygons to draw
+        let layersRows: Array<any>[] = [];
+        for (var key in geo_rows) {
+            if (geo_rows[key]) {
+                console.log(key)
+                let colIndexArray = geo_rows[key] ;
+                let sortedArray: GeoCell[] = colIndexArray.sort((n1, n2) => {
+                    if(n2.area && n1.area) {
                         return n2.area - n1.area ;
-                    });
-                    geo_rows[i] = sortedArray ;
-
-                    let it = 0;
-                    let max = 50;
-                    let itLayer = 0;
-                    layersRows = [];
-
-                    for(let ir = 0; ir < geo_rows[i].length; ir++){
-                        if(it > max-1) {
-                            it = 0 ;
-                            itLayer++;
-                        }
-                        
-                        if (layersRows[itLayer] == undefined) {
-                            layersRows[itLayer] = Array()  ;
-                        }
-                        layersRows[itLayer].push(geo_rows[i][ir]) ;
-                        it++;
+                    } else {
+                        // will never happen
+                        return -1;
                     }
-                    const cols = this.results?.getVariables();
-                    for(let ir = 0; ir < layersRows.length; ir++){
-                        let colIndex = layersRows[ir][0].colIndex
-                        let vName = cols[colIndex]+'_'+ir ;
-                        let last_item_key = layersRows[ir].length - 1;
-                        let max_area = layersRows[ir][0].area+' km²' ;
-                        let min_area = layersRows[ir][last_item_key].area+' km²' ;
-                        this.layerGroupsLabels[vName] = min_area+' - ' +max_area ;
-                    } 
+                });
+                geo_rows[key] = sortedArray ;
+
+                let it = 0;
+                let max = 50;
+                let itLayer = 0;
+                layersRows = [];
+
+                for(let ir = 0; ir < geo_rows[key].length; ir++){
+                    if(it > max-1) {
+                        it = 0 ;
+                        itLayer++;
+                    }
+                    
+                    if (layersRows[itLayer] == undefined) {
+                        layersRows[itLayer] = Array()  ;
+                    }
+                    layersRows[itLayer].push(geo_rows[key][ir]) ;
+                    it++;
                 }
+                const cols = this.results?.getVariables();
+                for(let ir = 0; ir < layersRows.length; ir++){
+                    let colIndex = layersRows[ir][0].colIndex
+                    let vName = cols[colIndex]+'_'+ir ;
+                    let last_item_key = layersRows[ir].length - 1;
+                    let max_area = layersRows[ir][0].area+' km²' ;
+                    let min_area = layersRows[ir][last_item_key].area+' km²' ;
+                    this.layerGroupsLabels[vName] = min_area+' - ' +max_area ;
+                } 
             }
-            for(let i = 0; i < layersRows.length; i++){
-                for(let ir = 0; ir < layersRows[i].length; ir++){
-                    if(layersRows[i]) {
-                        let data = layersRows[i][ir] ;
-                        this.drawPoly(data.parsedLit,data.colIndex,data.popUpString, i)
-                    }
+        }
+        // draaaow the polygons
+        for(let i = 0; i < layersRows.length; i++){
+            for(let ir = 0; ir < layersRows[i].length; ir++){
+                if(layersRows[i]) {
+                    let data = layersRows[i][ir] ;
+                    this.drawPoly(data.parsedLit,data.colIndex,data.popUpString, i)
                 }
             }
         }
+        
         // If the markers are clustered then draw the cluster now
         if(!this.map) throw Error(`Couldn't find map element`)
         // add all the layers created in addControlLayer
@@ -360,12 +466,11 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     }
 
     public notifyQuery(sparnaturalQuery:ISparJson) {
-		// nothing
         this.sparnaturalQuery = sparnaturalQuery ;
 	}
 
     public notifyConfiguration(specProvider:any) {
-		// nothing
+		this.specProvider = specProvider;
 	}
 
     private searchCoordinatesOnQuery(data) {
@@ -430,7 +535,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         this.calcBounds(feature) ;
     }
 
-    private drawMarker(feature: Point,colIndex:number, popUpString:string) {
+    private drawMarker(feature: Point,variabel:string, popUpString:string) {
         const latLng = new L.LatLng(feature.coordinates[1],feature.coordinates[0])
         if(!this.map) throw Error(`Wanted to draw Marker but no map found`)
         let markerOptions:any ={
@@ -504,14 +609,12 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
         }
     }
 
-    private createPopUpString(row:DataRow):string {
+    private createPopUpString(row:Parser.Binding):string {
         let popUp:{[key: string]: any;} = {}
         let columns = this.results?.getVariables()
         
-        row.forEach((cell,i)=>{
-            // uncomment to get the row number in the popup
-            // if(i === 0) popUp['row number'] = cell as number
-
+        for (var key in row) {
+            let cell = row[key];
             if(
                 this.isBindingValue(cell)
                 &&
@@ -520,9 +623,10 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
                 columns
             ){
                 // store the whole cell in the popup
-                popUp[columns[i-1]] = cell
+                popUp[key] = cell
             }
-        })
+        }
+
         let contentString = ``
         for (const [k, cell] of Object.entries(popUp)) {
             let currentString = `<strong>${k}</strong>:&nbsp;`;
@@ -603,26 +707,13 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig>{
     helpReference?: string | undefined;
 
     // cb: parsing function which takes a string and translates it to a geoJSON geometry
-    private parseGeoLiteral(row:DataRow, cb:( literal:string)=>Geometry):Array<GeoCell>{
-        const literals = this.getGeosparqlValue(row)
-        if(!literals) return []
-        return literals.map((lit:GeoCell)=>{
+    private parseGeoLiteral(row:Parser.Binding, cb:( literal:string)=>Geometry):Array<GeoCell>{
+        const geoLiterals = this.getGeosparqlValue(row)
+        if(!geoLiterals) return []
+        return geoLiterals.map((lit:GeoCell)=>{
             lit.parsedLit = cb(lit.cellValue.value) // let callback do the parsing
-            if (lit.parsedLit?.type === "Polygon") {
-                lit.area = this.polygonArea(lit.parsedLit.coordinates) ;
-            }
             return lit
         })
-    }
-
-    private getRows(results:Parser|undefined): DataRow[] {
-        if (!results) return [];
-        const bindings = results.getBindings();
-        if (!bindings) return [];
-        // Vars decide the columns
-        const vars = results.getVariables();
-        // Use "" as the empty value, undefined will throw runtime errors
-        return bindings.map((binding, rowId) => [rowId + 1, ...vars.map((variable) => binding[variable] ?? "")]);
     }
     
     // remove the already rendered map so we can rerender it
