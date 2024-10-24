@@ -256,16 +256,21 @@ export class BindingParser {
       queryConfiguration &&
       typeof queryConfiguration.getProperty === "function"
     ) {
-      // Récupérer le type de l'objet avec la méthode getProperty
-      const object = queryConfiguration.getProperty(objectURI);
-      if (object) {
-        return object.getLabel() || objectURI;
-      } else {
-        return objectURI;
+      // Essayer avec une entity
+      const entity = queryConfiguration.getEntity(objectURI);
+      if (entity) {
+        return entity.getLabel() || objectURI;
       }
-    } else {
-      return objectURI;
+
+      // Essayer avec une property
+      const property = queryConfiguration.getProperty(objectURI);
+      if (property) {
+        return property.getLabel() || objectURI;
+      }
+
     }
+    // default : return objectURI
+    return objectURI;
   }
 
   //methode qui vas permettre de faire un traitement sur les bindings
