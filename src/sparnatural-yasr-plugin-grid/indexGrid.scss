@@ -1,20 +1,27 @@
 /* Style for the main plugin container */
-.result-grid {
+.result-grid-wo-i {
   display: grid;
   grid-template-columns: repeat(
     auto-fit,
     minmax(360px, 1fr)
-  ); /* This line ensures the grid adapts to the screen size */
+  ); //This line ensures the grid adapts to the screen size
   gap: 25px;
   margin-top: 10px;
   color: black;
 }
 
+.result-grid {
+  column-count: 4;
+  column-gap: 15px;
+  margin-top: 10px;
+}
+
 .result-count {
   margin-top: 5px;
 }
-/* Style for each result box */
-.result-box {
+
+// Style for each result box
+.result-box-wo-i {
   border: none;
   border-radius: 15px;
   //min-height: 130px;
@@ -22,6 +29,19 @@
   background-color: rgb(255, 255, 255);
   border: 1px solid #29282861;
   position: relative;
+}
+
+.result-box {
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 15px;
+  border-radius: 15px;
+  padding: 15px 1px 0 15px;
+  background-color: #fff;
+  border: 1px solid #29282861;
+  position: relative;
+  break-inside: avoid; /* Prevents breaking box across columns */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Style for the document type container */
@@ -33,6 +53,7 @@
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
   width: max-content;
+  height: 35px;
   //border: 3px solid #29282861;
   border: 2px solid #29282861;
   //border-right: 3px solid #29282861;
@@ -40,6 +61,7 @@
   top: 10px;
   left: 10px;
 }
+//d9d9d9
 
 .document-type-container-wo-image {
   display: -webkit-box;
@@ -57,11 +79,18 @@
 }
 
 /* Style for the main title with image */
-.result-box .main-title {
+/*.result-box .main-title {
   font-size: 22px;
   font-weight: bold;
   color: rgb(30, 29, 29);
   max-width: 360px;
+  text-align: left;
+}*/
+
+.main-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
   text-align: left;
 }
 
@@ -70,7 +99,7 @@
 }
 
 /* Style for the main title without image */
-.result-box .main-title-wo-image {
+.main-title-wo-image {
   font-size: 18px;
   font-weight: bold;
   margin-left: 10px;
@@ -80,32 +109,35 @@
   text-align: left;
 }
 /* Style for the main title without image */
-.result-box .main-title-wo-image a {
+.main-title-wo-image a {
   text-decoration: none;
   color: black;
   transition: 0.3s;
 }
 /* Style for the main title without image */
-.result-box .main-title-wo-image a:hover {
+.main-title-wo-image a:hover {
   text-decoration: none;
   font-size: 19px;
   transition: 0.2s;
   color: rgb(11, 167, 229);
 }
-.result-box .truncated-title:hover {
+.truncated-title:hover {
   color: rgb(11, 167, 229);
 }
 
-.result-box .key {
-  padding: 15px 0 0 5px;
+.key {
+  padding: 0 0 0 5px;
 }
-.result-box .key-wo-image {
+.key-wo-image {
   padding: 0;
+}
+
+.icon-i {
+  font-size: 70%;
 }
 
 .scrollable-container {
   overflow-y: auto;
-  margin-top: 5px;
   max-height: 350px;
   min-height: min-content;
   margin-bottom: 10px;
@@ -120,13 +152,13 @@
   padding-left: 15px;
 }
 /* Style for the key-value elements */
-.result-box .key-value-element {
+.key-value-element {
   margin-top: 5px;
   margin-left: 15px;
   padding-right: 8px;
 }
 /* Style for the key-value elements */
-.result-box .key-value-element-wo-image {
+.key-value-element-wo-image {
   margin-top: 8px;
   margin-left: 30px;
   padding-right: 10px;
@@ -139,15 +171,27 @@
 }
 
 /* Style for the consult button container */
-.result-box .consult-button-container {
+/*.result-box .consult-button-container {
   position: absolute;
   bottom: 12px;
   right: 12px;
+}*/
+.consult-button-container {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
 }
 
 /* Adjusted style for the consult button to place it on the image */
+/*.image-container {
+  position: relative;
+}
+*/
 .image-container {
   position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border-radius: 10px;
 }
 
 .show-more {
@@ -166,7 +210,7 @@
   right: 10px;
 }
 
-.result-box .consult-button-container button {
+.consult-button-container button {
   background-color: #2f67c7;
   border-radius: 20px;
   box-shadow: rgba(44, 120, 187, 0.2) 0 -25px 18px -14px inset,
@@ -190,7 +234,7 @@
 }
 
 /* Hover style for the button */
-.result-box .consult-button-container button:hover {
+.consult-button-container button:hover {
   box-shadow: rgba(29, 99, 187, 0.36) 0 -25px 18px -14px inset,
     rgba(44, 99, 187, 0.25) 0 1px 2px, rgba(44, 99, 187, 0.25) 0 2px 4px,
     rgba(44, 99, 187, 0.25) 0 4px 8px, rgba(44, 99, 187, 0.25) 0 8px 16px,
@@ -229,7 +273,7 @@
 .document-type-label {
   display: flex;
   align-items: center;
-  margin-right: 10px;
+  margin: 2px 10px 2px 5px;
   font-weight: bold;
   color: #333;
   border-radius: 10px;
@@ -280,7 +324,7 @@
 }
 
 /* Style for the image container */
-.result-box .image-container {
+.image-container {
   overflow: hidden;
   margin-right: 15px;
   border: 2px solid #29282861;
@@ -289,9 +333,29 @@
   //position: relative;
 }
 
+.image-container img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/*
 .result-box .image-container img {
   width: 100%;
   object-fit: contain;
   //height: max-content;
   border-radius: 10px;
+}
+*/
+@media (max-width: 1200px) {
+  .result-grid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .result-grid {
+    column-count: 1;
+  }
 }

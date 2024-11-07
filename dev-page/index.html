@@ -47,12 +47,13 @@ LIMIT 1000
         </p>
 <!--https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql -->
 <!-- https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2F51.159.140.210%2Fgraphdb%2Frepositories%2Fsparnatural-demo-anf -->
+ <!-- https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Fvps-6ad181ed.vps.ovh.net%3A7200%2Frepositories%2Fspoty -->
           <div id="ui-search" style="width:auto">
             <spar-natural
-              src="configs/config-spoty.ttl"
+              src="configs/sparnatural-config-dbpedia.ttl"
               lang="en"
               defaultLang="en"
-              endpoint="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Fvps-6ad181ed.vps.ovh.net%3A7200%2Frepositories%2Fspoty"
+              endpoint="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql"
               distinct="true"
               limit="300"
               debug="true"              
@@ -61,7 +62,7 @@ LIMIT 1000
           <input type="hidden" id="query-json" />
 
         <span style="font-size:90%;"> 
-          Queries sent to <a id="endpoint" href="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Fvps-6ad181ed.vps.ovh.net%3A7200%2Frepositories%2Fspoty">https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Fvps-6ad181ed.vps.ovh.net%3A7200%2Frepositories%2Fspoty</a>
+          Queries sent to <a id="endpoint" href="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql">https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql</a>
          </span>
 
          <div id="yasqe"></div>

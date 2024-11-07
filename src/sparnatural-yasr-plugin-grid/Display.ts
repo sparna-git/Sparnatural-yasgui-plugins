@@ -107,13 +107,16 @@ export class DisplayBoxHtml {
     const documentTypeLabel = document.createElement("div");
     documentTypeLabel.className = "document-type-label";
     // build the icon HTML
-    let iconHtml = '';
-    if(resultBox.typeResultBox.icon && resultBox.typeResultBox.icon.startsWith("<")) {
+    let iconHtml = "";
+    if (
+      resultBox.typeResultBox.icon &&
+      resultBox.typeResultBox.icon.startsWith("<")
+    ) {
       // old Sparnatural : icon is returned with outer span
       iconHtml = resultBox.typeResultBox.icon;
-    } else if(resultBox.typeResultBox.icon) {
+    } else if (resultBox.typeResultBox.icon) {
       // new Sparnatural : icon is returned with just the code
-      iconHtml = `<i style="font-size:180%" class="${resultBox.typeResultBox.icon}"></i>&nbsp;`
+      iconHtml = `<i style="font-size:180%" class="${resultBox.typeResultBox.icon}"></i>&nbsp;`;
     }
     documentTypeLabel.innerHTML = `${iconHtml}<strong>${resultBox.typeResultBox.label}</strong>`;
     documentTypeContainer.appendChild(documentTypeLabel);
@@ -410,8 +413,6 @@ export class DisplayBoxHtml {
     return uri.match(/\.(jpg|jpeg|png|svg)(\?.*)?$/i) !== null;
   }
 
-  //methode qui est charger de creer un encadré pour chaque resultat sans image
-  //PS : travailler sur les condition pour afficher les resultats sans probleme et sans doublon
   private createResultBoxWithoutImage(
     resultBox: ResultBoxM,
     translations: any
@@ -427,17 +428,20 @@ export class DisplayBoxHtml {
 
     const documentTypeLabel = document.createElement("div");
     documentTypeLabel.className = "document-type-label-wo-image";
-    
+
     // build the icon HTML
-    let iconHtml = '';
-    if(resultBox.typeResultBox.icon && resultBox.typeResultBox.icon.startsWith("<")) {
+    let iconHtml = "";
+    if (
+      resultBox.typeResultBox.icon &&
+      resultBox.typeResultBox.icon.startsWith("<")
+    ) {
       // old Sparnatural : icon is returned with outer span
       iconHtml = resultBox.typeResultBox.icon;
-    } else if(resultBox.typeResultBox.icon) {
+    } else if (resultBox.typeResultBox.icon) {
       // new Sparnatural : icon is returned with just the code
-      iconHtml = `<i style="font-size:180%" class="${resultBox.typeResultBox.icon}"></i>`
+      iconHtml = `<i style="font-size:180%" class="${resultBox.typeResultBox.icon}"></i>`;
     }
-    
+
     if (iconHtml) {
       documentTypeLabel.innerHTML = `${iconHtml}`;
     } else {
@@ -461,6 +465,7 @@ export class DisplayBoxHtml {
     resultBox.predicates.forEach((property) => {
       let keyValueElementCreated = false;
 
+      console.log(property.label);
       property.values.forEach((value) => {
         if (value.label !== "") {
           if (value.predicates.length > 0) {
@@ -474,11 +479,11 @@ export class DisplayBoxHtml {
                 const val = value.label || "";
                 keyValueElement.innerHTML = `<li/>${
                   property.label
-                } : ${this.limitLength(val, 150, translations)}`;
+                } : ${this.limitLength(val, 150, translations)}cc`;
               } else if (value.predicates.length > 0) {
                 // keyValueElement.innerHTML = `<li/>${property.label} : <span class="objet">(${property.valueType.label})</span>`;
                 // Thomas 2024-10-17 : avoid printing the valueType label if there is no actual value
-                keyValueElement.innerHTML = `<li/>${property.label} : `;
+                keyValueElement.innerHTML = `<li/>${property.label} : ccc`;
               }
             } else if (value.predicates.length > 0) {
               keyValueElement.innerHTML = `<li/>${property.label} <span class="objet">(${property.valueType.label})</span>`;
@@ -500,6 +505,7 @@ export class DisplayBoxHtml {
         } else {
           if (value.label === "" && value.predicates.length > 0) {
             const keyValueElement = document.createElement("div");
+            keyValueElement.innerHTML = `<li/>${property.label} :`;
             keyValueElement.className = "key-value-element";
 
             if (value.label !== resultBox.title) {
