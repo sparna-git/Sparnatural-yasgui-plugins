@@ -25,6 +25,7 @@ export interface PluginConfig {
   openIriInNewWindow: boolean;
   tableConfig: DataTables.Settings;
   includeControls: boolean;
+  excludeColumnsFromCompactView: string[];
   uriHrefAdapter?: (uri: string) => string;
   bindingSetAdapter?: (binding: Parser.Binding) => Parser.Binding;
 }
@@ -113,6 +114,7 @@ export class TableX implements Plugin<PluginConfig> {
         },
       },
     },
+    excludeColumnsFromCompactView: [],
     uriHrefAdapter: undefined,
   };
   private getRows(): DataRow[] {
@@ -220,6 +222,7 @@ export class TableX implements Plugin<PluginConfig> {
     if (!this.results) return [];
     const prefixes = this.yasr.getPrefixes();
     return [
+      // this is the special row number column, which is hidden when in "compact mode"
       {
         name: "",
         searchable: false,
@@ -236,6 +239,7 @@ export class TableX implements Plugin<PluginConfig> {
         return <DataTables.ColumnSettings>{
           name: name,
           title: name,
+          visible: (this.persistentConfig.compact)?(this.config.excludeColumnsFromCompactView.indexOf(name) == -1):true,
           render: (
             data: Parser.BindingValue | "",
             type: any,
