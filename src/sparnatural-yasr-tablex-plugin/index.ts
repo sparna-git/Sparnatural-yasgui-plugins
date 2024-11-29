@@ -194,6 +194,8 @@ export class TableX implements Plugin<PluginConfig> {
 
     return `<div>${content}</div>`;
   }
+
+
   private formatLiteral(
     literalBinding: Parser.BindingValue,
     prefixes?: { [key: string]: string }
@@ -242,8 +244,18 @@ export class TableX implements Plugin<PluginConfig> {
           ) => {
             // Handle empty rows
             if (data === "") return data;
-            if (type === "filter" || type === "sort" || !type)
-              return data.value;
+            if (type === "filter" || type === "sort" || !type) {
+              // ***** TableX MODIFICATION
+              // for sorting : sort on label and not on URI
+              if(data.type == "x-labelled-uri") {
+                return data.label;
+              } else {
+                return data.value;
+              }
+              // ***** end TableX MODIFICATION
+              
+            }
+            
             return this.getCellContent(data, prefixes);
           },
         };
