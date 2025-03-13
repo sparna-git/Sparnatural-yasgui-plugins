@@ -165,8 +165,9 @@ export class DisplayBoxHtmlNew {
         } else if (value.label === "" && value.predicates.length > 0) {
           // Si le label est vide mais qu'il y a des prédicats
           //et si les children ont des valeurs on les affiche sinon on affiche juste le label
+
           if (value.predicates.find((v) => v.values.length > 0)) {
-            keyValueElement.innerHTML = `<li>${property.label} :</li>`;
+            //keyValueElement.innerHTML = `<li>${property.label} :</li>`;
           }
           // Ajouter les enfants récursivement
           const childContainer = document.createElement("div");

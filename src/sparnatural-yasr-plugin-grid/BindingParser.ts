@@ -456,7 +456,7 @@ export class BindingParser {
     const propertiesList: Property[] = [];
 
     const objectVariable = branch.line.o;
-
+    
     const value = this.getValueFromBindings(bindingSet, objectVariable);
     const predicatesURI = this.getPredicateURI(query, queryConfig);
     const objectU = this.getObjectUri(query, queryConfig);
