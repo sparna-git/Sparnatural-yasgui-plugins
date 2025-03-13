@@ -267,7 +267,6 @@ export class BindingParser {
       if (property) {
         return property.getLabel() || objectURI;
       }
-
     }
     // default : return objectURI
     return objectURI;
@@ -345,7 +344,7 @@ export class BindingParser {
       }
     } else {
       let predicate = new Propertie("", "", "", "");
-      if (value.type === "literal") {
+      if (value.type === "literal" || value.type === "typed-literal") {
         // Si la valeur est définie, créer la propriété normalement avec la valeur associée
         predicate = new Propertie(
           predicates[objectVariable] ?? "c",
