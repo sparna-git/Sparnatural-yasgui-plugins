@@ -25,6 +25,7 @@ export interface PluginConfig {
   openIriInNewWindow: boolean;
   tableConfig: DataTables.Settings;
   includeControls: boolean;
+  excludeColumnsFromCompactView: string[];
   uriHrefAdapter?: (uri: string) => string;
   bindingSetAdapter?: (binding: Parser.Binding) => Parser.Binding;
 }
@@ -113,6 +114,7 @@ export class TableX implements Plugin<PluginConfig> {
         },
       },
     },
+    excludeColumnsFromCompactView: [],
     uriHrefAdapter: undefined,
   };
   private getRows(): DataRow[] {
@@ -194,6 +196,8 @@ export class TableX implements Plugin<PluginConfig> {
 
     return `<div>${content}</div>`;
   }
+
+
   private formatLiteral(
     literalBinding: Parser.BindingValue,
     prefixes?: { [key: string]: string }
@@ -218,6 +222,7 @@ export class TableX implements Plugin<PluginConfig> {
     if (!this.results) return [];
     const prefixes = this.yasr.getPrefixes();
     return [
+      // this is the special row number column, which is hidden when in "compact mode"
       {
         name: "",
         searchable: false,
@@ -234,6 +239,7 @@ export class TableX implements Plugin<PluginConfig> {
         return <DataTables.ColumnSettings>{
           name: name,
           title: name,
+          visible: (this.persistentConfig.compact)?(this.config.excludeColumnsFromCompactView.indexOf(name) == -1):true,
           render: (
             data: Parser.BindingValue | "",
             type: any,
@@ -242,8 +248,18 @@ export class TableX implements Plugin<PluginConfig> {
           ) => {
             // Handle empty rows
             if (data === "") return data;
-            if (type === "filter" || type === "sort" || !type)
-              return data.value;
+            if (type === "filter" || type === "sort" || !type) {
+              // ***** TableX MODIFICATION
+              // for sorting : sort on label and not on URI
+              if(data.type == "x-labelled-uri") {
+                return data.label;
+              } else {
+                return data.value;
+              }
+              // ***** end TableX MODIFICATION
+              
+            }
+            
             return this.getCellContent(data, prefixes);
           },
         };
