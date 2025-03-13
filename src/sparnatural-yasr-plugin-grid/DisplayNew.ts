@@ -150,7 +150,6 @@ export class DisplayBoxHtmlNew {
             } else {
               keyValueElement.innerHTML = `<li>${property.label} <span class="objet">(${property.valueType.label})</span></li>`;
             }
-
             // Ajouter les enfants récursivement
             const childContainer = document.createElement("div");
             childContainer.className = "child-container";
@@ -167,7 +166,7 @@ export class DisplayBoxHtmlNew {
           //et si les children ont des valeurs on les affiche sinon on affiche juste le label
 
           if (value.predicates.find((v) => v.values.length > 0)) {
-            //keyValueElement.innerHTML = `<li>${property.label} :</li>`;
+            keyValueElement.innerHTML = `<li>${property.label} :</li>`;
           }
           // Ajouter les enfants récursivement
           const childContainer = document.createElement("div");

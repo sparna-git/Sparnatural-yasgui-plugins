@@ -11,9 +11,14 @@
 }
 
 .result-grid {
-  column-count: 3;
-  column-gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(360px, 1fr)
+  ); //This line ensures the grid adapts to the screen size
+  gap: 25px;
   margin-top: 10px;
+  color: black;
 }
 
 .result-count {
@@ -30,11 +35,12 @@
   border: 1px solid #29282861;
   position: relative;
 }
+/**/
 
 .result-box {
   display: inline-block;
   width: 100%;
-  margin: 0 0 15px;
+  //margin: 0 0 15px;
   border-radius: 15px;
   padding: 15px 1px 0 15px;
   background-color: #fff;
@@ -332,22 +338,22 @@
   border-radius: 13px;
   //position: relative;
 }
-
+/*
 .image-container img {
   width: 100%;
   height: auto;
   object-fit: cover;
   border-radius: 10px;
 }
+*/
 
-/*
 .result-box .image-container img {
   width: 100%;
   object-fit: contain;
   //height: max-content;
   border-radius: 10px;
 }
-*/
+
 @media (max-width: 1200px) {
   .result-grid {
     column-count: 2;
