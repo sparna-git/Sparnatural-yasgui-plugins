@@ -473,7 +473,7 @@ export class BindingParser {
     if (
       value?.value !== undefined &&
       value?.label === undefined &&
-      value?.type === "literal"
+      ( value?.type === "literal" || value?.type === "typed-literal" )
     ) {
       valuesArray.push(new PropertyValue(value.value ?? "", "", []));
     }
