@@ -151,10 +151,26 @@ export interface PluginConfig {
   openIriInNewWindow: boolean;
   tableConfig: DataTables.Settings;
   includeControls: boolean;
+  excludeColumnsFromCompactView: string[];
   uriHrefAdapter?: (uri: string) => string;
   bindingSetAdapter?: (binding: Parser.Binding) => Parser.Binding;
   lang?: string;
 }
+```
+
+- `excludeColumnsFromCompactView` takes an array of column names. These column names will be hidden when the table is set to "compact view".
+- `includeControls` controls whether the search, compact view switch and ellipse checkbox are displayed
+
+Here is an example configuration code
+
+```javascript
+      # this is setting the compact view on
+      yasr.plugins["TableX"].persistentConfig.compact = true;
+      yasr.plugins["TableX"].config.includeControls = true;
+      yasr.plugins["TableX"].config.excludeColumnsFromCompactView = [ 
+        "File",
+        "RepresentationType"
+      ]; 
 ```
 
 ##### Grid plugin
