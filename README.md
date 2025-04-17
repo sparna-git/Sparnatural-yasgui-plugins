@@ -11,6 +11,8 @@ This is an adaptation of the original YaSR Table plugin. Its main enhancement is
 
 For every column `?xxx_label`, the plugin will look for a column `?xxx` having a literal property (for example `?Person_1` and `?Person_1_label`), and merge these columns. The merge is done on the SPARQL result set itself, by creating a new kind of result `x-labelled-uri` containing both the URI and its label. Only the `?xxx` column will be shown.
 
+The table also displays dates as localized date for end-users.
+
 Instead of this:
 
 ![](docs/images/tablex-without-plugin.png)
@@ -109,9 +111,11 @@ TODO
 
       if(lang == "fr") { 
         yasr.plugins["Grid"].config.lang = "fr";
+        yasr.plugins["TableX"].config.lang = "fr";
         yasr.plugins["Stats"].config.lang = "fr";
       } else {
         yasr.plugins["Grid"].config.lang = "en";
+        yasr.plugins["TableX"].config.lang = "en";
         yasr.plugins["Stats"].config.lang = "en";
       }
 
@@ -149,6 +153,7 @@ export interface PluginConfig {
   includeControls: boolean;
   uriHrefAdapter?: (uri: string) => string;
   bindingSetAdapter?: (binding: Parser.Binding) => Parser.Binding;
+  lang?: string;
 }
 ```
 

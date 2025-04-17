@@ -28,7 +28,7 @@ export interface PluginConfig {
   excludeColumnsFromCompactView: string[];
   uriHrefAdapter?: (uri: string) => string;
   bindingSetAdapter?: (binding: Parser.Binding) => Parser.Binding;
-  locale?: string;
+  lang?: string;
 }
 
 export interface PersistentConfig {
@@ -117,7 +117,7 @@ export class TableX implements Plugin<PluginConfig> {
     },
     excludeColumnsFromCompactView: [],
     uriHrefAdapter: undefined,
-    locale: "en"
+    lang: "en"
   };
   private getRows(): DataRow[] {
     if (!this.results) return [];
@@ -218,11 +218,11 @@ export class TableX implements Plugin<PluginConfig> {
       ) {
         // format the date according to the locale
         const date = new Date(literalBinding.value);
-        stringRepresentation = date.toLocaleDateString(this.config.locale);
+        stringRepresentation = date.toLocaleDateString(this.config.lang);
       } else if(literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#dateTime") {
         // format the date according to the locale
         const date = new Date(literalBinding.value);
-        stringRepresentation = date.toLocaleString(this.config.locale);
+        stringRepresentation = date.toLocaleString(this.config.lang);
       } else {
         const dataType = this.getUriLinkFromBinding(
           { type: "uri", value: literalBinding.datatype },
