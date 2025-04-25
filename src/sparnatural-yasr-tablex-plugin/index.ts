@@ -223,6 +223,35 @@ export class TableX implements Plugin<PluginConfig> {
         // format the date according to the locale
         const date = new Date(literalBinding.value);
         stringRepresentation = date.toLocaleString(this.config.lang);
+      } else if(
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#integer"
+        || literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#int"
+        || literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#long"
+        || literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#float"
+        || literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#double"
+      ) {
+        stringRepresentation = literalBinding.value;
+      } else if(
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#boolean"
+      ) {
+        let translations = {
+          "en": {
+            "true": "True",
+            "false": "False"
+          },
+          "fr": {
+            "true": "Vrai",
+            "false": "Faux"
+          },
+          "de": { 
+            "true": "Wahr",
+            "false": "Falsch"
+          }
+        }
+        stringRepresentation = ((this.config.lang && translations[this.config.lang]) || translations["en"])[literalBinding.value];
+        if(stringRepresentation == undefined) {
+          stringRepresentation = literalBinding.value;
+        }
       } else {
         const dataType = this.getUriLinkFromBinding(
           { type: "uri", value: literalBinding.datatype },
