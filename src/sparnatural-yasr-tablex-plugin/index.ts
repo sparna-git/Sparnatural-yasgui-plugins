@@ -223,6 +223,8 @@ export class TableX implements Plugin<PluginConfig> {
         // format the date according to the locale
         const date = new Date(literalBinding.value);
         stringRepresentation = date.toLocaleString(this.config.lang);
+      } else if(literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#gYear") {
+        stringRepresentation = literalBinding.value;
       } else if(
         literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#integer"
         || literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#int"
