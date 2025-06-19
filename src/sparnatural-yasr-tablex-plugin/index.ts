@@ -254,6 +254,10 @@ export class TableX implements Plugin<PluginConfig> {
         if(stringRepresentation == undefined) {
           stringRepresentation = literalBinding.value;
         }
+      } else if(
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#string"
+      ) {
+        stringRepresentation = literalBinding.value;
       } else {
         const dataType = this.getUriLinkFromBinding(
           { type: "uri", value: literalBinding.datatype },
