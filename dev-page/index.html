@@ -53,7 +53,7 @@ LIMIT 1000
               src="configs/sparnatural-config-dbpedia.ttl"
               lang="en"
               defaultLang="en"
-              endpoint="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql"
+              endpoint="https://services.sparnatural.eu/api/v1/dbpedia-en/sparql"
               distinct="true"
               limit="300"
               debug="true"              
@@ -62,7 +62,7 @@ LIMIT 1000
           <input type="hidden" id="query-json" />
 
         <span style="font-size:90%;"> 
-          Queries sent to <a id="endpoint" href="https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql">https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Ffr.dbpedia.org%2Fsparql</a>
+          Queries sent to <a id="endpoint" href="https://services.sparnatural.eu/api/v1/dbpedia-en/sparql">https://services.sparnatural.eu/api/v1/dbpedia-en/sparql</a>
          </span>
 
          <div id="yasqe"></div>
