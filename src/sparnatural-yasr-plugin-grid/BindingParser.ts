@@ -158,20 +158,22 @@ export class BindingParser {
     const line = branch.line;
 
     // Ajouter le prédicat pour la propriété `o` de la branche
-    if (line.o) {
+    if (line && line.o) {
       //recuperer le libelle du prédicat en utilisant la methode getLabelpre
       const predicateLabel = this.getLabelpre(line.p, queryConfiguration);
       predicates[line.o] = predicateLabel;
     }
 
     // Ajouter également le sujet si nécessaire (cette partie est optionnelle)
-    if (!(line.s in predicates)) {
+    if (line && line.s && !(line.s in predicates)) {
       predicates[line.s] = "";
     }
 
     // Parcourir les enfants de la branche recursivement
-    for (const child of branch.children) {
-      this.searchInBranch(child, predicates, queryConfiguration, query);
+    if (branch.children && branch.children.length > 0) {
+      for (const child of branch.children) {
+        this.searchInBranch(child, predicates, queryConfiguration, query);
+      }
     }
   }
 
@@ -221,18 +223,20 @@ export class BindingParser {
     // Ajouter le prédicat pour la propriété `o` de la branche
     // Ajouter une condition pour vérifier si le predicates[line.o] est présent dans les variables de la query
     // Si oui, on récupère l'URI du prédicat
-    if (line.o) {
+    if (line && line.o) {
       predicates[line.o] = line.p;
     }
 
     // Ajouter également le sujet si nécessaire
-    if (!(line.s in predicates)) {
+    if (line && line.s && !(line.s in predicates)) {
       predicates[line.s] = "";
     }
 
     // Parcourir les enfants de la branche
-    for (const child of branch.children) {
-      this.searchInBranchURI(child, predicates, queryConfiguration, query);
+    if (branch.children && branch.children.length > 0) {
+      for (const child of branch.children) {
+        this.searchInBranchURI(child, predicates, queryConfiguration, query);
+      }
     }
   }
 
@@ -262,7 +266,11 @@ export class BindingParser {
     const line = branch.line;
 
     // Ajouter l'objet pour la propriété `o` de la branche
-    if (query.variables.find((variable: any) => variable.value === line.o)) {
+    if (
+      line &&
+      line.o &&
+      query.variables.find((variable: any) => variable.value === line.o)
+    ) {
       const objectTypeLabel = this.getEntityLabel(
         line.oType,
         queryConfiguration
@@ -270,7 +278,7 @@ export class BindingParser {
       objects[line.o] = objectTypeLabel;
     }
     // Ajouter également le sujet si nécessaire
-    if (!(line.s in objects)) {
+    if (line && line.s && !(line.s in objects)) {
       const subjectTypeLabel = this.getEntityLabel(
         line.sType,
         queryConfiguration
@@ -278,8 +286,10 @@ export class BindingParser {
       objects[line.s] = subjectTypeLabel;
     }
     // Parcourir les enfants de la branche recursivement
-    for (const child of branch.children) {
-      this.searchObjectInBranch(child, objects, queryConfiguration, query);
+    if (branch.children && branch.children.length > 0) {
+      for (const child of branch.children) {
+        this.searchObjectInBranch(child, objects, queryConfiguration, query);
+      }
     }
   }
 
@@ -330,17 +340,23 @@ export class BindingParser {
     const line = branch.line;
 
     // Ajouter l'objet pour la propriété `o` de la branche
-    if (query.variables.find((variable: any) => variable.value === line.o)) {
+    if (
+      line &&
+      line.o &&
+      query.variables.find((variable: any) => variable.value === line.o)
+    ) {
       objects[line.o] = line.oType;
     }
     // Ajouter également le sujet si nécessaire
-    if (!(line.s in objects)) {
+    if (line && line.s && !(line.s in objects)) {
       objects[line.s] = line.sType;
     }
 
     // Parcourir les enfants de la branche recursivement
-    for (const child of branch.children) {
-      this.searchObjectInBranchURI(child, objects, queryConfiguration, query);
+    if (branch.children && branch.children.length > 0) {
+      for (const child of branch.children) {
+        this.searchObjectInBranchURI(child, objects, queryConfiguration, query);
+      }
     }
   }
 
@@ -455,6 +471,11 @@ export class BindingParser {
   ): Property[] {
     const propertiesList: Property[] = [];
 
+    // Add null check for branch.line
+    if (!branch || !branch.line) {
+      return propertiesList;
+    }
+
     const objectVariable = branch.line.o;
 
     const value = this.getValueFromBindings(bindingSet, objectVariable);
@@ -473,7 +494,7 @@ export class BindingParser {
     if (
       value?.value !== undefined &&
       value?.label === undefined &&
-      ( value?.type === "literal" || value?.type === "typed-literal" )
+      (value?.type === "literal" || value?.type === "typed-literal")
     ) {
       valuesArray.push(new PropertyValue(value.value ?? "", "", []));
     }
@@ -592,7 +613,7 @@ export class BindingParser {
     branches: Array<any>
   ): string | undefined {
     for (const branch of branches) {
-      if (branch.line && branch.line.sType) {
+      if (branch && branch.line && branch.line.sType) {
         return branch.line.sType;
       }
     }
