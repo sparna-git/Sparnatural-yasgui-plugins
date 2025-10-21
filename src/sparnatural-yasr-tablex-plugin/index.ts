@@ -17,6 +17,7 @@ import * as faTableIcon from "@fortawesome/free-solid-svg-icons/faTable";
 import { DeepReadonly } from "ts-essentials";
 import Parser from "../parsers";
 import { TableXResults } from "../TableXResults";
+import * as XLSX from "xlsx";
 
 const ColumnResizer = require("column-resizer");
 const DEFAULT_PAGE_SIZE = 50;
@@ -117,11 +118,14 @@ export class TableX implements Plugin<PluginConfig> {
     },
     excludeColumnsFromCompactView: [],
     uriHrefAdapter: undefined,
-    lang: "en"
+    lang: "en",
   };
+
   private getRows(): DataRow[] {
     if (!this.results) return [];
     const bindings = this.results.getBindings();
+    console.log("bindings :", bindings);
+    console.log("yasr :", this.yasr.results);
     if (!bindings) return [];
     // Vars decide the columns
     const vars = this.results.getVariables();
@@ -199,7 +203,6 @@ export class TableX implements Plugin<PluginConfig> {
     return `<div>${content}</div>`;
   }
 
-
   private formatLiteral(
     literalBinding: Parser.BindingValue,
     prefixes?: { [key: string]: string }
@@ -213,48 +216,52 @@ export class TableX implements Plugin<PluginConfig> {
     } else if (literalBinding.datatype) {
       // ***** TableX MODIFICATION
 
-      if(
-        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#date"
-      ) {
+      if (literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#date") {
         // format the date according to the locale
         const date = new Date(literalBinding.value);
         stringRepresentation = date.toLocaleDateString(this.config.lang);
-      } else if(literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#dateTime") {
+      } else if (
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#dateTime"
+      ) {
         // format the date according to the locale
         const date = new Date(literalBinding.value);
         stringRepresentation = date.toLocaleString(this.config.lang);
-      } else if(literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#gYear") {
-        stringRepresentation = literalBinding.value;
-      } else if(
-        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#integer"
-        || literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#int"
-        || literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#long"
-        || literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#float"
-        || literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#double"
+      } else if (
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#gYear"
       ) {
         stringRepresentation = literalBinding.value;
-      } else if(
+      } else if (
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#integer" ||
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#int" ||
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#long" ||
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#float" ||
+        literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#double"
+      ) {
+        stringRepresentation = literalBinding.value;
+      } else if (
         literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#boolean"
       ) {
         let translations = {
-          "en": {
-            "true": "True",
-            "false": "False"
+          en: {
+            true: "True",
+            false: "False",
           },
-          "fr": {
-            "true": "Vrai",
-            "false": "Faux"
+          fr: {
+            true: "Vrai",
+            false: "Faux",
           },
-          "de": { 
-            "true": "Wahr",
-            "false": "Falsch"
-          }
-        }
-        stringRepresentation = ((this.config.lang && translations[this.config.lang]) || translations["en"])[literalBinding.value];
-        if(stringRepresentation == undefined) {
+          de: {
+            true: "Wahr",
+            false: "Falsch",
+          },
+        };
+        stringRepresentation = ((this.config.lang &&
+          translations[this.config.lang]) ||
+          translations["en"])[literalBinding.value];
+        if (stringRepresentation == undefined) {
           stringRepresentation = literalBinding.value;
         }
-      } else if(
+      } else if (
         literalBinding.datatype == "http://www.w3.org/2001/XMLSchema#string"
       ) {
         stringRepresentation = literalBinding.value;
@@ -265,8 +272,6 @@ export class TableX implements Plugin<PluginConfig> {
         );
         stringRepresentation = `"${stringRepresentation}"<sup>^^${dataType}</sup>`;
       }
-
-      
 
       // ***** end TableX MODIFICATION
     }
@@ -294,7 +299,9 @@ export class TableX implements Plugin<PluginConfig> {
         return <DataTables.ColumnSettings>{
           name: name,
           title: name,
-          visible: (this.persistentConfig.compact)?(this.config.excludeColumnsFromCompactView.indexOf(name) == -1):true,
+          visible: this.persistentConfig.compact
+            ? this.config.excludeColumnsFromCompactView.indexOf(name) == -1
+            : true,
           render: (
             data: Parser.BindingValue | "",
             type: any,
@@ -306,15 +313,14 @@ export class TableX implements Plugin<PluginConfig> {
             if (type === "filter" || type === "sort" || !type) {
               // ***** TableX MODIFICATION
               // for sorting : sort on label and not on URI
-              if(data.type == "x-labelled-uri") {
+              if (data.type == "x-labelled-uri") {
                 return data.label;
               } else {
                 return data.value;
               }
               // ***** end TableX MODIFICATION
-              
             }
-            
+
             return this.getCellContent(data, prefixes);
           },
         };
@@ -560,13 +566,191 @@ export class TableX implements Plugin<PluginConfig> {
     this.tableControls.appendChild(pageSizerWrapper);
     this.yasr.pluginControls.appendChild(this.tableControls);
   }
-  download(filename?: string) {
+
+  // download method to provide custom download functionality
+  download(filename?: string): DownloadInfo | undefined {
+    // Setup the download handler on the download button
+    this._setupDownloadHandler();
+
     return {
       getData: () => this.yasr.results?.asCsv() || "",
       contentType: "text/csv",
       title: "Download result",
       filename: `${filename || "queryResults"}.csv`,
     } as DownloadInfo;
+  }
+
+  private _downloadHandlerSetup = false;
+
+  // Méthode pour configurer le gestionnaire de clic sur le bouton de téléchargement
+  private _setupDownloadHandler() {
+    if (this._downloadHandlerSetup) return;
+
+    setTimeout(() => {
+      const downloadBtn = document.querySelector(".yasr_downloadIcon");
+      if (!downloadBtn) return;
+
+      const newBtn = downloadBtn.cloneNode(true) as HTMLElement;
+      downloadBtn.parentNode?.replaceChild(newBtn, downloadBtn);
+
+      newBtn.classList.add("download-enabled");
+      newBtn.title = "Télécharger les résultats";
+
+      newBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this._showFormatMenu(newBtn);
+      });
+
+      this._downloadHandlerSetup = true;
+    }, 100);
+  }
+
+  // Menu de choix du format de téléchargement
+  private _showFormatMenu(button: HTMLElement) {
+    // Supprimer un ancien menu s'il existe
+    document.querySelector(".format-menu")?.remove();
+
+    const menu = document.createElement("div");
+    menu.className = "format-menu";
+    menu.style.cssText = `
+    position: fixed;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    padding: 5px 0;
+    border-radius: 4px;
+    z-index: 10000;
+  `;
+
+    const formats = [
+      { label: "CSV", format: "csv" },
+      { label: "XLSX", format: "xlsx" },
+      { label: "ODS", format: "ods" },
+    ];
+
+    // Construire les éléments du menu
+    formats.forEach((item) => {
+      const option = document.createElement("div");
+      option.textContent = item.label;
+      option.style.cssText = `
+      padding: 6px 15px;
+      cursor: pointer;
+      white-space: nowrap;
+    `;
+      option.addEventListener(
+        "mouseover",
+        () => (option.style.background = "#f0f0f0")
+      );
+      option.addEventListener(
+        "mouseout",
+        () => (option.style.background = "transparent")
+      );
+      option.addEventListener("click", (e) => {
+        e.stopPropagation();
+        cleanup();
+        this._downloadData(item.format as "csv" | "xlsx" | "ods");
+      });
+      menu.appendChild(option);
+    });
+
+    document.body.appendChild(menu);
+
+    // Position initiale sous le bouton
+    const rect = button.getBoundingClientRect();
+    menu.style.top = `${rect.bottom + 6}px`;
+    menu.style.left = `${rect.left}px`;
+
+    // Ajustement si le menu dépasse l'écran
+    const menuRect = menu.getBoundingClientRect();
+    const overflowRight = menuRect.right - window.innerWidth;
+    const overflowLeft = menuRect.left;
+
+    if (overflowRight > 0) {
+      const adjustedLeft = rect.left - overflowRight - 10; // marge 10px
+      menu.style.left = `${Math.max(10, adjustedLeft)}px`;
+    } else if (overflowLeft < 0) {
+      menu.style.left = `10px`;
+    }
+
+    // Fonction interne pour tout nettoyer
+    const cleanup = () => {
+      menu.remove();
+      document.removeEventListener("click", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll);
+    };
+
+    // Fermer si clic en dehors
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!menu.contains(e.target as Node) && e.target !== button) cleanup();
+    };
+    document.addEventListener("click", handleClickOutside);
+
+    // Fermer au premier scroll
+    const handleScroll = () => cleanup();
+    window.addEventListener("scroll", handleScroll, { once: true });
+  }
+
+  // Télécharge le fichier dans le format choisi
+  private _downloadData(format: "csv" | "xlsx" | "ods" = "xlsx") {
+    if (!this.results) {
+      alert("Aucun résultat à exporter.");
+      return;
+    }
+
+    const filename = "queryResults";
+    const workbook = this._createWorkbook();
+
+    // Conversion via SheetJS
+    const wbout = XLSX.write(workbook, { bookType: format, type: "array" });
+    const blob = new Blob([wbout]);
+    const url = URL.createObjectURL(blob);
+
+    // Lancer le téléchargement
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${filename}.${format}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+  }
+
+  // Génère le classeur Excel a partir Yasr
+  private _createWorkbook(): XLSX.WorkBook {
+    const workbook = XLSX.utils.book_new();
+
+    // Récupération des résultats YASR
+    const yasrResults = this.yasr.results;
+    if (!yasrResults) return workbook;
+
+    // Récupération des colonnes et lignes via les méthodes publiques du Parser
+    const vars = yasrResults.getVariables() || [];
+    const bindings = yasrResults.getBindings() || [];
+
+    // Préparation du tableau pour SheetJS
+    const data: any[][] = [vars];
+
+    bindings.forEach((binding: any) => {
+      const row: any[] = [];
+      vars.forEach((variable: string) => {
+        const cell = binding[variable];
+        if (!cell) {
+          row.push("");
+        } else {
+          // On prend value
+          row.push(cell.value || "");
+        }
+      });
+
+      data.push(row);
+    });
+
+    // Génération de la feuille Excel
+    const sheet = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, sheet, "Results");
+
+    return workbook;
   }
 
   public canHandleResults() {
@@ -601,6 +785,7 @@ export class TableX implements Plugin<PluginConfig> {
       this.tableControls.firstChild.remove();
     this.tableControls?.remove();
   }
+
   private destroyResizer() {
     if (this.tableResizer) {
       this.tableResizer.reset({ disable: true });
@@ -608,6 +793,7 @@ export class TableX implements Plugin<PluginConfig> {
       this.tableResizer = undefined;
     }
   }
+
   destroy() {
     this.removeControls();
     this.destroyResizer();
