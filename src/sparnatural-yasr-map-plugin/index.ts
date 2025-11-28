@@ -292,7 +292,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
       } else {
         for (
           let index = 0;
-          index < (query as Branch).children.length;
+          index < (query as Branch).children?.length;
           index++
         ) {
           const branch = (query as Branch).children[index];
