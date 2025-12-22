@@ -158,8 +158,10 @@ export interface PluginConfig {
 }
 ```
 
-- `excludeColumnsFromCompactView` takes an array of column names. These column names will be hidden when the table is set to "compact view".
 - `includeControls` controls whether the search, compact view switch and ellipse checkbox are displayed
+- `excludeColumnsFromCompactView` takes an array of column names. These column names will be hidden when the table is set to "compact view".
+- `uriHarefAdapter` takes a function that allows to rewrite the URI before they are inserted as link targets in the table. This allows to build links to something else than the actual URI.
+- `bindingSetAdapter` is a function that allows to pre-process an entire line in the result
 
 Here is an example configuration code
 
@@ -170,7 +172,14 @@ Here is an example configuration code
       yasr.plugins["TableX"].config.excludeColumnsFromCompactView = [ 
         "File",
         "RepresentationType"
-      ]; 
+      ];
+      yasr.plugins["TableX"].config.uriHrefAdapter = function(uri) {
+        if(uri.startsWith("http://data.archives-nationales.culture.gouv.fr/")) {
+          return "https://rdf.archives-nationales.culture.gouv.fr/lodview/" + uri.substring("http://data.archives-nationales.culture.gouv.fr/".length);
+        } else {
+          return uri;
+        }
+      };
 ```
 
 ##### Grid plugin
