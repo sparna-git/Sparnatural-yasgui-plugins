@@ -6,7 +6,7 @@ import {
   removeClass,
 } from "..";
 import { Yasr } from "..";
-import { ISparJson } from "../ISparJson";
+import { SparnaturalQuery } from "../SparnaturalQueryIfc-v13";
 
 interface PersistentConfig {}
 
@@ -65,7 +65,7 @@ export class MyTestPlugin implements SparnaturalPlugin<PluginConfig> {
    *
    * @param sparnaturalQuery
    */
-  public notifyQuery(sparnaturalQuery: ISparJson) {
+  public notifyQuery(sparnaturalQuery: SparnaturalQuery) {
     console.log("received query");
     console.log(sparnaturalQuery);
   }

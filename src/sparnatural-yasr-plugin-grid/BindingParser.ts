@@ -15,7 +15,7 @@ export class BindingParser {
   //cette methode devra prendre le premier sujet dans la requete comme titre principal
   private identifyMainTitleColumn(
     query: any,
-    bindings: Parser.Binding[]
+    bindings: Parser.Binding[],
   ): string | undefined {
     // Vérifier si la requête est disponible et si elle contient des variables
     if (!query || !query.variables || query.variables.length === 0) {
@@ -30,7 +30,7 @@ export class BindingParser {
     // Vérifier si la première branche a un sujet
     if (!query.branches[0].line || !query.branches[0].line.s) {
       console.error(
-        "Aucun sujet trouvé dans la première branche de la requête."
+        "Aucun sujet trouvé dans la première branche de la requête.",
       );
       return undefined;
     }
@@ -43,7 +43,7 @@ export class BindingParser {
   //methode qui va permettre de recuperer le couple titre principal et l'uri
   private extractMainTitleAndURI(
     bindingSet: Parser.Binding,
-    principalColumnTitle: any
+    principalColumnTitle: any,
   ): {
     title: string;
     uri: string;
@@ -65,7 +65,7 @@ export class BindingParser {
   // Méthode pour identifier la colonne de l'image principale
   private identifyPrincipalImageColumn(
     query: any,
-    bindings: Parser.Binding[]
+    bindings: Parser.Binding[],
   ): string | undefined {
     if (query && query.branches && query.branches.length > 0) {
       // Parcourir chaque branche de premier niveau de la requête
@@ -89,7 +89,7 @@ export class BindingParser {
   // Méthode pour vérifier si une colonne a des valeurs qui sont des URI d'image
   private columnHasImageValues(
     column: string,
-    bindings: Parser.Binding[]
+    bindings: Parser.Binding[],
   ): boolean {
     // Parcourir les bindings
     for (const bindingSet of bindings.slice(0, 10)) {
@@ -117,7 +117,7 @@ export class BindingParser {
   //methode appelée dans la methode extractResultData
   private extractMainImageURI(
     bindingSet: Parser.Binding,
-    principalColumnImage: any
+    principalColumnImage: any,
   ): string | undefined {
     let value = { value: "" };
     if (principalColumnImage && bindingSet) {
@@ -135,7 +135,7 @@ export class BindingParser {
   // Méthode pour récupérer le label des prédicats en utilisant les branches de la query
   private getPredicate(
     query: ISparJson,
-    queryConfiguration: any
+    queryConfiguration: any,
   ): Record<string, string> {
     // Initialiser un objet pour stocker les prédicats et les types d'objets
     const predicates: Record<string, string> = {};
@@ -153,7 +153,7 @@ export class BindingParser {
     branch: any,
     predicates: Record<string, string>,
     queryConfiguration: any,
-    query: any
+    query: any,
   ): void {
     const line = branch.line;
 
@@ -198,7 +198,7 @@ export class BindingParser {
   // Méthode pour récupérer les prédicats URIs en utilisant les branches de la query
   private getPredicateURI(
     query: ISparJson,
-    queryConfiguration: any
+    queryConfiguration: any,
   ): Record<string, string> {
     // Initialiser un objet pour stocker les prédicats et les types d'objets
     const predicates: Record<string, string> = {};
@@ -215,7 +215,7 @@ export class BindingParser {
     branch: any,
     predicates: Record<string, string>,
     queryConfiguration: any,
-    query: any
+    query: any,
   ): void {
     const line = branch.line;
     // Ajouter le prédicat pour la propriété `o` de la branche
@@ -240,7 +240,7 @@ export class BindingParser {
   // Méthode pour récupérer le label des objets en utilisant les branches de la query
   private getObject(
     query: ISparJson,
-    queryConfiguration: any
+    queryConfiguration: any,
   ): Record<string, string> {
     // Initialiser un objet pour stocker les objets et leurs types
     const objects: Record<string, string> = {};
@@ -257,7 +257,7 @@ export class BindingParser {
     branch: any,
     objects: Record<string, string>,
     queryConfiguration: any,
-    query: any
+    query: any,
   ): void {
     const line = branch.line;
 
@@ -265,7 +265,7 @@ export class BindingParser {
     if (query.variables.find((variable: any) => variable.value === line.o)) {
       const objectTypeLabel = this.getEntityLabel(
         line.oType,
-        queryConfiguration
+        queryConfiguration,
       );
       objects[line.o] = objectTypeLabel;
     }
@@ -273,7 +273,7 @@ export class BindingParser {
     if (!(line.s in objects)) {
       const subjectTypeLabel = this.getEntityLabel(
         line.sType,
-        queryConfiguration
+        queryConfiguration,
       );
       objects[line.s] = subjectTypeLabel;
     }
@@ -306,7 +306,7 @@ export class BindingParser {
   // Méthode pour récupérer les objets en utilisant les branches de la query
   private getObjectUri(
     query: ISparJson,
-    queryConfiguration: any
+    queryConfiguration: any,
   ): Record<string, string> {
     // Initialiser un objet pour stocker les objets et leurs types
     const objects: Record<string, string> = {};
@@ -325,7 +325,7 @@ export class BindingParser {
     branch: any,
     objects: Record<string, string>,
     queryConfiguration: any,
-    query: any
+    query: any,
   ): void {
     const line = branch.line;
 
@@ -352,7 +352,7 @@ export class BindingParser {
     queryConfig: any,
     bindingSet: Parser.Binding[],
     predicates: Record<string, string>,
-    objects: Record<string, string>
+    objects: Record<string, string>,
   ): Property[] {
     const propertiesList: Property[] = [];
 
@@ -364,14 +364,14 @@ export class BindingParser {
         query,
         queryConfig,
         predicates,
-        objects
+        objects,
       );
       propertiesList.push(...properties); // Ajouter les propriétés à propertiesList
     }
 
     // Récupérer l'ordre des variables à partir de query.variables
     const variableOrder = query.variables.map(
-      (variable: any) => variable.value
+      (variable: any) => variable.value,
     );
     //const variableOR = variableOrder.slice(1);
 
@@ -381,7 +381,7 @@ export class BindingParser {
     //appeler la methode ordredpropertiesListfun pour ordonner les propriétés en fonction de l'ordre de la configuration
     ordredpropertiesList = this.ordredpropertiesListfun(
       variableOrder,
-      propertiesList
+      propertiesList,
     );
 
     return ordredpropertiesList; // Retourner la liste ordonnée des propriétés
@@ -391,7 +391,7 @@ export class BindingParser {
   //methode qui va permettre de trier les propriétés en fonction de l'ordre de la configuration de la requête
   private ordredpropertiesListfun(
     variableOrder: any,
-    propertiesList: Property[]
+    propertiesList: Property[],
   ): Property[] {
     // Séparer les propriétés en deux listes : celles qui sont dans variableOrder et celles qui ne le sont pas
     const inOrderProperties: Property[] = [];
@@ -406,8 +406,8 @@ export class BindingParser {
       }
     }
     // Trier les propriétés qui sont dans variableOrder
-    //une fois les propriétés scindées on va les trier en fonction de l'ordre de variableOrder
-    //au retour on aura sortedInOrderProperties qui contient les propriétés triées en fonction de l'ordre de variableOrder
+    // une fois les propriétés scindées on va les trier en fonction de l'ordre de variableOrder
+    // au retour on aura sortedInOrderProperties qui contient les propriétés triées en fonction de l'ordre de variableOrder
     const sortedInOrderProperties = inOrderProperties.sort((a, b) => {
       const aIndex = variableOrder.indexOf(a.column);
       const bIndex = variableOrder.indexOf(b.column);
@@ -421,7 +421,7 @@ export class BindingParser {
         if (value.predicates.length > 0) {
           value.predicates = this.ordredpropertiesListfun(
             variableOrder,
-            value.predicates
+            value.predicates,
           );
         }
       }
@@ -433,7 +433,7 @@ export class BindingParser {
         if (value.predicates.length > 0) {
           value.predicates = this.ordredpropertiesListfun(
             variableOrder,
-            value.predicates
+            value.predicates,
           );
         }
       }
@@ -451,7 +451,7 @@ export class BindingParser {
     query: ISparJson,
     queryConfig: any,
     predicates: Record<string, string>,
-    objects: Record<string, string>
+    objects: Record<string, string>,
   ): Property[] {
     const propertiesList: Property[] = [];
 
@@ -468,21 +468,21 @@ export class BindingParser {
       value?.type === "x-labelled-uri"
     ) {
       // Ajouter la valeur à valuesArray
-      valuesArray.push(new PropertyValue(value.label ?? "", value.value, []));
+      //valuesArray.push(new PropertyValue(value.label ?? "", value.value, []));
     }
     if (
       value?.value !== undefined &&
       value?.label === undefined &&
       value?.type === "literal"
     ) {
-      valuesArray.push(new PropertyValue(value.value ?? "", "", []));
+      //valuesArray.push(new PropertyValue(value.value ?? "", "", []));
     }
     if (
       value?.type === "uri" &&
       value?.value !== undefined &&
       !this.isImageURI(value.value)
     ) {
-      valuesArray.push(new PropertyValue(value.value, value.value, []));
+      //valuesArray.push(new PropertyValue(value.value, value.value, []));
     }
 
     let predicate = new Property(
@@ -490,7 +490,7 @@ export class BindingParser {
       valuesArray,
       new ValueType("", ""),
       "",
-      objectVariable
+      objectVariable,
     );
 
     // Skip the property if value type is "ImageUri"
@@ -500,7 +500,7 @@ export class BindingParser {
         valuesArray,
         new ValueType(objectU[objectVariable], objects[objectVariable]),
         predicatesURI[objectVariable] ?? "",
-        objectVariable
+        objectVariable,
       );
     }
 
@@ -512,18 +512,18 @@ export class BindingParser {
           query,
           queryConfig,
           predicates,
-          objects
-        )
+          objects,
+        ),
       );
       // Ajouter les propriétés enfants en tant que prédicats dans les PropertyValue de la propriété courante
       //faut verifier si la valeur est indefinie ou non
       if (value === undefined) {
         // Si la valeur est indéfinie, ajouter directement les enfants comme valeurs
-        const valueWithChildren = new PropertyValue("", "", []);
+        //const valueWithChildren = new PropertyValue("", "", []);
         for (const childProp of childrenProperties) {
-          valueWithChildren.addPredicate(childProp);
+          //valueWithChildren.addPredicate(childProp);
         }
-        predicate.addValue(valueWithChildren);
+        //predicate.addValue(valueWithChildren);
       } else {
         // Si la valeur est définie, ajouter les enfants comme prédicats des PropertyValue
         for (const val of predicate.values) {
@@ -561,14 +561,14 @@ export class BindingParser {
         (value) =>
           (value.label && newValue.label && value.label === newValue.label) ||
           (value.uri && newValue.uri && value.uri === newValue.uri) ||
-          value.id === newValue.id
+          value.id === newValue.id,
       );
 
       if (existingValue) {
         // If a matching value is found, merge the predicates and children recursively
         for (const predicate of newValue.predicates) {
           const existingPredicate = existingValue.predicates.find(
-            (p) => p.uri === predicate.uri
+            (p) => p.uri === predicate.uri,
           );
 
           if (existingPredicate) {
@@ -589,7 +589,7 @@ export class BindingParser {
   //OK
   // cette methode permet d'extraire l'uri du type de document à partir de la query
   public extractDocumentTypeURIFromQuery(
-    branches: Array<any>
+    branches: Array<any>,
   ): string | undefined {
     for (const branch of branches) {
       if (branch.line && branch.line.sType) {
@@ -603,7 +603,7 @@ export class BindingParser {
   // cette methode permet de recuperer le libéllé du type de document en utilisant son uri
   public getDocumentTypeLabel(
     documentTypeURI: string,
-    queryConfiguration: any
+    queryConfiguration: any,
   ): string {
     if (
       queryConfiguration &&
@@ -628,7 +628,7 @@ export class BindingParser {
    */
   public getDocumentTypeIconClass(
     documentTypeURI: string,
-    queryConfiguration: any
+    queryConfiguration: any,
   ): string | undefined {
     if (
       queryConfiguration &&
@@ -651,7 +651,7 @@ export class BindingParser {
   public extractResultData(
     bindings: Parser.Binding[],
     query: ISparJson,
-    queryConfig: any
+    queryConfig: any,
   ): ResultBoxM[] {
     // Initialiser un tableau pour stocker les ResultBoxM
     const resultBoxes: ResultBoxM[] = [];
@@ -664,7 +664,7 @@ export class BindingParser {
 
     //recuperer l'URI du type de document
     const documentTypeURI = this.extractDocumentTypeURIFromQuery(
-      query.branches
+      query.branches,
     );
     //recuperer le libéllé du type de document
     const documentTypeLabel = documentTypeURI
@@ -673,13 +673,13 @@ export class BindingParser {
     //recuperer l'icone du type de document
     const documentTypeIcon = this.getDocumentTypeIconClass(
       documentTypeURI ?? "",
-      queryConfig
+      queryConfig,
     );
     //creer un objet ResultBoxType "type de la boite de resultat"
     const type = new ResultBoxType(
       documentTypeURI ?? "",
       documentTypeLabel,
-      documentTypeIcon ?? ""
+      documentTypeIcon ?? "",
     );
 
     //search for the principal title column
@@ -687,7 +687,7 @@ export class BindingParser {
     //search for the principal image column
     const principalColumnImage = this.identifyPrincipalImageColumn(
       query,
-      bindings
+      bindings,
     );
     //get the predicates columns {o: p.label}
     const predicatesColumnLabel = this.getPredicate(query, queryConfig);
@@ -702,7 +702,7 @@ export class BindingParser {
       //extraire le titre principal et l'uri
       const { title, uri } = this.extractMainTitleAndURI(
         bindingSet,
-        principalColumnTitle
+        principalColumnTitle,
       );
 
       //extraire les prédicats
@@ -711,12 +711,12 @@ export class BindingParser {
         queryConfig,
         [bindingSet],
         predicatesColumnLabel,
-        objectsColumnLabel
+        objectsColumnLabel,
       );
       //extraire l'uri de l'image principale
       const imageURI = this.extractMainImageURI(
         bindingSet,
-        principalColumnImage
+        principalColumnImage,
       );
 
       //merger les resultats par titre "Merged solution"
@@ -724,7 +724,7 @@ export class BindingParser {
         const existingBox = titleMap[uri];
         for (const predicate of predicates) {
           const existingPredicate = existingBox.predicates.find(
-            (p) => p.uri === predicate.uri
+            (p) => p.uri === predicate.uri,
           );
           if (existingPredicate) {
             this.mergeProperties(existingPredicate, predicate);
@@ -743,7 +743,7 @@ export class BindingParser {
             title,
             uri,
             imageURI ?? "",
-            predicates
+            predicates,
           );
           //maper le resultBox par titre "Merged solution"
           titleMap[uri] = resultBox;

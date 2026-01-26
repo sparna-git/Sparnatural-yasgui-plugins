@@ -49,8 +49,8 @@ It then doesn't init the map.pm attribute. (stays undefined) and when it tries t
 // import customIcon from 'leaflet/dist/images/marker-icon.png';
 // import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import Parser from "../parsers";
-import { Branch, ISparJson } from "../ISparJson";
 import { TableXResults } from "../TableXResults";
+import { SparnaturalQuery } from "../SparnaturalQueryIfc-v13";
 
 /*
     Currently this plugin supports only the wktLiteral parsing.
@@ -117,7 +117,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
   options?: PluginConfig;
   haveResultWithoutGeo: number = 0;
   bounds: any; // Instantiate LatLngBounds object
-  sparnaturalQuery: ISparJson | null = null;
+  sparnaturalQuery: SparnaturalQuery | null = null;
   specProvider: any;
   layerGroupsLabels: Array<any> = [];
 
@@ -218,7 +218,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
 
   private static getLatitudeColumn(
     tableXResults: TableXResults,
-    query: ISparJson
+    query: SparnaturalQuery
   ): string | undefined {
     if (!query) return;
     // analyze the predicate of each column
@@ -239,7 +239,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
 
   private static getLongitudeColumn(
     tableXResults: TableXResults,
-    query: ISparJson
+    query: SparnaturalQuery
   ): string | undefined {
     if (!query) return;
     // analyze the predicate of each column
@@ -260,47 +260,35 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
   }
 
   private static getVariablePredicateRec(
-    query: ISparJson | Branch,
+    query: SparnaturalQuery,
     varName: string
   ): string | undefined {
-    let branchWithVar: Branch | undefined = MapPlugin.findBranchWithObjectVar(
-      query,
+    return MapPlugin.searchPredicateInPairs(
+      query.where.predicateObjectPairs,
       varName
     );
-    if (branchWithVar) {
-      return branchWithVar.line.p;
-    }
   }
 
-  private static findBranchWithObjectVar(
-    query: ISparJson | Branch,
+  private static searchPredicateInPairs(
+    pairs: any[],
     varName: string
-  ): Branch | undefined {
-    if (query["branches"]) {
-      for (
-        let index = 0;
-        index < (query as ISparJson).branches.length;
-        index++
-      ) {
-        const branch = (query as ISparJson).branches[index];
-        let result = MapPlugin.findBranchWithObjectVar(branch, varName);
-        if (result) return result;
+  ): string | undefined {
+    for (const pair of pairs) {
+      // cas direct : ?x --p--> ?varName
+      if (pair.object?.variable?.value === varName) {
+        return pair.predicate.value;
       }
-    } else {
-      if ((query as Branch).line.o == varName) {
-        return query as Branch;
-      } else {
-        for (
-          let index = 0;
-          index < (query as Branch).children.length;
-          index++
-        ) {
-          const branch = (query as Branch).children[index];
-          let result = MapPlugin.findBranchWithObjectVar(branch, varName);
-          if (result) return result;
-        }
+
+      // récursion
+      if (pair.object?.predicateObjectPairs) {
+        const found = MapPlugin.searchPredicateInPairs(
+          pair.object.predicateObjectPairs,
+          varName
+        );
+        if (found) return found;
       }
     }
+    return undefined;
   }
 
   /**
@@ -334,8 +322,12 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
                 anotherProperty &&
                 anotherProperty.toLowerCase().indexOf("long") > -1
               ) {
-                console.log("found longKey" + longKey);
-                longKey = anotherKey;
+                if (
+                  anotherProperty &&
+                  anotherProperty.toLowerCase().includes("long")
+                ) {
+                  longKey = anotherKey;
+                }
               }
 
               if (longKey) {
@@ -495,7 +487,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
     }
   }
 
-  public notifyQuery(sparnaturalQuery: ISparJson) {
+  public notifyQuery(sparnaturalQuery: SparnaturalQuery) {
     this.sparnaturalQuery = sparnaturalQuery;
   }
 
