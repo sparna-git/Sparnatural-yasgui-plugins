@@ -1,4 +1,5 @@
 import { BindingParser } from "./BindingParser";
+import { BindingParserV13 } from "./BindingParserV13";
 import { DisplayBoxHtml } from "./Display";
 import { DisplayBoxHtmlNew } from "./DisplayNew";
 import {
@@ -11,7 +12,7 @@ import * as faTh from "@fortawesome/free-solid-svg-icons/faTh";
 import Parser from "../parsers/index";
 import { TableXResults } from "../TableXResults";
 import { I18n } from "./I18n";
-import { ISparJson } from "../ISparJson";
+import { SparnaturalQuery } from "../SparnaturalQueryIfc-v13";
 
 interface PluginConfig {
   lang: "en" | "fr";
@@ -21,10 +22,11 @@ interface PersistentConfig {}
 
 export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
   private yasr: Yasr;
-  private query?: ISparJson;
+  private query?: SparnaturalQuery;
   private queryConfiguration: any;
-  private parserBinding = new BindingParser();
-  private displayBoxHtml = new DisplayBoxHtml();
+  //private parserBinding = new BindingParser();
+  private parserBindingV13 = new BindingParserV13();
+  //private displayBoxHtml = new DisplayBoxHtml();
   private displayBoxHtmlNew = new DisplayBoxHtmlNew();
 
   private config: PluginConfig;
@@ -71,10 +73,10 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     console.log(bindings);
 
     if (this.query) {
-      const resultBoxes = this.parserBinding.extractResultData(
+      const resultBoxes = this.parserBindingV13.extractResultData(
         bindings,
         this.query,
-        this.queryConfiguration
+        this.queryConfiguration,
       );
       /*
       this.displayBoxHtml.displayResultBoxes(
@@ -87,7 +89,7 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
         0,
         resultBoxes,
         this.yasr.resultsEl,
-        I18n.labels
+        I18n.labels,
       );
     }
   }
@@ -131,7 +133,7 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     }
 
     // Vérification si le sujet 's' de la première branche existe dans les variables de la requête
-    const firstBranchSubject = this.query.branches?.[0]?.line?.s;
+    const firstBranchSubject = this.query.where.subject.value;
     const variableValues = this.query.variables.map((v: any) => v.value);
 
     if (!firstBranchSubject || !variableValues.includes(firstBranchSubject)) {
@@ -165,8 +167,9 @@ export class GridPlugin implements SparnaturalPlugin<PluginConfig> {
     return false;
   }
 
-  notifyQuery(sparnaturalQuery: ISparJson): any {
+  notifyQuery(sparnaturalQuery: SparnaturalQuery) {
     this.query = sparnaturalQuery;
+    console.log("Stored query in GridPlugin:", this.query);
   }
 
   notifyConfiguration(specProvider: any): any {

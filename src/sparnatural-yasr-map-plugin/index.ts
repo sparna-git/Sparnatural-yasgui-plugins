@@ -49,8 +49,8 @@ It then doesn't init the map.pm attribute. (stays undefined) and when it tries t
 // import customIcon from 'leaflet/dist/images/marker-icon.png';
 // import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import Parser from "../parsers";
-import { Branch, ISparJson } from "../ISparJson";
 import { TableXResults } from "../TableXResults";
+import { SparnaturalQuery } from "../SparnaturalQueryIfc-v13";
 
 /*
     Currently this plugin supports only the wktLiteral parsing.
@@ -117,7 +117,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
   options?: PluginConfig;
   haveResultWithoutGeo: number = 0;
   bounds: any; // Instantiate LatLngBounds object
-  sparnaturalQuery: ISparJson | null = null;
+  sparnaturalQuery: SparnaturalQuery | null = null;
   specProvider: any;
   layerGroupsLabels: Array<any> = [];
 
@@ -187,7 +187,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
   // http://schemas.opengis.net/geosparql/1.0/geosparql_vocab_all.rdf#wktLiteral
   canHandleResults(): boolean {
     let tableXResults: TableXResults = new TableXResults(
-      this.yasr.results as Parser
+      this.yasr.results as Parser,
     );
     let have_geo = false;
     this.haveResultWithoutGeo = 0;
@@ -218,7 +218,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
 
   private static getLatitudeColumn(
     tableXResults: TableXResults,
-    query: ISparJson
+    query: SparnaturalQuery,
   ): string | undefined {
     if (!query) return;
     // analyze the predicate of each column
@@ -239,7 +239,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
 
   private static getLongitudeColumn(
     tableXResults: TableXResults,
-    query: ISparJson
+    query: SparnaturalQuery,
   ): string | undefined {
     if (!query) return;
     // analyze the predicate of each column
@@ -260,47 +260,35 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
   }
 
   private static getVariablePredicateRec(
-    query: ISparJson | Branch,
-    varName: string
+    query: SparnaturalQuery,
+    varName: string,
   ): string | undefined {
-    let branchWithVar: Branch | undefined = MapPlugin.findBranchWithObjectVar(
-      query,
-      varName
+    return MapPlugin.searchPredicateInPairs(
+      query.where.predicateObjectPairs,
+      varName,
     );
-    if (branchWithVar) {
-      return branchWithVar.line.p;
-    }
   }
 
-  private static findBranchWithObjectVar(
-    query: ISparJson | Branch,
-    varName: string
-  ): Branch | undefined {
-    if (query["branches"]) {
-      for (
-        let index = 0;
-        index < (query as ISparJson).branches.length;
-        index++
-      ) {
-        const branch = (query as ISparJson).branches[index];
-        let result = MapPlugin.findBranchWithObjectVar(branch, varName);
-        if (result) return result;
+  private static searchPredicateInPairs(
+    pairs: any[],
+    varName: string,
+  ): string | undefined {
+    for (const pair of pairs) {
+      // cas direct : ?x --p--> ?varName
+      if (pair.object?.variable?.value === varName) {
+        return pair.predicate.value;
       }
-    } else {
-      if ((query as Branch).line.o == varName) {
-        return query as Branch;
-      } else {
-        for (
-          let index = 0;
-          index < (query as Branch).children?.length;
-          index++
-        ) {
-          const branch = (query as Branch).children[index];
-          let result = MapPlugin.findBranchWithObjectVar(branch, varName);
-          if (result) return result;
-        }
+
+      // récursion
+      if (pair.object?.predicateObjectPairs) {
+        const found = MapPlugin.searchPredicateInPairs(
+          pair.object.predicateObjectPairs,
+          varName,
+        );
+        if (found) return found;
       }
     }
+    return undefined;
   }
 
   /**
@@ -319,7 +307,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
         } else if (this.sparnaturalQuery) {
           let property = MapPlugin.getVariablePredicateRec(
             this.sparnaturalQuery,
-            key
+            key,
           );
           //console.log(property);
           if (property && property.toLowerCase().indexOf("lat") > -1) {
@@ -328,14 +316,18 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
             for (var anotherKey in row) {
               let anotherProperty = MapPlugin.getVariablePredicateRec(
                 this.sparnaturalQuery,
-                anotherKey
+                anotherKey,
               );
               if (
                 anotherProperty &&
                 anotherProperty.toLowerCase().indexOf("long") > -1
               ) {
-                console.log("found longKey" + longKey);
-                longKey = anotherKey;
+                if (
+                  anotherProperty &&
+                  anotherProperty.toLowerCase().includes("long")
+                ) {
+                  longKey = anotherKey;
+                }
               }
 
               if (longKey) {
@@ -495,7 +487,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
     }
   }
 
-  public notifyQuery(sparnaturalQuery: ISparJson) {
+  public notifyQuery(sparnaturalQuery: SparnaturalQuery) {
     this.sparnaturalQuery = sparnaturalQuery;
   }
 
@@ -528,7 +520,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
       return false;
     } else {
       let searchareas: any = this.searchCoordinatesOnQuery(
-        this.sparnaturalQuery
+        this.sparnaturalQuery,
       );
       let arrayPolygones: any = [];
       for (let i = 0; i < searchareas.length; i++) {
@@ -589,7 +581,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
     feature: Polygon,
     colIndex: number,
     popUpString: string,
-    layerIndex: number
+    layerIndex: number,
   ) {
     if (!this.map) throw Error(`Wanted to draw Polygon but no map found`);
     // configuration of Polygon see: https://leafletjs.com/reference.html#polygon
@@ -617,7 +609,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
 
     const poly = new L.Polygon(
       feature.coordinates as L.LatLngExpression[][],
-      polyOptions
+      polyOptions,
     ).bindPopup(popUpString);
     this.addToLayerList(poly);
     this.addToLayerGroup(colIndex, poly, layerIndex);
@@ -632,7 +624,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
       let el = iriElements[i] as HTMLAnchorElement;
       el.addEventListener("click", () => {
         el.dispatchEvent(
-          new CustomEvent("YasrIriClick", { bubbles: true, detail: el.text })
+          new CustomEvent("YasrIriClick", { bubbles: true, detail: el.text }),
         );
       });
     }
@@ -642,7 +634,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
   private addToLayerGroup(
     colIndex: number,
     feature: L.Polygon | L.Marker,
-    layerIndex: any = null
+    layerIndex: any = null,
   ) {
     const cols = this.results?.getVariables();
     if (cols) {
@@ -701,7 +693,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
     const parentEl = document.getElementById("resultsId1");
     if (!parentEl)
       throw Error(
-        `Couldn't find parent element of Yasr. No element found with Id: resultsId1`
+        `Couldn't find parent element of Yasr. No element found with Id: resultsId1`,
       );
 
     if (this.haveResultWithoutGeo > 0) {
@@ -710,7 +702,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
       this.warnEL.setAttribute("class", "alert alert-warning");
       let text = this.config.L18n.warnFindNoCoordinate.replace(
         "<count>",
-        this.haveResultWithoutGeo.toString()
+        this.haveResultWithoutGeo.toString(),
       );
       this.warnEL.innerText = text;
 
@@ -734,13 +726,13 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
 
     if (!parentEl)
       throw Error(
-        `Couldn't find parent element of Yasr. No element found with Id: resultsId1`
+        `Couldn't find parent element of Yasr. No element found with Id: resultsId1`,
       );
     parentEl.appendChild(this.mapEL);
     this.map = L.map("yasrmap").setView(
       this.config.setView.center,
       this.config.setView.zoom,
-      this.config.setView.options
+      this.config.setView.options,
     );
     if (this.map != null) {
       this.map.options.maxZoom = 19; // see: https://github.com/Leaflet/Leaflet.markercluster/issues/611
@@ -757,7 +749,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
 
   getIcon(): Element {
     return drawSvgStringAsElement(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M408 120C408 174.6 334.9 271.9 302.8 311.1C295.1 321.6 280.9 321.6 273.2 311.1C241.1 271.9 168 174.6 168 120C168 53.73 221.7 0 288 0C354.3 0 408 53.73 408 120zM288 152C310.1 152 328 134.1 328 112C328 89.91 310.1 72 288 72C265.9 72 248 89.91 248 112C248 134.1 265.9 152 288 152zM425.6 179.8C426.1 178.6 426.6 177.4 427.1 176.1L543.1 129.7C558.9 123.4 576 135 576 152V422.8C576 432.6 570 441.4 560.9 445.1L416 503V200.4C419.5 193.5 422.7 186.7 425.6 179.8zM150.4 179.8C153.3 186.7 156.5 193.5 160 200.4V451.8L32.91 502.7C17.15 508.1 0 497.4 0 480.4V209.6C0 199.8 5.975 190.1 15.09 187.3L137.6 138.3C140 152.5 144.9 166.6 150.4 179.8H150.4zM327.8 331.1C341.7 314.6 363.5 286.3 384 255V504.3L192 449.4V255C212.5 286.3 234.3 314.6 248.2 331.1C268.7 357.6 307.3 357.6 327.8 331.1L327.8 331.1z"/></svg>`
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Pro 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M408 120C408 174.6 334.9 271.9 302.8 311.1C295.1 321.6 280.9 321.6 273.2 311.1C241.1 271.9 168 174.6 168 120C168 53.73 221.7 0 288 0C354.3 0 408 53.73 408 120zM288 152C310.1 152 328 134.1 328 112C328 89.91 310.1 72 288 72C265.9 72 248 89.91 248 112C248 134.1 265.9 152 288 152zM425.6 179.8C426.1 178.6 426.6 177.4 427.1 176.1L543.1 129.7C558.9 123.4 576 135 576 152V422.8C576 432.6 570 441.4 560.9 445.1L416 503V200.4C419.5 193.5 422.7 186.7 425.6 179.8zM150.4 179.8C153.3 186.7 156.5 193.5 160 200.4V451.8L32.91 502.7C17.15 508.1 0 497.4 0 480.4V209.6C0 199.8 5.975 190.1 15.09 187.3L137.6 138.3C140 152.5 144.9 166.6 150.4 179.8H150.4zM327.8 331.1C341.7 314.6 363.5 286.3 384 255V504.3L192 449.4V255C212.5 286.3 234.3 314.6 248.2 331.1C268.7 357.6 307.3 357.6 327.8 331.1L327.8 331.1z"/></svg>`,
     );
   }
   helpReference?: string | undefined;
@@ -765,7 +757,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
   // cb: parsing function which takes a string and translates it to a geoJSON geometry
   private parseGeoLiteral(
     row: Parser.Binding,
-    cb: (literal: string) => Geometry
+    cb: (literal: string) => Geometry,
   ): Array<GeoCell> {
     const geoLiterals = this.getGeosparqlValue(row);
     if (!geoLiterals) return [];
@@ -792,7 +784,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
 
   // see: https://www.typescriptlang.org/docs/handbook/advanced-types.html#user-defined-type-guards
   private isBindingValue(
-    cell: number | "" | Parser.BindingValue
+    cell: number | "" | Parser.BindingValue,
   ): cell is Parser.BindingValue {
     if (cell === "") return false;
     if (typeof cell === "number") return false;
