@@ -30,6 +30,7 @@ export interface PluginConfig {
   uriHrefAdapter?: (uri: string) => string;
   bindingSetAdapter?: (binding: Parser.Binding) => Parser.Binding;
   lang?: string;
+  hideLanguageCodes: boolean;
 }
 
 export interface PersistentConfig {
@@ -119,6 +120,7 @@ export class TableX implements Plugin<PluginConfig> {
     excludeColumnsFromCompactView: [],
     uriHrefAdapter: undefined,
     lang: "en",
+    hideLanguageCodes: true
   };
 
   private getRows(): DataRow[] {
@@ -212,7 +214,11 @@ export class TableX implements Plugin<PluginConfig> {
     if (this.persistentConfig.compact) return stringRepresentation;
 
     if (literalBinding["xml:lang"]) {
-      stringRepresentation = `"${stringRepresentation}"<sup>@${literalBinding["xml:lang"]}</sup>`;
+      // ***** TableX MODIFICATION
+      if(!this.config.hideLanguageCodes) {
+      // ***** end TableX MODIFICATION
+        stringRepresentation = `"${stringRepresentation}"<sup>@${literalBinding["xml:lang"]}</sup>`;
+      }      
     } else if (literalBinding.datatype) {
       // ***** TableX MODIFICATION
 
