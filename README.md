@@ -211,6 +211,7 @@ interface PluginConfig {
     geoDataType: Array<string>,
     polygonDefaultColor: string,
     polygonColors: Array<string>,
+    polygonWeight: number,
     searchedPolygon: {
         fillColor: string,
         weight: number,
@@ -235,6 +236,9 @@ interface PluginConfig {
     }   
 }
 ```
+
+To display 
+
 
 ## Developers
 

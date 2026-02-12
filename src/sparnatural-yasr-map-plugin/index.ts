@@ -67,6 +67,7 @@ interface PluginConfig {
   geoDataType: Array<string>;
   polygonDefaultColor: string;
   polygonColors: Array<string>;
+  polygonWeight: number;
   searchedPolygon: {
     fillColor: string;
     weight: number;
@@ -142,6 +143,7 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
     markerOptions: null,
     polygonDefaultColor: "blue",
     polygonColors: ["black", "green", "orange", "blue", "purple", "red"],
+    polygonWeight: 1,
     searchedPolygon: {
       fillColor: "transparent",
       weight: 2,
@@ -606,9 +608,8 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
     //polyOptions['color'] = 'red';
     polyOptions["fill"] = true; // no color filled in polygon
     polyOptions["opacity"] = 0.4; // stroke opacity
-    polyOptions["fillOpacity"] = 0.1; // background opacity
     polyOptions["fillOpacity"] = 0.05; // background opacity
-    polyOptions["weight"] = 1; // stroke width
+    polyOptions["weight"] = this.config.polygonWeight || 1; // stroke width
 
     // add controll layers for columns
     feature.coordinates[0].map((item) => {
