@@ -237,7 +237,20 @@ interface PluginConfig {
 }
 ```
 
-To display 
+To display red polygons with stronger lines, do:
+
+```javascript
+  Yasr.registerPlugin("Map", SparnaturalYasguiPlugins.MapPlugin);
+
+  const yasr = new Yasr(document.getElementById("yasr"), {
+    pluginOrder: ["Grid", "TableX", "Map", "response"],
+    defaultPlugin: "Grid",
+  });
+
+  // red polygons with higher weight
+  yasr.plugins["Map"].config.polygonColors= ["red"];
+  yasr.plugins["Map"].config.polygonWeight= 6;
+```
 
 
 ## Developers
