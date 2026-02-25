@@ -1,0 +1,29 @@
+@prefix ex: <http://example.com/geo-test/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dash: <http://datashapes.org/dash#> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix config-core: <http://data.sparna.fr/ontologies/sparnatural-config-core#> .
+
+
+# ENTITY  #
+ex:PlaceShape
+  a sh:NodeShape ;
+  sh:targetClass ex:Place ;
+  rdfs:label "Lieu"@fr, "Place"@en ;
+
+  # (optionnel) propriété label pour affichage / recherche
+  sh:property [
+    sh:path rdfs:label ;
+    rdfs:label "Nom"@fr, "Label"@en ;
+    dash:searchWidget config-core:SearchProperty ;
+  ] ;
+
+  # propriété géométrie (WKT) → widget carte
+  sh:property [
+    # chemin : feature -> geo:hasGeometry -> geo:asWKT
+    sh:path ( geo:hasGeometry geo:asWKT ) ;
+    rdfs:label "Géométrie"@fr, "Geometry"@en ;
+    sh:datatype geo:wktLiteral ;
+    dash:searchWidget config-core:MapProperty ;
+  ] .

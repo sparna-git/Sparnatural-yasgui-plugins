@@ -1,24 +1,18 @@
-import { Geometry, Point } from "geojson";
-var Wkt = require('wicket')
+import { Geometry } from "geojson";
+import { wktToGeoJSON } from "betterknown";
+
 /*
     Callback function for the MapPlugin. 
-    Uses wicket to parse WktLiterals to GeoJson and leaflet objects
+    Uses betterknown to parse WktLiterals (including MULTIPOLYGON, LINESTRING, LINESTRING Z)
+    to GeoJSON geometries.
 */
 
-export const wktToGeoJson = (literal:string): Geometry =>{
-    // split on whitespaces and filter out multiple subsequent whitespaces
-    const stringParts = literal.split(' ').filter((subStr)=> subStr !== " ")
-    // look for either Point or Polygon string
-    let featureType = stringParts.find((string)=>{
-        return string.includes('Polygon') || string.includes('POLYLINE')|| string.includes('POINT') || string.includes('Point') || string.includes('Polyline') || string.includes('POLYGON')
-    })
-    if(!featureType) throw Error(`The parsing function couldn't find substring "Polygon" or "Point" in wktLiteral: ${literal}`)
-
-
-    const ind = stringParts.findIndex((prt)=>prt.includes(featureType as string))
-    let wkt = stringParts.slice(ind,stringParts.length).join(' ')
-    const wktObj = new Wkt.Wkt()
-    wktObj.read(wkt);
-    //wktObj.toObject();
-    return wktObj.toJson() as Point
-}
+export const wktToGeoJson = (literal: string): Geometry => {
+  // betterknown handles GeoSPARQL-flavored WKT natively,
+  // including the <IRI> prefix and all geometry types
+  const result = wktToGeoJSON(literal);
+  if (!result) {
+    throw new Error(`Failed to parse WKT literal: ${literal}`);
+  }
+  return result;
+};

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:geo="http://www.opengis.net/ont/geosparql#"
+  xmlns:ex="http://example.com/geo-test/"
+  xml:base="http://example.com/geo-test/"
+>
+
+  <!-- TEST 1 : POINT -->
+  <rdf:Description rdf:about="feature/point-paris">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">Tour Eiffel (POINT)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/point-paris">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">POINT(2.2945 48.8584)</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="feature/point-lyon">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">Place Bellecour, Lyon (POINT)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/point-lyon">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">POINT(4.8320 45.7578)</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
+  <!-- TEST 2 : POLYGON - contour simplifié du Jardin du Luxembourg -->
+  <rdf:Description rdf:about="feature/polygon-jardin-luxembourg">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">Jardin du Luxembourg (POLYGON)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/polygon-jardin-luxembourg">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">POLYGON((2.3283 48.8463, 2.3312 48.8444, 2.3370 48.8440, 2.3400 48.8448, 2.3409 48.8467, 2.3397 48.8487, 2.3365 48.8494, 2.3320 48.8494, 2.3292 48.8486, 2.3283 48.8463))</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
+  <!-- TEST 3 : MULTIPOLYGON - Île de la Cité + Île Saint-Louis -->
+  <rdf:Description rdf:about="feature/multipolygon-ile-cite">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">Îles de la Cité et Saint-Louis (MULTIPOLYGON)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/multipolygon-ile-cite">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">MULTIPOLYGON(((2.3391 48.8555, 2.3420 48.8567, 2.3470 48.8569, 2.3510 48.8563, 2.3540 48.8548, 2.3520 48.8534, 2.3470 48.8530, 2.3420 48.8538, 2.3391 48.8555)), ((2.3547 48.8540, 2.3580 48.8535, 2.3620 48.8525, 2.3640 48.8515, 2.3620 48.8508, 2.3580 48.8510, 2.3547 48.8520, 2.3547 48.8540)))</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="feature/multipolygon-bois-boulogne">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">Bois de Boulogne - 3 zones (MULTIPOLYGON)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/multipolygon-bois-boulogne">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">MULTIPOLYGON(((2.2340 48.8580, 2.2400 48.8575, 2.2425 48.8610, 2.2410 48.8640, 2.2360 48.8635, 2.2340 48.8580)), ((2.2430 48.8650, 2.2500 48.8645, 2.2530 48.8680, 2.2510 48.8710, 2.2455 48.8705, 2.2430 48.8650)), ((2.2300 48.8700, 2.2365 48.8695, 2.2380 48.8730, 2.2355 48.8755, 2.2310 48.8745, 2.2300 48.8700)))</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
+  <!-- TEST 4 : LINESTRING - tracé de la Seine d'ouest en est -->
+  <rdf:Description rdf:about="feature/linestring-seine">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">La Seine à Paris (LINESTRING)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/linestring-seine">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">LINESTRING(2.2534 48.8420, 2.2680 48.8475, 2.2785 48.8510, 2.2890 48.8555, 2.3010 48.8605, 2.3130 48.8630, 2.3200 48.8620, 2.3280 48.8600, 2.3350 48.8580, 2.3450 48.8560, 2.3550 48.8535, 2.3650 48.8515, 2.3750 48.8500, 2.3830 48.8490)</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="feature/linestring-canal-saint-martin">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">Canal Saint-Martin (LINESTRING)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/linestring-canal-saint-martin">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">LINESTRING(2.3614 48.8683, 2.3630 48.8700, 2.3650 48.8720, 2.3665 48.8740, 2.3680 48.8760, 2.3690 48.8780)</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
+  <!-- TEST 5 : LINESTRING Z - montée vers le Sacré-Cœur avec altitude -->
+  <rdf:Description rdf:about="feature/linestringz-montmartre">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">Montée vers le Sacré-Cœur (LINESTRING Z)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/linestringz-montmartre">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">LINESTRING Z(2.3408 48.8832 55, 2.3415 48.8838 70, 2.3421 48.8844 85, 2.3427 48.8849 105, 2.3432 48.8854 125, 2.3436 48.8860 130)</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="feature/linestringz-buttes-chaumont">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">Chemin des Buttes-Chaumont (LINESTRING Z)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/linestringz-buttes-chaumont">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">LINESTRING Z(2.3810 48.8778 65, 2.3817 48.8785 80, 2.3822 48.8790 100, 2.3830 48.8796 103, 2.3838 48.8800 90, 2.3845 48.8805 75)</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
+</rdf:RDF>

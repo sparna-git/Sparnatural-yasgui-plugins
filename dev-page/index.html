@@ -50,10 +50,10 @@ LIMIT 1000
  <!-- https://proxy.sparnatural.eu/sparql-proxy/sparql?endpoint=http%3A%2F%2Fvps-6ad181ed.vps.ovh.net%3A7200%2Frepositories%2Fspoty -->
           <div id="ui-search" style="width:auto">
             <spar-natural
-              src="configs/sparnatural-config-dbpedia.ttl"
+              src="configs/test-geo-config.ttl"
               lang="en"
               defaultLang="en"
-              endpoint="https://services.sparnatural.eu/api/v1/dbpedia-en/sparql"
+              endpoint="http://localhost:7200/repositories/testGeo"
               distinct="true"
               limit="300"
               debug="true"              
@@ -62,7 +62,7 @@ LIMIT 1000
           <input type="hidden" id="query-json" />
 
         <span style="font-size:90%;"> 
-          Queries sent to <a id="endpoint" href="https://services.sparnatural.eu/api/v1/dbpedia-en/sparql">https://services.sparnatural.eu/api/v1/dbpedia-en/sparql</a>
+          Queries sent to <a id="endpoint" href="http://localhost:7200/repositories/testGeo">http://localhost:7200/repositories/testGeo</a>
          </span>
 
          <div id="yasqe"></div>

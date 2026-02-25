@@ -16,7 +16,7 @@ $(document).ready(function ($) {
       if (yasr.plugins[plugin].notifyConfiguration) {
         console.log("notifying configuration for plugin " + plugin);
         yasr.plugins[plugin].notifyConfiguration(
-          sparnatural.sparnatural.specProvider
+          sparnatural.sparnatural.specProvider,
         );
       }
     }
@@ -27,7 +27,7 @@ $(document).ready(function ($) {
     yasqe.setValue(queryString);
     // store JSON in hidden field
     document.getElementById("query-json").value = JSON.stringify(
-      event.detail.queryJson
+      event.detail.queryJson,
     );
 
     // notify the query to yasr plugins
@@ -70,6 +70,9 @@ $(document).ready(function ($) {
     // avoid persistency side-effects
     persistency: { prefix: false, results: { key: false } },
   });
+
+  yasr.plugins["Map"].config.lineDefaultColor = "red";
+  yasr.plugins["Map"].config.lineDefaultWeight = 3;
 
   // link yasqe and yasr
   yasqe.on("queryResponse", function (_yasqe, response, duration) {
