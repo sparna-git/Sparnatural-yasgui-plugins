@@ -708,10 +708,12 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
     polyOptions["fillOpacity"] = 0.05; // background opacity
     polyOptions["weight"] = this.config.polygonWeight || 1; // stroke width
 
-    // add controll layers for columns
-    feature.coordinates[0].map((item) => {
-      item.reverse();
-    });
+    // Reverse [lng, lat] to [lat, lng] for all rings not only coordinates[0]
+    for (const ring of feature.coordinates) {
+      ring.map((item) => {
+        item.reverse();
+      });
+    }
 
     const poly = new L.Polygon(
       feature.coordinates as L.LatLngExpression[][],
