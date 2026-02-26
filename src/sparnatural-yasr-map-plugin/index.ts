@@ -408,25 +408,24 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
           geo_rows[geoCell.variable].push(rowObject);
         }
         if (geoCell.parsedLit?.type === "MultiPolygon") {
-          // Decompose MultiPolygon into individual Polygons for the same draw pipeline
+          // Store MultiPolygon as a single entry with total area
+          let totalArea = 0;
           for (const polygonCoords of geoCell.parsedLit.coordinates) {
-            const polygon: Polygon = {
-              type: "Polygon",
-              coordinates: polygonCoords,
-            };
-            let area: number = this.polygonArea(polygon.coordinates);
-            let rowObject = {
-              cellValue: geoCell.cellValue,
-              parsedLit: polygon,
-              variable: geoCell.variable,
-              popUpString: popUpString,
-              area: area,
-            };
-            if (geo_rows[geoCell.variable] == undefined) {
-              geo_rows[geoCell.variable] = Array();
-            }
-            geo_rows[geoCell.variable].push(rowObject);
+            totalArea += this.polygonArea(polygonCoords);
           }
+          const cols = this.results?.getVariables();
+          let rowObject = {
+            cellValue: geoCell.cellValue,
+            parsedLit: geoCell.parsedLit,
+            variable: geoCell.variable,
+            popUpString: popUpString,
+            area: totalArea,
+            colIndex: cols ? cols.indexOf(geoCell.variable) : 0,
+          };
+          if (geo_rows[geoCell.variable] == undefined) {
+            geo_rows[geoCell.variable] = Array();
+          }
+          geo_rows[geoCell.variable].push(rowObject);
         }
         if (geoCell.parsedLit?.type === "LineString")
           this.drawLineString(geoCell.parsedLit, geoCell.variable, popUpString);
@@ -488,7 +487,18 @@ export class MapPlugin implements SparnaturalPlugin<PluginConfig> {
       for (let ir = 0; ir < layersRows[i].length; ir++) {
         if (layersRows[i]) {
           let data = layersRows[i][ir];
-          this.drawPoly(data.parsedLit, data.colIndex, data.popUpString, i);
+          if (data.parsedLit.type === "MultiPolygon") {
+            // Decompose MultiPolygon into individual Polygons for drawing
+            for (const polygonCoords of data.parsedLit.coordinates) {
+              const polygon: Polygon = {
+                type: "Polygon",
+                coordinates: polygonCoords,
+              };
+              this.drawPoly(polygon, data.colIndex, data.popUpString, i);
+            }
+          } else {
+            this.drawPoly(data.parsedLit, data.colIndex, data.popUpString, i);
+          }
         }
       }
     }

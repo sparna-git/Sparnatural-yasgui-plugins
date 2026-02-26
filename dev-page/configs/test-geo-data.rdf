@@ -7,6 +7,17 @@
   xml:base="http://example.com/geo-test/"
 >
 
+  <!-- TEST 0 : POINT avec préfixe CRS EPSG (bug #xxx) -->
+  <rdf:Description rdf:about="feature/point-epsg">
+    <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
+    <rdfs:label xml:lang="fr">Test EPSG POINT (lat,long order)</rdfs:label>
+    <geo:hasGeometry>
+      <geo:Geometry rdf:about="geometry/point-epsg">
+        <geo:asWKT rdf:datatype="http://www.opengis.net/ont/geosparql#wktLiteral">&lt;http://www.opengis.net/def/crs/EPSG/0/4326&gt; POINT(60.187709 12.003583)</geo:asWKT>
+      </geo:Geometry>
+    </geo:hasGeometry>
+  </rdf:Description>
+
   <!-- TEST 1 : POINT -->
   <rdf:Description rdf:about="feature/point-paris">
     <rdf:type rdf:resource="http://example.com/geo-test/Place"/>
