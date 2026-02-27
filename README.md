@@ -1,7 +1,7 @@
 # Sparnatural-yasgui-plugins
 Set of Plugins for Yasgui / YASR useful in conjunction with [Sparnatural](https://github.com/sparna-git/Sparnatural)
 
-For integration with Sparnatural, there is a [dedicated documentation page](https://docs.sparnatural.eu/YasGUI-plugins.html)
+For integration with Sparnatural, there is a [dedicated documentation page](https://docs.sparnatural.eu/YasGUI-plugins-integration.html)
 
 ## The Plugins
 
