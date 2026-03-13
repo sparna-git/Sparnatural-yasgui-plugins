@@ -160,10 +160,10 @@ export interface PluginConfig {
 
 - `includeControls` controls whether the search, compact view switch and ellipse checkbox are displayed
 - `excludeColumnsFromCompactView` takes an array of column names. These column names will be hidden when the table is set to "compact view".
-- `uriHarefAdapter` takes a function that allows to rewrite the URI before they are inserted as link targets in the table. This allows to build links to something else than the actual URI.
-- `bindingSetAdapter` is a function that allows to pre-process an entire line in the result
+- `uriHrefAdapter` takes a function that allows to rewrite the URI before they are inserted as link targets in the table. This allows to build links to something else than the actual URI.
+- `bindingSetAdapter` is a function that allows to pre-process an entire line in the result. It must return the processed bindingSet.
 
-Here is an example configuration code
+Here is an example configuration code of a `uriHrefAdapter` :
 
 ```javascript
       # this is setting the compact view on
@@ -180,6 +180,23 @@ Here is an example configuration code
           return uri;
         }
       };
+```
+
+An example of code of `bindingSetAdapter` function:
+
+```javascript
+  // pre-process the ARK to make it linkable
+  yasr.plugins["TableX"].config.bindingSetAdapter = function(bindingSet) {
+    if(bindingSet && bindingSet["Lien"]) {
+      let ark = bindingSet["Lien"].value;
+      bindingSet["Lien"] = {
+        "type": "x-labelled-uri",
+        "value": "https://archives.haute-garonne.fr/ark:"+ark,
+        "label": "&#128065&nbsp;Consulter"
+      }
+    }
+    return bindingSet;
+  };
 ```
 
 ##### Grid plugin
