@@ -5,9 +5,7 @@ import { ValueType } from "./Models/ValueType";
 import { PropertyValue } from "./Models/PropertyValue";
 import { ResultBoxType } from "./Models/ResultBoxType";
 
-import { SparnaturalQuery } from "../SparnaturalQueryIfc-v13";
-// Adjust this import path to your project if needed
-import { PredicateObjectPair } from "../../../Sparnatural/dist/types/sparnatural/SparnaturalQueryIfc-v13";
+import { PredicateObjectPair, SparnaturalQuery } from "../SparnaturalQueryIfc-v13";
 
 const im = require("./image-defaults/imageNone.jpg");
 

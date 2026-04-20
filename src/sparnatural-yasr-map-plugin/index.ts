@@ -1,5 +1,4 @@
 import { drawSvgStringAsElement, SparnaturalPlugin, Yasr } from "../";
-import { Plugin, DownloadInfo } from "../";
 
 // /!\ black magic warning : dynamic leaflet import
 // to avoid importing it twice in the page
