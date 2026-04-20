@@ -6,7 +6,7 @@
 4. Compile with `npm run build`
 5. NPM login : `npm login`
 6. Publish with `npm publish` (OTP on Microsoft Authenticator)
-7. Check at https://www.npmjs.com/package/sparnatural
+7. Check at https://www.npmjs.com/package/sparnatural-yasgui-plugins
 8. Create release on Github project
 9. Write release note by checking the issues that were closed since last release (https://github.com/sparna-git/Sparnatural-yasgui-plugins/issues?q=is%3Aclosed+sort%3Aupdated-desc)
 
