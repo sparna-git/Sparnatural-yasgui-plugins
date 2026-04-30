@@ -27,12 +27,15 @@ export class BindingParserV13 {
     column: string,
     bindings: Parser.Binding[],
   ): boolean {
+    console.log("Does column "+column+" has image value ?")
     for (const bindingSet of bindings.slice(0, 10)) {
       const value = (bindingSet as any)[column];
       if (value && value.type === "uri" && this.isImageURI(value.value)) {
+        console.log("yes")
         return true;
       }
     }
+    console.log("no")
     return false;
   }
 
@@ -115,11 +118,14 @@ export class BindingParserV13 {
     return { title: mainTitle, uri: mainURI };
   }
 
-  // Identifie la colonne image principale uniquement au 1er niveau du sujet
+  // Identifie la colonne image principale
+  // THOMAS 01/05/2026 : on désactive le fait d'aller regarder uniquement le premier sujet
+  // on scanne toutes les colonnes
   private identifyPrincipalImageColumn(
     query: SparnaturalQuery,
     bindings: Parser.Binding[],
   ): string | undefined {
+    /*
     const pairs = query.where?.predicateObjectPairs ?? [];
 
     for (const pair of pairs) {
@@ -132,6 +138,16 @@ export class BindingParserV13 {
         return pair.object.variable.value;
       }
     }
+    */
+
+    bindings.slice(0, 10).forEach(binding => {
+      // iterate on all keys (= columns) of the binding
+      Object.keys(binding).forEach(key => {
+        if(this.columnHasImageValues(key, bindings)) {
+          return key;
+        }
+      });
+    });
 
     return undefined;
   }
@@ -146,7 +162,6 @@ export class BindingParserV13 {
         const value = (bindingSet as Parser.Binding)[principalColumnImage];
         return value.value;
       }
-      return im;
     }
     return undefined;
   }
