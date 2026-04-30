@@ -27,15 +27,12 @@ export class BindingParserV13 {
     column: string,
     bindings: Parser.Binding[],
   ): boolean {
-    console.log("Does column "+column+" has image value ?")
     for (const bindingSet of bindings.slice(0, 10)) {
       const value = (bindingSet as any)[column];
       if (value && value.type === "uri" && this.isImageURI(value.value)) {
-        console.log("yes")
         return true;
       }
     }
-    console.log("no")
     return false;
   }
 
@@ -140,16 +137,17 @@ export class BindingParserV13 {
     }
     */
 
+    let imageColumn:string|undefined = undefined;
     bindings.slice(0, 10).forEach(binding => {
       // iterate on all keys (= columns) of the binding
       Object.keys(binding).forEach(key => {
         if(this.columnHasImageValues(key, bindings)) {
-          return key;
+          imageColumn = key;
         }
       });
     });
 
-    return undefined;
+    return imageColumn;
   }
 
   // Extract main image URI from a binding set (unchanged behavior)
