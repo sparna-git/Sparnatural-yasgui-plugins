@@ -1,4 +1,4 @@
-import { ISparJson } from "./ISparJson";
+import { SparnaturalQuery } from "./SparnaturalQueryIfc-v13";
 import Parser from "./parsers";
 export * from "./sparnatural-yasr-plugin-grid";
 export * from "./sparnatural-yasr-tablex-plugin";
@@ -38,7 +38,7 @@ export interface Plugin<Opts extends any> {
 }
 
 export interface SparnaturalPlugin<Opts extends any> extends Plugin<Opts> {
-  notifyQuery(sparnaturalQuery: ISparJson): void;
+  notifyQuery(sparnaturalQuery: SparnaturalQuery): void;
   notifyConfiguration(specProvider: any): void;
 }
 
