@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf dist",
     "start": "webpack-dev-server",
     "build": "webpack-cli --mode=production"
   },
